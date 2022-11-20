@@ -1,32 +1,25 @@
 {
-  "name": "@example/blog",
-  "type": "module",
-  "version": "0.0.1",
-  "private": true,
-  "scripts": {
-    "dev": "astro dev",
-    "start": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
-  },
-  "dependencies": {
-    "@astrojs/mdx": "^0.11.6",
-    "@astrojs/rss": "^1.0.3",
-    "@astrojs/sitemap": "^1.0.0",
-    "@astrojs/svelte": "^1.0.2",
-    "@kidonng/daisyui": "^2.31.0",
-    "astro": "^1.6.7",
-    "daisyui": "^2.40.1",
-    "solid-js": "^1.6.2",
-    "svelte": "^3.53.1",
-    "unocss": "^0.46.5",
-    "unocss-preset-daisy": "^1.2.0"
-  },
-  "devDependencies": {
-    "@astrojs/solid-js": "^1.2.3",
-    "@types/node": "^18.11.9",
-    "@unocss/transformer-compile-class": "^0.46.5",
-    "rollup-plugin-node-polyfills": "^0.2.1"
-  }
+	"name": "stvchm9703--sveltekit",
+	"version": "0.0.1",
+	"private": true,
+	"scripts": {
+		"dev": "vite dev",
+		"build": "vite build",
+		"preview": "vite preview",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-auto": "next",
+		"@sveltejs/kit": "next",
+		"svelte": "^3.44.0",
+		"svelte-check": "^2.7.1",
+		"svelte-image": "^0.2.9",
+		"svelte-preprocess": "^4.10.6",
+		"tslib": "^2.3.1",
+		"typescript": "^4.7.4",
+		"unocss": "^0.46.5",
+		"vite": "^3.2.0"
+	},
+	"type": "module"
 }
