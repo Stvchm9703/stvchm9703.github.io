@@ -1,8 +1,14 @@
 <script lang="ts">
-  import Image from 'svelte-image';
+  import Image from '$lib/Image.svelte'
+  
 </script>
 
 <h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<p class="bg-dark-50 text-light-100 ">
+  Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation
+</p>
 
-<Image class="aspect-[9/16]"   src="/favicon.png" />
+<div class="w-full aspect-16/9 w-full relative >*:pb-[56.5%]">
+  <!-- <img class="w-full" src="placeholder-hero.jpg" alt="" /> -->
+  <Image src={"placeholder-hero.jpg"} />
+</div>
