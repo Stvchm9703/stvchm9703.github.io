@@ -1,6 +1,6 @@
 <script lang="ts">
-  import Image from '$lib/Image.svelte'
-  
+  // import Image from '$lib/Image.svelte'
+  import SampleImage from "$assets/img/placeholder-hero.jpg?webp&w=2400&q=85";
 </script>
 
 <h1>Welcome to SvelteKit</h1>
@@ -9,6 +9,6 @@
 </p>
 
 <div class="w-full aspect-16/9 w-full relative >*:pb-[56.5%]">
-  <!-- <img class="w-full" src="placeholder-hero.jpg" alt="" /> -->
-  <Image src={"placeholder-hero.jpg"} />
+  <img class="w-full" src={SampleImage} alt="" type="webp" />
+  <!-- <Image src={"placeholder-hero.jpg"} /> -->
 </div>

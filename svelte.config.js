@@ -16,9 +16,14 @@ const config = {
       fallback: "200.html",
       precompress: true,
     }),
-    files: {
-      hooks: "src/hooks",
-    },
+    // files: {
+    //   hooks: "src/hooks",
+    // },
+    alias: {
+      '$assets' : 'src/assets',
+      '$assets/*' : 'src/assets/*',
+
+    }
   },
   compilerOptions: {
     css: "external",
