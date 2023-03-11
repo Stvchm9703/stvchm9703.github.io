@@ -1,6 +1,10 @@
 import { sveltekit } from "@sveltejs/kit/vite";
 import unocss from "unocss/vite";
 import { extractorSvelte } from "@unocss/core";
+import { presetMini, presetWind, transformerDirectives } from 'unocss';
+import presetDaisy from 'unocss-preset-daisy';
+
+
 import { imagetools } from "vite-imagetools";
 // import type { UserConfig } from "vite";
 import { defineConfig, loadEnv } from "vite";
@@ -18,6 +22,8 @@ export default defineConfig(({ mode }) => {
           ? "svelte-scoped"
           : "dist-chunk",
         extractors: [extractorSvelte],
+        transformers: [transformerDirectives()],
+        presets: [presetWind(), presetMini(), presetDaisy()],
       }),
       sveltekit(),
     ],

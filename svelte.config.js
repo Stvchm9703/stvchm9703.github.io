@@ -16,13 +16,17 @@ const config = {
       fallback: "200.html",
       precompress: true,
     }),
+    prerender: {
+      // default: true,
+      handleHttpError : "warn",
+      handleMissingId: "warn",
+    },
     // files: {
     //   hooks: "src/hooks",
     // },
     alias: {
       '$assets' : 'src/assets',
       '$assets/*' : 'src/assets/*',
-
     }
   },
   compilerOptions: {

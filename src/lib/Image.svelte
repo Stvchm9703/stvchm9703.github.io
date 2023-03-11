@@ -1,9 +1,9 @@
 <script>
   export let alt = "";
   export let height = 0; // needed to reduce CLS
-  export let width = 1280; // needed to reduce CLS
+  export let width = 0; // needed to reduce CLS
   export let src = "";
-  export let sources = [];
+  // export let sources = [];
   export let maxWidth = "1280px";
   $: sizes = `(max-width: ${maxWidth}) 100vw, ${maxWidth})`;
   let searchSet = new URLSearchParams();
@@ -11,7 +11,18 @@
   $: {
     if (width && width != 0) searchSet.set("w", width);
     if (height && height != 0) searchSet.set("w", height);
-    placeholder = src && src != "" ? ( src + "?" + searchSet.toString()) : "";
+    searchSet.set("webp", true);
+    // placeholder =
+    //   src && src != ""
+    //     ? (src + "?" + searchSet.toString())
+    //     : "";
+
+    // if (src && src !== "") {
+    //   import(src + "?" + searchSet.toString()).then((result) => {
+    //     console.log(result)
+    //     // placeholder = result;
+    //   });
+    // }
 
     // console.log(import.meta.resolve( src + "?" + searchSet.toString()))
     // if (sources.length == 0) {
@@ -30,9 +41,9 @@
   // export let className = "";
 </script>
 
-<picture class="object-center inset-0 absolute">
+<picture class="object-contain inset-0">
   <img
-    class="h-auto"
+    class="h-auto w-full"
     {alt}
     {importance}
     {loading}
@@ -41,7 +52,7 @@
     height={height && height !== 0 ? height : null}
     data-src={src}
     type="image/webp"
-    src={placeholder + "&webp"}
+    src={placeholder}
     srcset={placeholder}
   />
 </picture>
