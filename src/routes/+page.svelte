@@ -1,9 +1,13 @@
 <script lang="ts">
   import Image from "$lib/Image.svelte";
   import Navbar from "$lib/navbar/deault.svelte";
-  import SampleImage from "$assets/img/placeholder-hero.jpg?webp&w=2400&q=85";
+  import SampleImage from "$assets/img/placeholder-hero.jpg?format=webp&w=2400&q=85";
   import Banner from "$lib/banner.svelte";
   import Footer from "$lib/footer.svelte";
+
+  import IndexImage from "$assets/img/trialScene4.png?format=webp&w=2400&q=85";
+  import CanvasRender from "$lib/canvas-render.svelte";
+
   console.log(SampleImage);
 </script>
 
@@ -11,8 +15,10 @@
   <title>Steven, the web dev</title>
   <meta />
 </svelte:head>
-<Banner isFullScreen imageSrc={SampleImage}>
-  <div class="block px-6 py-4 rounded-2 filter-blur-xl filter-brightness-70 ">
+<Banner isFullScreen imageSrc={IndexImage}>
+  <div
+    class="block px-6 py-4 rounded-2 bg-filter-blur-xl bg-filter-brightness-70"
+  >
     <h1 class="text-light-50 text-5xl">Build for build</h1>
     <p class="text-light-200">
       Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation
@@ -22,10 +28,20 @@
 
 <Navbar />
 
-<Banner>
-  <canvas slot="background" class="w-full h-screen inset-0 bg-dark-100" />
+<Banner containerClass="items-start">
+  <div slot="background" class="w-full h-[750rem] inset-0 bg-dark-100">
+    <CanvasRender class="sticky inset-0 h-screen w-screen" />
+  </div>
   <div
-    class="block px-6 py-4 rounded-2 filter-blur-xl filter-brightness-70 bg-indigo-200 justify-self-end"
+    class="block px-6 py-4 rounded-2 bg-indigo-200 self-start justify-self-end"
+  >
+    <h1 class="text-light-50 text-3xl">Welcome to SvelteKit</h1>
+    <p class="text-light-200">
+      Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation
+    </p>
+  </div>
+  <div
+    class="block px-6 py-4 rounded-2 bg-indigo-200 self-start justify-self-start"
   >
     <h1 class="text-light-50 text-3xl">Welcome to SvelteKit</h1>
     <p class="text-light-200">

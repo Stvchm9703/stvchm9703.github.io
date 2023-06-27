@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><svg version="1.1" baseProfile="full"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  xmlns:ev="http://www.w3.org/2001/xml-events" width="2560px" height="1600px">
+
+  <style type="text/css">
+    #gradient {
+      /* background: linear-gradient(60deg, #24292e, #4e277b, #8241f9); */
+      /* color: #fff; */
+      --color-stop: #24292e;
+      --color-bot: #8241f9;
+    }
+  </style>
+  <defs>
+    <pattern id="p1" patternUnits="userSpaceOnUse" x="0" y="0" width="72" height="72"
+      patternTransform="translate(1280,800) rotate(45 0 0)">
+      <circle cx="36" cy="36" r="16" fill="#ffffff" />
+    </pattern>
+    <linearGradient id="gradient" x2="1" y2="0.6">
+      <stop offset="0%" stop-color="var(--color-stop)" />
+      <stop offset="100%" stop-color="var(--color-bot)" />
+    </linearGradient>
+    
+  </defs>
+  <rect width="2560" height="1600" x="0" y="0" fill="url(#gradient)" />
+  <rect width="2560" height="1600" x="0" y="0" fill="url(#p1)" />
+
+</svg>

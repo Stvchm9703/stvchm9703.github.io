@@ -1,5 +1,4 @@
-
-<footer class="flex px-20 pt-12 pb-24 justify-between">
+<footer class="flex px-4 md:px-20 pt-3  md:pt-12 pb-12 md:pb-24 md:justify-between flex-wrap gap-4 md:gap-2">
   <section class="flex flex-col min-w-20rem">
     <h2 class="text-xl">Project</h2>
     <ul class="flex flex-col">

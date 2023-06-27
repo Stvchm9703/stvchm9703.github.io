@@ -1,13 +1,13 @@
 <nav class="navbar w-auto bg-base-100 sticky top-0 bottom-0 z-8000">
   <section class="flex-1">
-    <a class="btn btn-ghost normal-case text-xl" href="/">daisyUI</a>
+    <a class="btn btn-ghost normal-case text-xl" href="/"></a>
   </section>
   <section class="flex-none">
     <ul class="menu menu-horizontal px-1">
       <li><a>Item 1</a></li>
       <li tabindex="0">
-        <a>
-          Parent
+        <a href="/blog">
+          Blog
           <svg
             class="fill-current"
             xmlns="http://www.w3.org/2000/svg"
@@ -20,8 +20,8 @@
           >
         </a>
         <ul class="p-2 bg-base-100">
-          <li><a>Submenu 1</a></li>
-          <li><a>Submenu 2</a></li>
+          <li><a href="/blog?tag=dev">Developer</a></li>
+          <li><a href="/blog?tag=data-analysis">Data Analysis</a></li>
         </ul>
       </li>
       <li><a>Item 3</a></li>
