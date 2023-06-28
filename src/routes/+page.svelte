@@ -1,14 +1,13 @@
-<script lang="ts">
-  import Image from "$lib/Image.svelte";
+<script>
+  // import Image from "$lib/Image.svelte";
   import Navbar from "$lib/navbar/deault.svelte";
-  import SampleImage from "$assets/img/placeholder-hero.jpg?format=webp&w=2400&q=85";
   import Banner from "$lib/banner.svelte";
+  import BannerGridCell from "$lib/banner-grid-cell.svelte";
+
   import Footer from "$lib/footer.svelte";
-
-  import IndexImage from "$assets/img/trialScene4.png?format=webp&w=2400&q=85";
+  import SampleImage from "$assets/img/placeholder-hero.jpg?format=webp&w=750;900;1200;2400&q=85&as=metadata";
+  import IndexImage from "$assets/img/trialScene4.png?w=750;900;1200;2400&q=85&format=webp&as=metadata";
   import CanvasRender from "$lib/canvas-render.svelte";
-
-  console.log(SampleImage);
 </script>
 
 <svelte:head>
@@ -17,7 +16,7 @@
 </svelte:head>
 <Banner isFullScreen imageSrc={IndexImage}>
   <div
-    class="block px-6 py-4 rounded-2 bg-filter-blur-xl bg-filter-brightness-70"
+    class="block px-6 py-4 rounded-2 backdrop-filter backdrop-blur-xl backdrop-brightness-80"
   >
     <h1 class="text-light-50 text-5xl">Build for build</h1>
     <p class="text-light-200">
@@ -28,26 +27,38 @@
 
 <Navbar />
 
-<Banner containerClass="items-start">
-  <div slot="background" class="w-full h-[750rem] inset-0 bg-dark-100">
+<Banner
+  containerClass="grid-cols-2 grid-rows-auto grid-content-start gap-2 md:gap-4  lg:gap-unset
+  not-first-children:mt-25vh 
+  "
+>
+  <div slot="background" class="w-full h-200vh lg:h-300vh inset-0 bg-dark-100">
     <CanvasRender class="sticky inset-0 h-screen w-screen" />
   </div>
-  <div
-    class="block px-6 py-4 rounded-2 bg-indigo-200 self-start justify-self-end"
-  >
+  <BannerGridCell align="left" class=" grid-row-start-1">
     <h1 class="text-light-50 text-3xl">Welcome to SvelteKit</h1>
     <p class="text-light-200">
       Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation
     </p>
-  </div>
-  <div
-    class="block px-6 py-4 rounded-2 bg-indigo-200 self-start justify-self-start"
-  >
+  </BannerGridCell>
+  <BannerGridCell align="right" class=" grid-row-start-2">
     <h1 class="text-light-50 text-3xl">Welcome to SvelteKit</h1>
     <p class="text-light-200">
       Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation
     </p>
-  </div>
+  </BannerGridCell>
+  <BannerGridCell align="left" class="grid-row-start-3">
+    <h1 class="text-light-50 text-3xl">Welcome to SvelteKit</h1>
+    <p class="text-light-200">
+      Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation
+    </p>
+  </BannerGridCell>
+  <BannerGridCell align="right" class="grid-row-start-4">
+    <h1 class="text-light-50 text-3xl">Welcome to SvelteKit</h1>
+    <p class="text-light-200">
+      Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation
+    </p>
+  </BannerGridCell>
 </Banner>
 
 <Banner imageSrc={SampleImage} isFullScreen>

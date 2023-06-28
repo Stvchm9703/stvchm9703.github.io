@@ -2,15 +2,16 @@ import {
   defineConfig,
   presetTypography,
   presetWebFonts,
-  presetMini, presetWind, transformerDirectives
+  presetMini, presetWind
 } from 'unocss';
 import { presetDaisy } from 'unocss-preset-daisy';
+import transformerVariantGroup from '@unocss/transformer-variant-group'
 
 export default defineConfig({
   shortcuts: [
     { logo: 'i-logos:svelte-icon w-7em h-7em transform transition-300' },
   ],
-  transformers: [transformerDirectives()],
+  transformers: [transformerVariantGroup()],
   presets: [
     presetWind(), presetMini(), presetDaisy(),
 

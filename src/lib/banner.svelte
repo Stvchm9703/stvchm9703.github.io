@@ -1,29 +1,51 @@
 <script>
-  export let imageSrc = "";
+  import { onMount } from "svelte";
+  import { Picture } from "svelte-lazy-loader";
+  export let imageSrc = [];
+  export let imagePath = "";
+
+  let baseSet =
+    imageSrc && Array.isArray(imageSrc)
+      ? (imageSrc.filter((elm) => elm.format == "webp").length > 0
+          ? imageSrc.filter((elm) => elm.format == "webp")
+          : imageSrc
+        ).sort((a, b) => a.width - b.width)[0]
+      : imageSrc
+      ? imageSrc
+      : null;
+  let remapImageSrc =
+    imageSrc && Array.isArray(imageSrc)
+      ? imageSrc
+          .sort((a, b) => a.width - b.width)
+          .map((elm) => ({ ...elm, media: `(min-width: ${elm.width + 1}px)` }))
+      : imageSrc
+      ? [imageSrc]
+      : [];
+
   export let isFullScreen = false;
-  // export let justify = "left";
   export let containerClass = "";
 </script>
 
 <section
-  class="relative banner"
+  class={"relative banner " + $$props.class}
   class:h-screen={isFullScreen}
   class:h-auto={!isFullScreen}
 >
   <slot name="background">
-    <picture class="inset-0 absolute">
-      <img
-        class="object-cover w-full h-full"
-        decoding="async"
-        data-src={imageSrc}
-        type="image/webp"
-        src={imageSrc}
-      />
-    </picture>
+    {#if baseSet}
+      <Picture
+        classes="inset-0 absolute children:h-full children:w-full children:object-cover"
+        src={baseSet.src}
+      >
+        {#each remapImageSrc as { src, format, media }}
+          <source data-srcset={src} {media} type="image/{format}" />
+        {/each}
+      </Picture>
+    {/if}
   </slot>
 
   <div
-    class="absolute inset-0 md:inset-16 grid items-center z-2 overflow-hidden uno:{containerClass}"
+    class="absolute inset-0 md:inset-16 grid items-center z-2 overflow-hidden {containerClass}"
   >
     <slot>
       <div class="block px-6 py-4 rounded-2">
