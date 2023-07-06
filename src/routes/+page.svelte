@@ -1,6 +1,6 @@
 <script>
   // import Image from "$lib/Image.svelte";
-  import Navbar from "$lib/navbar/deault.svelte";
+  import Navbar from "$lib/navbar/index-set.svelte";
   import Banner from "$lib/banner.svelte";
   import BannerGridCell from "$lib/banner-grid-cell.svelte";
 
@@ -14,46 +14,43 @@
   <title>Steven, the web dev</title>
   <meta />
 </svelte:head>
-<Banner isFullScreen imageSrc={IndexImage}>
-  <div
-    class="block px-6 py-4 rounded-2 backdrop-filter backdrop-blur-xl backdrop-brightness-80"
-  >
+<Navbar />
+
+<Banner id="index" isFullScreen imageSrc={IndexImage}>
+  <BannerGridCell align="left">
     <h1 class="text-light-50 text-5xl">Build for build</h1>
     <p class="text-light-200">
       Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation
     </p>
-  </div>
+  </BannerGridCell>
 </Banner>
 
-<Navbar />
-
 <Banner
-  containerClass="grid-cols-2 grid-rows-auto grid-content-start gap-2 md:gap-4  lg:gap-unset
-  not-first-children:mt-25vh 
-  "
+  id="introduction"
+  containerClass="grid-cols-2 grid-rows-auto grid-content-start gap-2 md:gap-4  lg:gap-unset"
 >
   <div slot="background" class="w-full h-200vh lg:h-300vh inset-0 bg-dark-100">
     <CanvasRender class="sticky inset-0 h-screen w-screen" />
   </div>
-  <BannerGridCell align="left" class=" grid-row-start-1">
+  <BannerGridCell align="left" class=" grid-row-start-1 mt-12vh">
     <h1 class="text-light-50 text-3xl">Welcome to SvelteKit</h1>
     <p class="text-light-200">
       Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation
     </p>
   </BannerGridCell>
-  <BannerGridCell align="right" class=" grid-row-start-2">
+  <BannerGridCell align="right" class=" grid-row-start-2 mt-25vh ">
     <h1 class="text-light-50 text-3xl">Welcome to SvelteKit</h1>
     <p class="text-light-200">
       Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation
     </p>
   </BannerGridCell>
-  <BannerGridCell align="left" class="grid-row-start-3">
+  <BannerGridCell align="left" class="grid-row-start-3 mt-25vh ">
     <h1 class="text-light-50 text-3xl">Welcome to SvelteKit</h1>
     <p class="text-light-200">
       Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation
     </p>
   </BannerGridCell>
-  <BannerGridCell align="right" class="grid-row-start-4">
+  <BannerGridCell align="right" class="grid-row-start-4 mt-25vh ">
     <h1 class="text-light-50 text-3xl">Welcome to SvelteKit</h1>
     <p class="text-light-200">
       Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation
@@ -80,6 +77,14 @@
         <li class="block w-24rem bg-blue-700 rounded-sm h-5rem" />
       </ul>
     </div>
+  </div>
+</Banner>
+
+<Banner id="contact" containerClass="">
+  <div slot="background" class=" bg-blue-900 flex flex-col min-h-150" />
+
+  <div class="flex flex-col">
+    <h1 class="text-center text-white font-light">contact me</h1>
   </div>
 </Banner>
 

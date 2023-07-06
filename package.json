@@ -50,6 +50,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@carbon/icons": "^11.21.0",
 		"@kidonng/daisyui": "^2.51.3"
 	}
 }

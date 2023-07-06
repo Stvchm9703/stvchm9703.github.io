@@ -9,7 +9,7 @@ import transformerVariantGroup from '@unocss/transformer-variant-group'
 
 export default defineConfig({
   shortcuts: [
-    { logo: 'i-logos:svelte-icon w-7em h-7em transform transition-300' },
+    // { logo: 'i-logos:svelte-icon w-7em h-7em transform transition-300' },
   ],
   transformers: [transformerVariantGroup()],
   presets: [
@@ -24,5 +24,14 @@ export default defineConfig({
       },
     }),
   ],
+  preflights: [
+    {
+      getCSS: ({ theme }) => `
+      html {
+        scroll-behavior: smooth;
+      }
+    `
+    }
+  ]
   // safelist: ['bg-orange-300', 'prose'],
 })

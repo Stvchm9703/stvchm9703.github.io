@@ -3,7 +3,7 @@
   import { Picture } from "svelte-lazy-loader";
   export let imageSrc = [];
   export let imagePath = "";
-
+  export let id = "";
   let baseSet =
     imageSrc && Array.isArray(imageSrc)
       ? (imageSrc.filter((elm) => elm.format == "webp").length > 0
@@ -30,6 +30,7 @@
   class={"relative banner " + $$props.class}
   class:h-screen={isFullScreen}
   class:h-auto={!isFullScreen}
+  {id}
 >
   <slot name="background">
     {#if baseSet}
@@ -45,7 +46,7 @@
   </slot>
 
   <div
-    class="absolute inset-0 md:inset-16 grid items-center z-2 overflow-hidden {containerClass}"
+    class="absolute inset-0 left-8 md:inset-16 md:left-24 grid items-center z-2 overflow-hidden {containerClass}"
   >
     <slot>
       <div class="block px-6 py-4 rounded-2">
