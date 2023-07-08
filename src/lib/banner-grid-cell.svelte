@@ -1,6 +1,7 @@
 <script>
   import { intersect } from "@svelte-put/intersect";
   export let align = "left";
+  export let id = "";
   let isIntersecting = false;
   const onIntersect = (event) => {
     const { entries } = event.detail;
@@ -10,6 +11,7 @@
 </script>
 
 <div
+  {id}
   class={"block px-6 py-4 rounded-lg transition transform  " +
     "backdrop-filter backdrop-blur-xl backdrop-brightness-80 " +
     (align === "left"

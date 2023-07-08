@@ -1,6 +1,6 @@
 <script>
   // import Image from "$lib/Image.svelte";
-  import Navbar from "$lib/navbar/index-set.svelte";
+  import Navbar from "$lib/navbar/index-set/main.svelte";
   import Banner from "$lib/banner.svelte";
   import BannerGridCell from "$lib/banner-grid-cell.svelte";
 
@@ -26,13 +26,16 @@
 </Banner>
 
 <Banner
-  id="introduction"
   containerClass="grid-cols-2 grid-rows-auto grid-content-start gap-2 md:gap-4  lg:gap-unset"
 >
   <div slot="background" class="w-full h-200vh lg:h-300vh inset-0 bg-dark-100">
     <CanvasRender class="sticky inset-0 h-screen w-screen" />
   </div>
-  <BannerGridCell align="left" class=" grid-row-start-1 mt-12vh">
+  <BannerGridCell
+    id="introduction"
+    align="left"
+    class=" grid-row-start-1 mt-12vh"
+  >
     <h1 class="text-light-50 text-3xl">Welcome to SvelteKit</h1>
     <p class="text-light-200">
       Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation
@@ -58,7 +61,7 @@
   </BannerGridCell>
 </Banner>
 
-<Banner imageSrc={SampleImage} isFullScreen>
+<Banner id="skill" imageSrc={SampleImage} isFullScreen>
   <div class="flex flex-col align-stretch self-center">
     <div class="px-6 py-4">
       <h1 class="text-3xl text-light-50">Skill Set</h1>

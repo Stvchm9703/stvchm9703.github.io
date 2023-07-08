@@ -17,10 +17,12 @@ export default defineConfig({
 
     presetTypography(),
     presetWebFonts({
+      provider: 'bunny',
       fonts: {
         // these will extend the default theme
         // sans: 'Roboto',
-        mono: ['Fira Code', 'Fira Mono:400,700'],
+        mono: ['JetBrains Mono', 'JetBrains Mono:400,700'],
+        sans: ['Zen Kaku Gothic Antique', 'Inter', 'sans-serif'],
       },
     }),
   ],
@@ -29,6 +31,9 @@ export default defineConfig({
       getCSS: ({ theme }) => `
       html {
         scroll-behavior: smooth;
+      }
+      *{
+        font-family: ${theme.fontFamily.sans};
       }
     `
     }
