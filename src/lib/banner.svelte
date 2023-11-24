@@ -11,23 +11,23 @@
           : imageSrc
         ).sort((a, b) => a.width - b.width)[0]
       : imageSrc
-      ? imageSrc
-      : null;
+        ? imageSrc
+        : null;
   let remapImageSrc =
     imageSrc && Array.isArray(imageSrc)
       ? imageSrc
           .sort((a, b) => a.width - b.width)
           .map((elm) => ({ ...elm, media: `(min-width: ${elm.width + 1}px)` }))
       : imageSrc
-      ? [imageSrc]
-      : [];
+        ? [imageSrc]
+        : [];
 
   export let isFullScreen = false;
   export let containerClass = "";
 </script>
 
 <section
-  class={"relative banner " + $$props.class}
+  class="relative banner {$$props.class}"
   class:h-screen={isFullScreen}
   class:h-auto={!isFullScreen}
   {id}
@@ -46,15 +46,18 @@
   </slot>
 
   <div
-    class="absolute inset-0 left-8 md:inset-16 md:left-24 grid items-center z-2 overflow-hidden {containerClass}"
+    class="absolute inset-y-0 sm:left-8 md:inset-16 md:left-24 block z-2 overflow-hidden"
   >
-    <slot>
-      <div class="block px-6 py-4 rounded-2">
-        <h1 class="text-light-50">Welcome to SvelteKit</h1>
-        <p class="text-light-200">
-          Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation
-        </p>
-      </div>
-    </slot>
+    <div class="max-w-screen-2xl mx-auto w-full {containerClass}">
+      <slot>
+        <div class="block px-6 py-4 rounded-2">
+          <h1 class="text-light-50">Welcome to SvelteKit</h1>
+          <p class="text-light-200">
+            Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the
+            documentation
+          </p>
+        </div>
+      </slot>
+    </div>
   </div>
 </section>

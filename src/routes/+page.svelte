@@ -1,6 +1,5 @@
 <script>
-  // import Image from "$lib/Image.svelte";
-  import Navbar from "$lib/navbar/index-set/main.svelte";
+  import Navbar from "$lib/navbar/index-page.svelte";
   import Banner from "$lib/banner.svelte";
   import BannerGridCell from "$lib/banner-grid-cell.svelte";
 
@@ -16,7 +15,7 @@
 </svelte:head>
 <Navbar />
 
-<Banner id="index" isFullScreen imageSrc={IndexImage}>
+<Banner id="index" isFullScreen imageSrc={IndexImage} containerClass="h-full grid items-center content-center">
   <BannerGridCell align="left">
     <h1 class="text-light-50 text-5xl">Build for build</h1>
     <p class="text-light-200">
@@ -26,34 +25,35 @@
 </Banner>
 
 <Banner
-  containerClass="grid-cols-2 grid-rows-auto grid-content-start gap-2 md:gap-4  lg:gap-unset"
+  id="introduction"
+  containerClass="grid grid-cols-2 grid-rows-auto grid-content-start gap-2 md:gap-4 lg:gap-16"
 >
   <div slot="background" class="w-full h-200vh lg:h-300vh inset-0 bg-dark-100">
     <CanvasRender class="sticky inset-0 h-screen w-screen" />
   </div>
+  
   <BannerGridCell
-    id="introduction"
     align="left"
-    class=" grid-row-start-1 mt-12vh"
+    class=" grid-row-start-1 f-my-16-56"
   >
     <h1 class="text-light-50 text-3xl">Welcome to SvelteKit</h1>
     <p class="text-light-200">
       Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation
     </p>
   </BannerGridCell>
-  <BannerGridCell align="right" class=" grid-row-start-2 mt-25vh ">
+  <BannerGridCell align="right" class=" grid-row-start-2 f-my-16-56 ">
     <h1 class="text-light-50 text-3xl">Welcome to SvelteKit</h1>
     <p class="text-light-200">
       Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation
     </p>
   </BannerGridCell>
-  <BannerGridCell align="left" class="grid-row-start-3 mt-25vh ">
+  <BannerGridCell align="left" class="grid-row-start-3 f-my-16-56 ">
     <h1 class="text-light-50 text-3xl">Welcome to SvelteKit</h1>
     <p class="text-light-200">
       Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation
     </p>
   </BannerGridCell>
-  <BannerGridCell align="right" class="grid-row-start-4 mt-25vh ">
+  <BannerGridCell align="right" class="grid-row-start-4 f-my-16-56 ">
     <h1 class="text-light-50 text-3xl">Welcome to SvelteKit</h1>
     <p class="text-light-200">
       Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation
@@ -69,7 +69,7 @@
         Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation
       </p>
     </div>
-    <div class="px-6 relative w-full overflow-y-scroll">
+    <div class="px-6 relative h-auto py-2 w-full overflow-y-hidden scrollbar scrollbar-rounded scrollbar-w-1 ">
       <ul class="grid relative gap-1rem grid-flow-col grid-rows-2">
         <li class="block w-24rem bg-blue-700 rounded-sm h-5rem" />
         <li class="block w-24rem bg-blue-700 rounded-sm h-5rem" />

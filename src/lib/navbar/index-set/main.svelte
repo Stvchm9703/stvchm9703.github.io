@@ -1,130 +1,75 @@
 <script>
-  import { onDestroy, onMount } from "svelte";
-  let showDropdown = "";
+  import NavItem from "./item.svelte";
+  import { clickoutside } from "@svelte-put/clickoutside";
   let isShow = false;
   let isHoverOn = "";
-  let isActiveTab = "";
-
-  let aHrefLink = {};
-  const onScrollHandle = (event) => {
-    // console.log(self);
+  const navItemClick = (name) => {
+    isShow = true;
+    isHoverOn = name;
   };
-  onMount(() => {
-    onScrollHandle();
-    window.addEventListener("scroll", onScrollHandle);
-  });
-  onDestroy(() => {
-    window.removeEventListener("scroll", onScrollHandle);
-  });
 </script>
 
 <nav class=" fixed top-0 bottom-0 z-8000">
   <div
-    class={"absolute  bg-dark400/15 inset-y-0 backdrop-filter  backdrop-blur-lg " +
-      (isShow ? "w-45vw" : "w-0") +
-      " transition-all duration-500"}
+    class={"absolute  bg-dark400/15 inset-y-0 backdrop-filter  backdrop-blur-lg transition-all duration-500 " +
+      (isShow ? "w-45vw" : "w-0")}
+    use:clickoutside
+    on:clickoutside={() => (isShow = false)}
     on:mouseout={() => (isShow = false)}
   />
 
-  <section class="absolute left-6 top-50% w-auto transform -translate-y-50%">
-    <ul class="flex flex-col gap-1 w-auto min-w-0">
-      <li
-        class="flex items-center py-1 relative"
-        on:mouseenter={() => ((isShow = true), (isHoverOn = "index"))}
-      >
-        <div
-          class={"absolute h-100% bg-dark-800 z-0 transition-all duration-350 ease-in-out  " +
-            (isHoverOn === "index" && isShow ? "w-100%" : "w-0")}
-        />
-        <i class="dot w-1 h-1 m-5 block bg-white z-1" />
-        <a
-          href="/#index"
-          class={" text-white text-4xl leading-loose whitespace-nowrap block z-1 overflow-hidden transition-all duration-350 ease-in-out delay-250 " +
-            (isShow ? "w-full mx-3" : "w-0 mx-0")}>Index</a
-        >
-      </li>
-      <li
-        class="flex items-center py-1 relative"
-        on:mouseenter={() => ((isShow = true), (isHoverOn = "introduction"))}
-      >
-        <div
-          class={"absolute h-100% bg-dark-800 z-0 transition-all duration-350 ease-in-out  " +
-            (isHoverOn === "introduction" && isShow ? "w-100%" : "w-0")}
-        />
-        <i class="dot w-1 h-1 m-5 block bg-white z-1" />
-        <a
-          href="/#introduction"
-          class={"text-white text-4xl leading-loose whitespace-nowrap block z-1 overflow-hidden transition-all duration-350 ease-in-out delay-250 " +
-            (isShow ? "w-full mx-3 " : "w-0 mx-0 ")}>Introduction</a
-        >
-        <!-- <span class="text-white text-4xl leading-loose whitespace-nowrap">Introduction</span> -->
-      </li>
-      <li
-        class="flex items-center py-1 relative"
-        on:mouseenter={() => ((isShow = true), (isHoverOn = "project"))}
-      >
-        <div
-          class={"absolute h-100% bg-dark-800 z-0 transition-all duration-350 ease-in-out  " +
-            (isHoverOn === "project" && isShow ? "w-100%" : "w-0")}
-        />
-        <i class="dot w-1 h-1 m-5 block bg-white z-1" />
-        <a
-          href="/#project"
-          class={"text-white text-4xl leading-loose whitespace-nowrap block z-1 overflow-hidden transition-all duration-350 ease-in-out delay-250 " +
-            (isShow ? "w-full mx-3" : "w-0 mx-0")}>Project / Work Expiences</a
-        >
-        <!-- <span class="text-white text-4xl leading-loose whitespace-nowrap">Project / Work Expiences</span> -->
-      </li>
-      <li
-        class="flex items-center py-1 relative"
-        on:mouseenter={() => ((isShow = true), (isHoverOn = "skill"))}
-      >
-        <div
-          class={"absolute h-100% bg-dark-800 z-0 transition-all duration-350 ease-in-out  " +
-            (isHoverOn === "skill" && isShow ? "w-100%" : "w-0")}
-        />
-        <i class="dot w-1 h-1 m-5 block bg-white z-1" />
-        <a
-          href="/#skill"
-          class={" text-white text-4xl leading-loose whitespace-nowrap block z-1 overflow-hidden transition-all duration-350 ease-in-out delay-250 " +
-            (isShow ? "w-full mx-3" : "w-0 mx-0")}>Skill</a
-        >
-        <!-- <span class="text-white text-4xl leading-loose whitespace-nowrap">Skill</span> -->
-      </li>
-    </ul>
-    <hr class="mx-2 my-4 w-8" />
-    <ul class="flex flex-col gap-1">
-      <li
-        class="flex items-center py-1 relative"
-        on:mouseenter={() => ((isShow = true), (isHoverOn = "blog"))}
-      >
-        <div
-          class={"absolute h-100% bg-dark-800 z-0 transition-all duration-350 ease-in-out  " +
-            (isHoverOn === "blog" && isShow ? "w-100%" : "w-0")}
-        />
-        <i class="dot w-1 h-1 m-5 block bg-white z-1" />
-        <a
-          class={" text-white text-4xl leading-loose whitespace-nowrap block z-1 overflow-hidden transition-all duration-350 ease-in-out delay-250 " +
-            (isShow ? "w-full mx-3" : "w-0 mx-0")}
-          href="/blog">Blog</a
-        >
-        <ul />
-      </li>
-      <li
-        class="flex items-center py-1 relative"
-        on:mouseenter={() => ((isShow = true), (isHoverOn = "contact"))}
-      >
-        <div
-          class={"absolute h-100% bg-dark-800 z-0 transition-all duration-350 ease-in-out  " +
-            (isHoverOn === "contact" && isShow ? "w-100%" : "w-0")}
-        />
-        <i class="dot w-1 h-1 m-5 block bg-white z-1" />
-        <a
-          href="/#contact"
-          class={" text-white text-4xl leading-loose whitespace-nowrap block z-1 overflow-hidden transition-all duration-350 ease-in-out delay-250 " +
-            (isShow ? "w-full mx-3" : "w-0 mx-0")}>Contact</a
-        >
-      </li>
-    </ul>
+  <section
+    class={"absolute left-6 top-50% transform -translate-y-50% " +
+      (isShow ? " w-[calc(45vw-1.5rem)]" : " w-12")}
+  >
+    <div class="flex flex-col gap-1 mb-1">
+      <NavItem
+        bind:isShow
+        bind:isHoverOn
+        sectionName="Index"
+        sectionId="index"
+        on:mouseenter={() => navItemClick("index")}
+      />
+
+      <NavItem
+        bind:isShow
+        bind:isHoverOn
+        sectionName="Introduction"
+        sectionId="introduction"
+        on:mouseenter={() => navItemClick("introduction")}
+      />
+      <NavItem
+        bind:isShow
+        bind:isHoverOn
+        sectionName="Projects"
+        sectionId="project"
+        on:mouseenter={() => navItemClick("project")}
+      />
+      <NavItem
+        bind:isShow
+        bind:isHoverOn
+        sectionName="Skill"
+        sectionId="skill"
+        on:mouseenter={() => navItemClick("skill")}
+      />
+    </div>
+    <hr class={"mx-2 my-4 transition-all " + (isShow ? "w-full" : "w-8")} />
+    <div class="flex flex-col gap-1 mt-1">
+      <NavItem
+        bind:isShow
+        bind:isHoverOn
+        sectionName="Blog Post"
+        sectionId="blog"
+        href="/posts"
+        on:mouseenter={() => navItemClick("blog")}
+      />
+      <NavItem
+        bind:isShow
+        bind:isHoverOn
+        sectionName="Contact"
+        sectionId="contact"
+        on:mouseenter={() => navItemClick("contact")}
+      />
+    </div>
   </section>
 </nav>

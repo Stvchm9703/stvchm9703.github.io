@@ -28,7 +28,7 @@ export default defineConfig(({ mode }) => {
         removeMetadata: false
       }),
       dynamicImport({
-        
+
       }),
       unocss({
         mode: 'dist-chunk',
