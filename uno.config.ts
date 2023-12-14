@@ -4,7 +4,7 @@ import {
   presetWebFonts,
   presetMini, presetWind
 } from 'unocss';
-import { presetDaisy } from 'unocss-preset-daisy';
+// import { presetDaisy } from 'unocss-preset-daisy';
 import transformerVariantGroup from '@unocss/transformer-variant-group'
 import { presetFluid } from 'unocss-preset-fluid';
 import transformerDirectives from '@unocss/transformer-directives';

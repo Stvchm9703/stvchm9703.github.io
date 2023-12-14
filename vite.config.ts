@@ -1,7 +1,7 @@
 import { sveltekit } from "@sveltejs/kit/vite";
 // import unocss from '@unocss/svelte-scoped/vite';
 import unocss from '@unocss/vite';
-
+import ViteCompression from 'vite-plugin-compression'
 // import { extractorSvelte } from "@unocss/core";
 
 // import {
@@ -31,9 +31,10 @@ export default defineConfig(({ mode }) => {
 
       }),
       unocss({
-        mode: 'dist-chunk',
+        // mode: 'dist-chunk',
       }),
       sveltekit(),
+      ViteCompression({ algorithm: 'gzip' }),
     ],
   };
 });

@@ -8,7 +8,7 @@
 
 <a {href} class="flex items-center py-1 relative" on:mouseenter>
   <div
-    class={"absolute h-100% bg-gradient-to-rb  from-gray700 via-blue900 to-cyan400 z-0 transition-all duration-350 ease-in-out  " +
+    class={"absolute h-100%  bg-gray700 z-0 transition-all duration-350 ease-in-out  " +
       (isHoverOn === sectionId && isShow ? "w-full" : "w-0")}
   />
   <i class="dot w-1 h-1 m-5 block bg-white z-1" />

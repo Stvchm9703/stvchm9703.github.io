@@ -1,9 +1,12 @@
 <script>
   import { onMount } from "svelte";
   import { Picture } from "svelte-lazy-loader";
+  import { intersect } from "@svelte-put/intersect";
+
   export let imageSrc = [];
   export let imagePath = "";
   export let id = "";
+  export let ref = null;
   let baseSet =
     imageSrc && Array.isArray(imageSrc)
       ? (imageSrc.filter((elm) => elm.format == "webp").length > 0
@@ -24,13 +27,23 @@
 
   export let isFullScreen = false;
   export let containerClass = "";
+
+
+  let isIntersecting = false;
+  const onIntersect = (event) => {
+    const { entries } = event.detail;
+    const entry = entries[0];
+    isIntersecting = entry.isIntersecting;
+  };
 </script>
 
 <section
-  class="relative banner {$$props.class}"
-  class:h-screen={isFullScreen}
-  class:h-auto={!isFullScreen}
+  class="relative banner overflow-hidden w-full {isFullScreen
+    ? 'h-screen'
+    : 'h-auto'} {$$props.class}"
   {id}
+  use:intersect={{ threshold: 0.1 }}
+  on:intersectonce={onIntersect}
 >
   <slot name="background">
     {#if baseSet}
@@ -46,7 +59,7 @@
   </slot>
 
   <div
-    class="absolute inset-y-0 sm:left-8 md:inset-16 md:left-24 block z-2 overflow-hidden"
+    class="absolute inset-y-0 sm:left-8 md:inset-16 md:left-24 right-2 block z-2 overflow-hidden"
   >
     <div class="max-w-screen-2xl mx-auto w-full {containerClass}">
       <slot>
