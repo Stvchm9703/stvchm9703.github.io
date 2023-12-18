@@ -1,67 +1,62 @@
 <script>
+  import { Picture } from "svelte-lazy-loader";
+
   export let alt = "";
-  export let height = 0; // needed to reduce CLS
-  export let width = 0; // needed to reduce CLS
-  export let src = "";
-  // export let sources = [];
-  export let maxWidth = "1280px";
-  $: sizes = `(max-width: ${maxWidth}) 100vw, ${maxWidth})`;
-  let searchSet = new URLSearchParams();
-  let placeholder = "";
-  $: {
-    if (width && width != 0) searchSet.set("w", width);
-    if (height && height != 0) searchSet.set("w", height);
-    searchSet.set("webp", true);
-    // placeholder =
-    //   src && src != ""
-    //     ? (src + "?" + searchSet.toString())
-    //     : "";
+  export let height = ""; // needed to reduce CLS
+  export let width = ""; // needed to reduce CLS
+  export let srcList = [];
+  export const imagePath = "";
+  export let forceLoad = false;
+  // export let srcList = [];
+  $: baseSet =
+    srcList && Array.isArray(srcList)
+      ? (srcList.filter((elm) => elm.format == "webp").length > 0
+          ? srcList.filter((elm) => elm.format == "webp")
+          : srcList
+        ).sort((a, b) => a.width - b.width)[0]
+      : srcList
+        ? srcList
+        : null;
 
-    // if (src && src !== "") {
-    //   import(src + "?" + searchSet.toString()).then((result) => {
-    //     console.log(result)
-    //     // placeholder = result;
-    //   });
-    // }
+  $: remapSrcList = (
+    srcList && Array.isArray(srcList)
+      ? srcList.sort((a, b) => a.width - b.width)
+      : srcList
+        ? [srcList]
+        : []
+  ).map((elm) => ({ ...elm, media: `(min-width: ${elm.width + 1}px)` }));
 
-    // console.log(import.meta.resolve( src + "?" + searchSet.toString()))
-    // if (sources.length == 0) {
-    //   sources = [
-    //     {
-    //       media: "",
-    //       srcset: placeholder+ "&webp",
-    //       type: "image/webp",
-    //     },
-    //   ];
-    // }
-  }
-
-  export let importance = false;
-  export let loading = "lazy";
-  // export let className = "";
 </script>
 
-<picture class="object-contain inset-0">
-  <img
-    class="h-auto w-full"
+<svelte:head>
+  {#if baseSet && forceLoad}
+    <link
+      rel="preload"
+      as="image"
+      href={baseSet.src}
+      imagesrcset={remapSrcList
+        .map((elm) => `${elm.src} ${elm.width}w`)
+        .join(", ")}
+      imagesizes="100vw"
+      data-srcset={remapSrcList.map((elm) => elm.src).join(", ")}
+      data-image-prefetch-ref={alt}
+    />
+  {/if}
+</svelte:head>
+{#if baseSet}
+  <Picture
+    classes="children:h-full children:w-full children:object-cover {$$props.class}"
+    loading={forceLoad ? "eager" : "lazy"}
     {alt}
-    {importance}
-    {loading}
-    decoding="async"
+    {height}
     {width}
-    height={height && height !== 0 ? height : null}
-    data-src={src}
-    type="image/webp"
-    src={placeholder}
-    srcset={placeholder}
+  >
+    {#each remapSrcList as { src, format, media }, index}
+      <source data-srcset={src} {media} type="image/{format}" />
+    {/each}
+  </Picture>
+{:else}
+  <div
+    class="bg-dark-100 children:h-full children:w-full children:object-cover {$$props.class}"
   />
-</picture>
-
-<style>
-  /* img {
-    height: auto;
-  } */
-  img:not([src]):not([srcset]) {
-    visibility: hidden;
-  }
-</style>
+{/if}

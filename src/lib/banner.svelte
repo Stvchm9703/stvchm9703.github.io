@@ -1,33 +1,16 @@
 <script>
   import { onMount } from "svelte";
   import { Picture } from "svelte-lazy-loader";
+  import ImageSet from "./Image.svelte";
   import { intersect } from "@svelte-put/intersect";
 
   export let imageSrc = [];
   export let imagePath = "";
   export let id = "";
   export let ref = null;
-  let baseSet =
-    imageSrc && Array.isArray(imageSrc)
-      ? (imageSrc.filter((elm) => elm.format == "webp").length > 0
-          ? imageSrc.filter((elm) => elm.format == "webp")
-          : imageSrc
-        ).sort((a, b) => a.width - b.width)[0]
-      : imageSrc
-        ? imageSrc
-        : null;
-  let remapImageSrc =
-    imageSrc && Array.isArray(imageSrc)
-      ? imageSrc
-          .sort((a, b) => a.width - b.width)
-          .map((elm) => ({ ...elm, media: `(min-width: ${elm.width + 1}px)` }))
-      : imageSrc
-        ? [imageSrc]
-        : [];
 
   export let isFullScreen = false;
   export let containerClass = "";
-
 
   let isIntersecting = false;
   const onIntersect = (event) => {
@@ -46,16 +29,7 @@
   on:intersectonce={onIntersect}
 >
   <slot name="background">
-    {#if baseSet}
-      <Picture
-        classes="inset-0 absolute children:h-full children:w-full children:object-cover"
-        src={baseSet.src}
-      >
-        {#each remapImageSrc as { src, format, media }}
-          <source data-srcset={src} {media} type="image/{format}" />
-        {/each}
-      </Picture>
-    {/if}
+    <ImageSet class="inset-0 absolute" srcList={imageSrc} {imagePath} />
   </slot>
 
   <div

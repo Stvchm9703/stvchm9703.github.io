@@ -4,25 +4,42 @@
   import BannerGridCell from "$lib/banner-grid-cell.svelte";
 
   import Footer from "$lib/footer.svelte";
-  import SampleImage from "$assets/img/placeholder-hero.jpg?format=webp&w=750;900;1200;2400&q=85&as=metadata";
-  import IndexImage from "$assets/img/trialScene4.png?w=750;900;1200;2400&q=85&format=webp&as=metadata";
+  // import SampleImage from "$assets/img/placeholder-hero.jpg?format=webp&w=750;900;1200;2400&q=85&as=metadata";
+  import IndexImage_L0 from "$assets/series/index-page/cover_l0.png?format=webp&w=750;900;1200;2400&q=85&as=metadata";
+  import IndexImage_L1 from "$assets/series/index-page/cover_l1.png?format=webp&w=750;900;1200;2400&q=85&as=metadata";
   import ScrollFrame from "$lib/scroll-frame.svelte";
-  import SkillTree from "$lib/skill-tree.svelte";
+  import SkillTree from "$lib/skill-tree/main.svelte";
+  // import { Picture } from "svelte-lazy-loader";
+  import ImageSet from "$lib/Image.svelte";
   const testArray = Array.from({ length: 30 }, (_, i) => i + 1);
+  // console.log(IndexImage);
 </script>
 
 <svelte:head>
   <title>Steven, the web dev</title>
-  <meta />
+  <!-- <meta /> -->
 </svelte:head>
 <Navbar />
 
 <Banner
   id="index"
   isFullScreen
-  imageSrc={IndexImage}
   containerClass="h-full grid items-center content-center"
 >
+  <div slot="background" class="inset-0 absolute">
+    <ImageSet
+      class="inset-0 absolute z-1"
+      srcList={IndexImage_L0}
+      forceLoad
+      alt="index banner image; layer 0"
+    />
+    <ImageSet
+      class="inset-0 absolute z-2"
+      srcList={IndexImage_L1}
+      forceLoad
+      alt="index banner image; layer 1"
+    />
+  </div>
   <BannerGridCell align="left">
     <h1 class="text-light-50 text-5xl leading-loose">Steven - Cheng Ho Man</h1>
     <p class="text-light-200 leading-loose">
@@ -34,7 +51,7 @@
 <Banner
   id="introduction"
   class="!h-500vh w-full "
-  containerClass=" grid grid-cols-3 justify-items-stretch  grid-rows-auto grid-content-start gap-2 md:gap-4 lg:gap-16 pt-32"
+  containerClass=" grid grid-cols-3 justify-items-stretch  grid-rows-auto grid-content-start gap-2 md:gap-y-8 lg:gap-y-32 pt-32"
 >
   <ScrollFrame
     slot="background"
@@ -42,53 +59,165 @@
   />
 
   <h1
-    class="grid-row-start-1 grid-col-start-2 grid-col-end-2 text-center text-light-50 text-3xl"
+    class="grid-row-start-1 grid-col-start-2 grid-col-end-2 text-center text-light-50 text-5xl"
   >
-    Welcome to SvelteKit
+    Who I am ...
   </h1>
-  {#each testArray as i}
+  <!-- {#each testArray as i}
     <BannerGridCell align={i % 2 === 0 ? "left" : "right"} row={i} class=" ">
       <h2 class="text-light-50 text-3xl">A Man who run with code</h2>
       <span>{i}</span>
       <p class="text-light-200">almost, but not quite,</p>
     </BannerGridCell>
-  {/each}
-  <!-- <BannerGridCell align="left" row={1} class=" ">
+  {/each} -->
+  <BannerGridCell align="left" row={2}>
     <h2 class="text-light-50 text-3xl">A Man who run with code</h2>
     <p class="text-light-200">almost, but not quite,</p>
-  </BannerGridCell> -->
-  <!-- <BannerGridCell align="right" row={2} class=" ">
-    <h1 class="text-light-50 text-3xl">Welcome to SvelteKit</h1>
-    <p class="text-light-200">
-      Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation
-    </p>
   </BannerGridCell>
-  <BannerGridCell align="left" row={3} class=" ">
-    <h1 class="text-light-50 text-3xl">Welcome to SvelteKit</h1>
-    <p class="text-light-200">
-      Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation
-    </p>
+  <BannerGridCell align="right" row={3}>
+    <h2 class="text-light-50 text-3xl">A Man who run with code</h2>
+    <p class="text-light-200">almost, but not quite,</p>
   </BannerGridCell>
-  <BannerGridCell align="right" row={4} class=" ">
-    <h1 class="text-light-50 text-3xl">Welcome to SvelteKit</h1>
-    <p class="text-light-200">
-      Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation
-    </p>
+
+  <h1
+    class="grid-row-start-4 grid-col-start-2 grid-col-end-2 text-center text-light-50 text-5xl"
+  >
+    In Career
+  </h1>
+  <BannerGridCell align="right" row={5} class="flex">
+    <div class="aspect-video">
+      <span class="text-light-700"> September 2015 - July 2017 </span>
+      <h2 class="text-light-50 text-3xl">Student</h2>
+      <ul class="text-light-200">
+        <li>
+          <p>Associate of Science in Information Systems Development</p>
+        </li>
+        <li>
+          <p>Community College Of City University</p>
+        </li>
+        <li>
+          <p>Major: Computer Programming</p>
+        </li>
+      </ul>
+    </div>
   </BannerGridCell>
-  <hr id="project" class="block opacity-0 grid-row-start-5 grid-col-end-2" />
-  <BannerGridCell align="right" row={5} class=" ">
-    <h1 class="text-light-50 text-3xl">Welcome to SvelteKit</h1>
-    <p class="text-light-200">
-      Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation
-    </p>
-  </BannerGridCell> -->
+  <BannerGridCell align="right" row={6} class="flex">
+    <div class="aspect-video">
+      <span class="text-light-700"> November 2017 - May 2019 </span>
+      <h2 class="text-light-50 text-3xl">Web Programmer</h2>
+      <ul class="text-light-200">
+        <li>
+          <p>Teksbotics (Hong Kong ) Limited</p>
+        </li>
+        <li>
+          <p>Start-up Company for Robotic solution</p>
+        </li>
+      </ul>
+    </div>
+  </BannerGridCell>
+  <BannerGridCell align="right" row={7} class="flex">
+    <div class="aspect-video">
+      <span class="text-light-700"> September 2017 - July 2020 </span>
+      <h2 class="text-light-50 text-3xl">Student</h2>
+      <ul class="text-light-200">
+        <li>
+          <p>Bachelor of Science (Hons) Computing Science</p>
+        </li>
+        <li>
+          <p>School Of Continuing and Professional Education</p>
+        </li>
+      </ul>
+    </div>
+  </BannerGridCell>
+
+  <BannerGridCell align="right" row={8} class="flex">
+    <div class="aspect-video">
+      <span class="text-light-700"> January 2021 - November 2022 </span>
+      <h2 class="text-light-50 text-3xl">Frontend Developer</h2>
+      <ul class="text-light-200">
+        <li>
+          <p>Centaline Data Technology Limited</p>
+        </li>
+        <li>
+          <p>Large-scale Property Agency Company</p>
+        </li>
+      </ul>
+    </div>
+  </BannerGridCell>
+
+  <h1
+    class="grid-row-start-9 grid-col-start-2 grid-col-end-2 text-center text-light-50 text-5xl"
+  >
+    Hobby...
+  </h1>
+  <BannerGridCell align="left" row={10}>
+    <!-- <span class="text-light-700">January 2021 - November 2022</span> -->
+    <h2 class="text-light-50 text-3xl">Draw</h2>
+    <!-- <ul class="text-light-200">
+      <li>
+        <p>Centaline Data Technology Limited</p>
+      </li>
+      <li>
+        <p>Large-scale Property Agency Company</p>
+      </li>
+    </ul> -->
+  </BannerGridCell>
+  <BannerGridCell align="right" row={11}>
+    <!-- <span class="text-light-700">January 2021 - November 2022</span> -->
+    <h2 class="text-light-50 text-3xl">program making</h2>
+    <!-- <ul class="text-light-200">
+      <li>
+        <p>Centaline Data Technology Limited</p>
+      </li>
+      <li>
+        <p>Large-scale Property Agency Company</p>
+      </li>
+    </ul> -->
+  </BannerGridCell>
+  <BannerGridCell align="left" row={12}>
+    <!-- <span class="text-light-700">January 2021 - November 2022</span> -->
+    <h2 class="text-light-50 text-3xl">Game making</h2>
+    <!-- <ul class="text-light-200">
+      <li>
+        <p>Centaline Data Technology Limited</p>
+      </li>
+      <li>
+        <p>Large-scale Property Agency Company</p>
+      </li>
+    </ul> -->
+  </BannerGridCell>
+  <BannerGridCell align="right" row={13}>
+    <!-- <span class="text-light-700">January 2021 - November 2022</span> -->
+    <h2 class="text-light-50 text-3xl">Keyboard</h2>
+    <!-- <ul class="text-light-200">
+      <li>
+        <p>Centaline Data Technology Limited</p>
+      </li>
+      <li>
+        <p>Large-scale Property Agency Company</p>
+      </li>
+    </ul> -->
+  </BannerGridCell>
+  <BannerGridCell align="left" row={10}>
+    <!-- <span class="text-light-700">January 2021 - November 2022</span> -->
+    <h2 class="text-light-50 text-3xl">Coffee(?)</h2>
+    <!-- <ul class="text-light-200">
+      <li>
+        <p>Centaline Data Technology Limited</p>
+      </li>
+      <li>
+        <p>Large-scale Property Agency Company</p>
+      </li>
+    </ul> -->
+  </BannerGridCell>
 </Banner>
 
 <Banner id="skill" isFullScreen containerClass="">
-  <div class="flex flex-col self-center max-w-full">
-    <div class="px-6 py-4">
-      <h1 class="text-3xl text-light-50">Skill Set</h1>
-      <p class="text-light-200">
+  <div slot="background" class=" bg-blue-900 inset-0 absolute" />
+  <div class="flex flex-col self-center max-w-full items-start">
+    <div class="px-6 py-4 rounded-lg backdrop-blur-lg">
+      <h1 class="text-3xl text-dark-900">Skill Set</h1>
+      <p class="text-dark-800">
         Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation
       </p>
     </div>
