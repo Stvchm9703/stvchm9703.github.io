@@ -36,5 +36,9 @@ export default defineConfig(({ mode }) => {
       sveltekit(),
       ViteCompression({ algorithm: 'gzip' }),
     ],
+
+    optimizeDeps: {
+      include: ['pixi.js'],
+    },
   };
 });

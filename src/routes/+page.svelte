@@ -5,10 +5,10 @@
 
   import Footer from "$lib/footer.svelte";
   // import SampleImage from "$assets/img/placeholder-hero.jpg?format=webp&w=750;900;1200;2400&q=85&as=metadata";
-  import IndexImage_L0 from "$assets/series/index-page/cover_l0.png?format=webp&w=750;900;1200;2400&q=85&as=metadata";
-  import IndexImage_L1 from "$assets/series/index-page/cover_l1.png?format=webp&w=750;900;1200;2400&q=85&as=metadata";
+  import IndexImage_L0 from "$assets/series/index-page/cover_l0.png?format=webp&w=1200;1800;2400&q=85&as=metadata";
+  import IndexImage_L1 from "$assets/series/index-page/cover_l1.png?format=webp&w=1800;2400;3000&q=85&as=metadata";
   import ScrollFrame from "$lib/scroll-frame.svelte";
-  import SkillTree from "$lib/skill-tree/main.svelte";
+  import SkillTree from "$lib/skill-tree/elk/main.svelte";
   // import { Picture } from "svelte-lazy-loader";
   import ImageSet from "$lib/Image.svelte";
   const testArray = Array.from({ length: 30 }, (_, i) => i + 1);
@@ -213,11 +213,11 @@
 </Banner>
 
 <Banner id="skill" isFullScreen containerClass="">
-  <div slot="background" class=" bg-blue-900 inset-0 absolute" />
+  <div slot="background" class=" backdrop-blur-lg inset-0 absolute" />
   <div class="flex flex-col self-center max-w-full items-start">
     <div class="px-6 py-4 rounded-lg backdrop-blur-lg">
-      <h1 class="text-3xl text-dark-900">Skill Set</h1>
-      <p class="text-dark-800">
+      <h1 class="text-3xl text-light-900">Skill Set</h1>
+      <p class="text-light-800">
         Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation
       </p>
     </div>
