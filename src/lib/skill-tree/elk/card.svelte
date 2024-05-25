@@ -5,6 +5,7 @@
   export let href = "";
   export let color = "";
   export let stacked = false;
+  export let iconSrc = "";
   // export let position = "static";
   export let pos = { x: 0, y: 0 };
   export let title = "",
@@ -38,7 +39,6 @@
   $: style = [`border-color: ${color}`, `position: static`, $$props.style].join(
     ";"
   );
-
 </script>
 
 <foreignObject
@@ -56,9 +56,9 @@
     tabindex="0"
     {href}
   >
-    {#if $$slots.icon}
-      <div class="cds--cc--card-node__column">
-        <slot name="icon" />
+    {#if iconSrc && iconSrc !== ""}
+      <div class="cds--cc--card-node__column !px-0">
+        <img class="cds--cc--card-node__icon block h-7 w-7" src={iconSrc} />
       </div>
     {/if}
 

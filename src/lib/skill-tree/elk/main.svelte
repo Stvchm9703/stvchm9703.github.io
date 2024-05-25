@@ -134,6 +134,7 @@
 
   let focusOnNodes = [];
   let inViewNode = null;
+  let inViewDetail = null;
   // d3 module
   const init = () => {
     const svgSelection = d3.select(svgContainer);
@@ -153,9 +154,10 @@
   const onCardClick = (cardId) => {
     console.log("on-card-click, ", cardId);
     inViewNode = instanceNodes.find((elm) => elm.id === cardId);
+    inViewDetail = import(`$assets/data/${inViewNode.name}.md`);
   };
   const onCardActionClick = (cardId) => {
-    console.log("on-card-action ", cardId);
+    // console.log("on-card-action ", cardId);
     const inWatchNode = instanceNodes.find((elm) => elm.id === cardId);
     focusOnNodes = [
       ...inWatchNode?.parentChain,
@@ -163,8 +165,9 @@
       ...inWatchNode?.children,
     ];
 
-    console.log(focusOnNodes);
+    // console.log(focusOnNodes);
   };
+
   onMount(() => {
     init();
 
@@ -205,19 +208,23 @@
             active={focusOnNodes.length === 0 || focusOnNodes.includes(node.id)}
             on:click={() => onCardClick(node.id)}
             onActionClick={() => onCardActionClick(node.id)}
-          >
-            <div slot="icon">{node.name}</div>
-          </Card>
+            iconSrc={node.icon}
+          />
         {/if}
       {/each}
     </g>
   </svg>
   <ModalView
     slot="modal"
-    title={"skill"}
     isShow={inViewNode !== null}
     onCloseClick={() => (inViewNode = null)}
   >
-    <div>123</div>
+    {#if inViewNode !== null}
+      <div class="px-3">
+        <h1>{inViewNode.name}</h1>
+        <hr />
+
+      </div>
+    {/if}
   </ModalView>
 </MainContainer>

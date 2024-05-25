@@ -36,7 +36,7 @@
 
 <div
   {id}
-  class={"block px-6 py-4 rounded-lg transition transform backdrop-filter backdrop-blur-xl backdrop-brightness-80 place-self-center  f-my-16-56 " +
+  class={"block px-6 py-4 rounded-lg transition transform backdrop-filter backdrop-blur-xl backdrop-brightness-80 place-self-center  f-my-16-56 overflow-hidden " +
     [alignClass(), intersectingClass(), $$props.class || ""].join(" ")}
   style={toStyle({
     "grid-row-start": row,
