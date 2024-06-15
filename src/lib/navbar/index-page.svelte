@@ -10,7 +10,7 @@
   const MobNavComponent = import("$lib/navbar/mobile-set/main.svelte").then(
     (m) => m.default
   );
-  const mediaQuesySet = ["(max-width: 1280px)", "(min-width: 1280px)"];
+  const mediaQuesySet = ["(max-width: 82rem)", "(min-width: 82rem)"];
 </script>
 
 <Suspense let:suspend>

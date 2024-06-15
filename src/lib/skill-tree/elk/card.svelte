@@ -1,6 +1,7 @@
 <script>
   import { onMount } from "svelte";
 
+  export let id = "";
   export let as = "div";
   export let href = "";
   export let color = "";
@@ -42,6 +43,8 @@
 </script>
 
 <foreignObject
+  id="skill-tree-card-{id}"
+  data-card-id={id}
   transform="translate({pos.x}, {pos.y})"
   height={unitHeight}
   width={unitWidth}

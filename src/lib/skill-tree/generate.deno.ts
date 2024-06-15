@@ -14,7 +14,7 @@ const nodes = [
     { id: 6, name: 'Vue', query: ['language:vue'], layer: 2, parent: 1, color: '#41b883' },
     { id: 7, name: 'Nuxt', layer: 3, parent: 6, color: '#00c58e' },
     { id: 8, name: 'Svelte', query: ['language:svelte'], layer: 2, parent: 1, color: '#ff3e00' },
-    { id: 9, name: 'Astro', query: ['t path:*.astro'], layer: 2, parent: 1, color: '#000000' },
+    { id: 9, name: 'Astro', query: ['path:*.astro'], layer: 2, parent: 1, color: '#000000' },
     // { id: 10, name: 'others', layer: 2, parent: 1, color: '#607d8b' },
 
     // layer 3 limit-9
@@ -89,17 +89,25 @@ type repoResult = {
     updated_at: string;
 }
 
-// const auth = createTokenAuth('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')
+
+import { load } from "https://deno.land/std@0.224.0/dotenv/mod.ts";
+
+const env = await load();
+
+console.log(env)
+
 const octokit = new Octokit({
-    auth: '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',
+    auth: env["GITHUB_TOKEN"],
 });
+
+
 
 const { data: fullRepoList } = await octokit.rest.search.repos({
     q: 'owner:stvchm9703 -is:fork',
     per_page: 100,
-
 });
 
+// console.log(fullRepoList);
 let currRepoList = fullRepoList.items.map((repo) => ({
     id: repo.node_id,
     name: repo.full_name,
@@ -110,6 +118,7 @@ let currRepoList = fullRepoList.items.map((repo) => ({
     updated_at: repo.updated_at
 }) as repoResult)
 
+// console.log(currRepoList);
 
 for (let i = 0; i < currRepoList.length; i++) {
     await delay(6000);
@@ -121,6 +130,8 @@ for (let i = 0; i < currRepoList.length; i++) {
     });
     currRepoList[i].languages = languages;
 }
+
+// console.log(currRepoList);
 
 Deno.writeTextFileSync('./full-repo-data.json', JSON.stringify(currRepoList, null, 2));
 

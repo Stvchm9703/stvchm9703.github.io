@@ -6,10 +6,13 @@
   import Edge from "./edge.svelte";
   import Card from "./card.svelte";
   import * as d3 from "d3";
-  import * as d3Zoom from "d3-zoom";
+  // import * as d3Zoom from "d3-zoom";
   import { onMount } from "svelte";
   import { nodes } from "../data.js";
   import sqids from "sqids";
+
+  import Fuse from "fuse.js";
+  import DataTable from "./containers/data-table.svelte";
   let svgContainer;
 
   let unitWidth = 200,
@@ -27,6 +30,9 @@
   //     return a;
   //   }, {});
   // };
+
+  let repoData = [],
+    fuseSearchEng = null;
 
   const sqid = new sqids({
     minLength: 4,
@@ -92,8 +98,8 @@
   // }, []);
 
   const edges = instanceNodes
-    .map((node, nodeIndex) => {
-      return node.parent !== null
+    .map((node, nodeIndex) =>
+      node.parent !== null
         ? {
             id: nodeIndex,
             source: instanceNodes.find(
@@ -103,8 +109,8 @@
             silberingCount: node.silberingCount,
             silberingOrder: node.silberingOrder,
           }
-        : null;
-    })
+        : null
+    )
     .filter((edge) => edge !== null);
 
   const edgeSourcePosition = (edge) => {
@@ -132,7 +138,8 @@
     );
   };
 
-  let focusOnNodes = [];
+  let focusOnNodes = [],
+    focusOnEdges = [];
   let inViewNode = null;
   let inViewDetail = null;
   // d3 module
@@ -152,65 +159,128 @@
   };
 
   const onCardClick = (cardId) => {
-    console.log("on-card-click, ", cardId);
     inViewNode = instanceNodes.find((elm) => elm.id === cardId);
-    inViewDetail = import(`$assets/data/${inViewNode.name}.md`);
+    if (fuseSearchEng) {
+      let searchResult = fuseSearchEng.search(inViewNode.name);
+
+      inViewDetail = searchResult
+                      .filter((elm) => elm.score >= 0.3)
+                      .map((elm) => elm.item);
+    }
+    // inViewDetail = import(`$assets/data/${inViewNode.name}.md`);
   };
+
   const onCardActionClick = (cardId) => {
     // console.log("on-card-action ", cardId);
     const inWatchNode = instanceNodes.find((elm) => elm.id === cardId);
-    focusOnNodes = [
+    let focusedIds = [
       ...inWatchNode?.parentChain,
       inWatchNode?.id,
       ...inWatchNode?.children,
     ];
 
-    // console.log(focusOnNodes);
+    let parentAlignment = [...inWatchNode?.parentChain, inWatchNode?.id];
+    focusOnNodes = instanceNodes.filter((node) => focusedIds.includes(node.id));
+    focusOnNodes = focusOnNodes.map((node) => {
+      let layer = node.parentChain.length;
+      let { silberingOrder, parent } = node;
+      let position =
+        parent !== null
+          ? {
+              x: offsetWidth * (layer + 1) + (offsetWidth + unitWidth) * layer,
+              y: parentAlignment.includes(node.id)
+                ? offsetHeight
+                : offsetHeight * (silberingOrder + 1) +
+                  unitHeight * silberingOrder,
+            }
+          : node.position;
+
+      return {
+        ...node,
+        position,
+      };
+    });
+
+    focusOnEdges = focusOnNodes
+      .map((node, nodeIndex) =>
+        node.parent !== null
+          ? {
+              id: nodeIndex,
+              source: focusOnNodes.find(
+                (instanceNode) => instanceNode.id === node.parent
+              ),
+              target: node,
+              silberingCount: parentAlignment.includes(node.id)
+                ? 1
+                : focusOnNodes.filter((elm) => elm.layer === node.layer).length,
+              silberingOrder: parentAlignment.includes(node.id)
+                ? 0
+                : focusOnNodes
+                    .filter((elm) => elm.layer === node.layer)
+                    .findIndex((elm) => elm.id === node.id),
+            }
+          : null
+      )
+      .filter((edge) => edge !== null);
   };
 
-  onMount(() => {
-    init();
+  const reset = () => {
+    focusOnNodes = [];
+    focusOnEdges = [];
+  };
 
-    // console.table(instanceNodes);
-    // console.table(edges);
-    // console.table(instanceNodes , ["id", "name",]);
+  onMount(async () => {
+    init();
+    let importData = await import(`$assets/content/full-repo-data.json`);
+    repoData = importData.default.map((elm) => ({
+      ...elm,
+      languages_key: Object.keys(elm.languages),
+    }));
+
+    fuseSearchEng = new Fuse(repoData, {
+      keys: ["name", "description", "tags", "languages_key"],
+      findAllMatches: true,
+      includeScore: true,
+    });
   });
 </script>
 
 <MainContainer>
+  <div class="absolute top-2 right-2 bg-gray-100">
+    {#if focusOnNodes.length !== 0}
+      <button class="cds--cc--card-node--button" on:click={reset}>
+        Reset
+      </button>
+    {/if}
+  </div>
   <svg bind:this={svgContainer} class="layout-svg-wrapper !overflow-hidden">
     <g class="layer--edge">
-      {#each edges as edge}
-        {#if focusOnNodes.length === 0 || focusOnNodes.includes(edge.target.id)}
-          <Edge
-            assignId={sqid.encode([edge.id, edge.source.id, edge.target.id])}
-            source={edgeSourcePosition(edge)}
-            target={edge.target.position}
-            middleAxisAdjust={edgeMiddleAxisAdjust(edge)}
-            transform="translate({unitWidth / 2}, {unitHeight / 2})"
-            color={edge.target.color}
-            variant={edge.target.layer - edge.source.layer > 1
-              ? "dash-md"
-              : null}
-          />
-        {/if}
+      {#each focusOnNodes.length === 0 ? edges : focusOnEdges as edge}
+        <Edge
+          assignId={sqid.encode([edge.id, edge.source.id, edge.target.id])}
+          source={edgeSourcePosition(edge)}
+          target={edge.target.position}
+          middleAxisAdjust={edgeMiddleAxisAdjust(edge)}
+          transform="translate({unitWidth / 2}, {unitHeight / 2})"
+          color={edge.target.color}
+          variant={edge.target.layer - edge.source.layer > 1 ? "dash-md" : null}
+        />
       {/each}
     </g>
     <g class="layer--card">
-      {#each instanceNodes as node}
-        {#if focusOnNodes.length === 0 || focusOnNodes.includes(node.id)}
-          <Card
-            pos={node.position}
-            title={node.name}
-            stacked={node.children.length > 0}
-            actions={node.children.length > 0}
-            color={node.color}
-            active={focusOnNodes.length === 0 || focusOnNodes.includes(node.id)}
-            on:click={() => onCardClick(node.id)}
-            onActionClick={() => onCardActionClick(node.id)}
-            iconSrc={node.icon}
-          />
-        {/if}
+      {#each focusOnNodes.length === 0 ? instanceNodes : focusOnNodes as node}
+        <Card
+          id={node.id}
+          pos={node.position}
+          title={node.name}
+          stacked={node.children.length > 0}
+          actions={node.children.length > 0}
+          color={node.color}
+          active={focusOnNodes.length === 0 || focusOnNodes.includes(node.id)}
+          on:click={() => onCardClick(node.id)}
+          onActionClick={() => onCardActionClick(node.id)}
+          iconSrc={node.icon}
+        />
       {/each}
     </g>
   </svg>
@@ -223,7 +293,7 @@
       <div class="px-3">
         <h1>{inViewNode.name}</h1>
         <hr />
-
+        <DataTable data={inViewDetail} />
       </div>
     {/if}
   </ModalView>

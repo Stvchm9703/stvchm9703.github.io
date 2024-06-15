@@ -1,6 +1,4 @@
 <script>
-  import { onMount } from "svelte";
-
   export let source = { x: 0, y: 0 };
   export let target = { x: 0, y: 0 };
   export let middleAxisAdjust = null;

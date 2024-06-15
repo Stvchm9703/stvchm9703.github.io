@@ -51,6 +51,7 @@
     "d3-cloud": "^1.2.7",
     "d3-sankey": "^0.12.3",
     "d3-zoom": "^3.0.0",
+    "fuse.js": "^7.0.0",
     "pixi.js": "^7.3.2",
     "svelte-media-queries": "^1.6.2",
     "svelte-pixi": "^0.1.3",
