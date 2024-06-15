@@ -84,10 +84,10 @@
         <h2 class="text-light-50 text-3xl">A Man who run with code</h2>
         <p class="text-light-200">almost, but not quite,</p>
     </BannerGridCell>
-    <BannerGridCell align="right" row={3}>
+    <!-- <BannerGridCell align="right" row={3}>
         <h2 class="text-light-50 text-3xl">A Man who run with code</h2>
         <p class="text-light-200">almost, but not quite,</p>
-    </BannerGridCell>
+    </BannerGridCell> -->
 
     <h1
         class="grid-row-start-4 grid-col-start-2 grid-col-end-2 text-center text-light-50 text-5xl"
@@ -247,7 +247,7 @@
     </div>
 </Banner>
 
-<Banner id="contact" containerClass="">
+<Banner id="contact" containerClass="z-1" class="z-1">
     <div slot="background" class=" bg-blue-900 flex flex-col min-h-150" />
 
     <div class="flex flex-col">

@@ -291,7 +291,7 @@
   >
     {#if inViewNode !== null}
       <div class="px-3">
-        <h1>{inViewNode.name}</h1>
+        <h1 class="text-xl">{inViewNode.name}</h1>
         <hr />
         <DataTable data={inViewDetail} />
       </div>

@@ -1,5 +1,4 @@
 <script>
-  import { clickoutside } from "@svelte-put/clickoutside";
   export let title = "";
   export let description = "";
   export let isShow = false;
@@ -8,8 +7,6 @@
   export let onCloseClick = () => {};
 
   const internalCloseClick = () => {
-    console.log("internalCloseClick");
-
     dataShow = false;
     onCloseClick();
   };
@@ -18,7 +15,9 @@
   }
 </script>
 
-<div class="cds--modal {dataShow ? 'is-visible' : ''}" data-modal="true">
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+<!-- svelte-ignore a11y-no-static-element-interactions -->
+<div class="cds--modal {dataShow ? 'is-visible' : ''}" data-modal="true" on:click|self={internalCloseClick}>
   <div class="cds--modal-container cds--modal-container">
     <div class="cds--modal-header cds--modal-header">
       <p
