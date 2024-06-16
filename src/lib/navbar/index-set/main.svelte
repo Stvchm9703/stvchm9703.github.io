@@ -2,7 +2,7 @@
   import NavItem from "./item.svelte";
   import { clickoutside } from "@svelte-put/clickoutside";
   let isShow = false;
-  let isHoverOn = "";
+  let isHoverOn = "index";
   const navItemClick = (name) => {
     isShow = true;
     isHoverOn = name;

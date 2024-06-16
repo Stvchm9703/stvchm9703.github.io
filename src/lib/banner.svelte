@@ -12,8 +12,10 @@
     export let isFullScreen = false;
     export let containerClass = "";
 
+    export let onIntersect = () => {}
+
     let isIntersecting = false;
-    const onIntersect = (event) => {
+    const onInnerIntersect = (event) => {
         const { entries } = event.detail;
         const entry = entries[0];
         isIntersecting = entry.isIntersecting;
@@ -26,14 +28,15 @@
         : 'h-auto'} {$$props.class}"
     {id}
     use:intersect={{ threshold: 0.1 }}
-    on:intersectonce={onIntersect}
+    on:intersectonce={onInnerIntersect}
+    on:intersect={onIntersect}
 >
     <slot name="background">
         <ImageSet class="inset-0 absolute" srcList={imageSrc} {imagePath} />
     </slot>
 
     <div
-        class="absolute inset-y-0 sm:left-8 md:inset-16 md:left-24 right-2 block z-2 overflow-hidden"
+        class="absolute inset-4 md:inset-16 md:left-24 block z-2 overflow-hidden"
     >
         <div class="max-w-screen-2xl mx-auto w-full {containerClass}">
             <slot>

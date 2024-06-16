@@ -9,28 +9,37 @@ const config = {
   // for more information about preprocessors
   preprocess: [
     preprocess(),
-    // UnoCSS({
-    //   // classPrefix: "me-",
-    // }),
   ],
 
   kit: {
+    // inspector: process.argv.includes('dev'),
     adapter: adapter({
       fallback: "200.html",
-      precompress: true,
+      // precompress: true,
+      pages: 'build',
+      assets: 'build',
+      precompress: !process.argv.includes('dev'),
+      strict: true
     }),
     prerender: {
       // default: true,
-      handleHttpError: "warn",
-      handleMissingId: "warn",
+      handleHttpError: "ignore",
+      handleMissingId: "ignore",
+      handleEntryGeneratorMismatch: "ignore",
+      crawl: true,
     },
     // files: {
     //   hooks: "src/hooks",
     // },
     alias: {
+      "$lib": "src/lib",
+      "$lib/*": "src/lib/*",
       "$assets": "src/assets",
       "$assets/*": "src/assets/*",
     },
+    paths: {
+      base: process.argv.includes('dev') ? '' : process.env.BASE_PATH
+    }
   },
   compilerOptions: {
     css: "external",

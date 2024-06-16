@@ -11,7 +11,7 @@
   export let pos = { x: 0, y: 0 };
   export let title = "",
     subtitle = "",
-    label;
+    label = null;
   export let active = false;
   export let actions = false;
   export let onActionClick = () => {};
