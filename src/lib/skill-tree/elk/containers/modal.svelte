@@ -1,23 +1,39 @@
-<script>
-  export let title = "";
-  export let description = "";
-  export let isShow = false;
-  let dataShow = false;
-  // $: () => (isShow ? (dataShow = true) : void 0);
-  export let onCloseClick = () => {};
+<script lang="ts">
+  import { run, self } from 'svelte/legacy';
+
+  let dataShow = $state(false);
+
+  interface Props {
+    title?: string;
+    description?: string;
+    isShow?: boolean;
+    // $: () => (isShow ? (dataShow = true) : void 0);
+    onCloseClick?: any;
+    children?: import('svelte').Snippet;
+  }
+
+  let {
+    title = "",
+    description = "",
+    isShow = false,
+    onCloseClick = () => {},
+    children
+  }: Props = $props();
 
   const internalCloseClick = () => {
     dataShow = false;
     onCloseClick();
   };
-  $: {
+  run(() => {
     if (isShow) dataShow = true;
-  }
+  });
+
+  const children_render = $derived(children);
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<!-- svelte-ignore a11y-no-static-element-interactions -->
-<div class="cds--modal {dataShow ? 'is-visible' : ''}" data-modal="true" on:click|self={internalCloseClick}>
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div class="cds--modal {dataShow ? 'is-visible' : ''}" data-modal="true" onclick={self(internalCloseClick)}>
   <div class="cds--modal-container cds--modal-container">
     <div class="cds--modal-header cds--modal-header">
       <p
@@ -33,7 +49,7 @@
         data-modal-close=""
         aria-label="close modal"
         data-modal-primary-focus=""
-        on:click={internalCloseClick}
+        onclick={internalCloseClick}
       >
         <svg
           focusable="false"
@@ -55,7 +71,7 @@
     </div>
 
     <div class="cds--modal-content cds--modal-content">
-      <slot />
+      {@render children_render?.()}
     </div>
 
     <div class="cds--modal-footer cds--modal-footer">

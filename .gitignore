@@ -19,3 +19,5 @@ pnpm-debug.log*
 .DS_Store
 .svelte-kit/
 build/
+src/lib/skill-tree/full-repo-data*.json
+src/lib/skill-tree/check-list.txt

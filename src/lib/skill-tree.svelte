@@ -1,11 +1,16 @@
-<script>
-  let x = 0,
-    y = 0 ,
-    z = 1,
-    isMove = false;
+<script lang="ts">
+  interface Props {
+    [key: string]: any
+  }
 
-  $: position = `translate(${x}px, ${y}px)`;
-  $: mapStyle = `transform: ${position} ;`;
+  let { ...props }: Props = $props();
+  let x = $state(0),
+    y = $state(0) ,
+    z = 1,
+    isMove = $state(false);
+
+  let position = $derived(`translate(${x}px, ${y}px)`);
+  let mapStyle = $derived(`transform: ${position} ;`);
 
   const handleMouseMove = (event) => {
     if (!isMove) return;
@@ -20,10 +25,10 @@
 </script>
 
 <div
-  class="overflow-hidden -z-1 absolute inset-0 bg-gray700 {$$props.class}"
-  on:mousedown={()=> (isMove = true)}
-  on:mouseup={()=> (isMove = false)}
-  on:mousemove={handleMouseMove}
+  class="overflow-hidden -z-1 absolute inset-0 bg-gray700 {props.class}"
+  onmousedown={()=> (isMove = true)}
+  onmouseup={()=> (isMove = false)}
+  onmousemove={handleMouseMove}
 >
   <!-- map render -->
   <div class="h-500vh w-500vh bg-blue" style={mapStyle}>

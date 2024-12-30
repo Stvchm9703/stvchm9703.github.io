@@ -1,8 +1,8 @@
 <script>
   import NavItem from "./item.svelte";
   import { clickoutside } from "@svelte-put/clickoutside";
-  let isShow = false;
-  let isHoverOn = "index";
+  let isShow = $state(false);
+  let isHoverOn = $state("index");
   const navItemClick = (name) => {
     isShow = true;
     isHoverOn = name;
@@ -14,9 +14,9 @@
     class={"absolute  bg-dark400/15 inset-y-0 backdrop-filter  backdrop-blur-lg transition-all duration-500 " +
       (isShow ? "w-45vw" : "w-0")}
     use:clickoutside
-    on:clickoutside={() => (isShow = false)}
-    on:mouseout={() => (isShow = false)}
-  />
+    onclickoutside={() => (isShow = false)}
+    onmouseout={() => (isShow = false)}
+></div>
 
   <section
     class={"absolute left-6 top-50% transform -translate-y-50% " +

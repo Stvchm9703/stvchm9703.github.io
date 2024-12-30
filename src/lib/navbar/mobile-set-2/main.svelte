@@ -1,20 +1,26 @@
-<script>
+<script lang="ts">
+  import { run } from 'svelte/legacy';
+
   import { onMount } from "svelte";
 
   import NavItem from "./item.svelte";
 
   // import { clickoutside } from "@svelte-put/clickoutside";
   // let isShow = false;
-  let isHoverOn = "";
+  let isHoverOn = $state("");
   const navItemClick = (name) => {
     isHoverOn = name;
   };
 
-  export let activeId = "index";
-  $: {
+  interface Props {
+    activeId?: string;
+  }
+
+  let { activeId = "index" }: Props = $props();
+  run(() => {
     isHoverOn = activeId;
     console.log({isHoverOn, activeId});
-  };
+  });;
 </script>
 
 <nav class="fixed top-0 w-full z-6000">

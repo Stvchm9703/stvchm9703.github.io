@@ -1,8 +1,7 @@
 <script>
   export const prerender = true;
 
-  /** @type {import('./$types').PageData} */
-  export let gameLinkSet = [];
+
 
   import Navbar from "$lib/navbar/index-page.svelte";
   import Banner from "$lib/banner.svelte";
@@ -21,6 +20,13 @@
   import SkillTree from "$lib/skill-tree/elk/main.svelte";
   import ImageSet from "$lib/Image.svelte";
   import { onMount } from "svelte";
+  /**
+   * @typedef {Object} Props
+   * @property {import('./$types').PageData} [gameLinkSet]
+   */
+
+  /** @type {Props} */
+  let { gameLinkSet = [] } = $props();
 
   onMount(() => {
     console.log(gameLinkSet);
@@ -41,20 +47,22 @@
   isFullScreen
   containerClass="h-full grid items-center content-center"
 >
-  <div slot="background" class="inset-0 absolute">
-    <ImageSet
-      class="inset-0 absolute z-1"
-      srcList={IndexImage_L0}
-      forceLoad
-      alt="index banner image; layer 0"
-    />
-    <!-- <ImageSet
-            class="inset-0 absolute z-2"
-            srcList={IndexImage_L1}
-            forceLoad
-            alt="index banner image; layer 1"
-        /> -->
-  </div>
+  {#snippet background()}
+    <div class="inset-0 absolute">
+      <ImageSet
+        class="inset-0 absolute z-1"
+        srcList={IndexImage_L0}
+        forceLoad
+        alt="index banner image; layer 0"
+      />
+      <!-- <ImageSet
+              class="inset-0 absolute z-2"
+              srcList={IndexImage_L1}
+              forceLoad
+              alt="index banner image; layer 1"
+          /> -->
+    </div>
+  {/snippet}
   <BannerGridCell align="left">
     <h1 class="text-light-50 text-5xl leading-loose">Steven - Cheng Ho Man</h1>
     <p class="text-light-200 leading-loose">
@@ -68,10 +76,11 @@
   class="!h-500vh w-full "
   containerClass="flex flex-col lg:grid  lg:grid-cols-2 xl:grid-cols-3 justify-items-stretch  grid-rows-auto grid-content-start gap-2 md:gap-y-8 lg:gap-y-32 pt-32"
 >
-  <ScrollFrame
-    slot="background"
-    class="bg-dark-100 inset-0 bg-dark-100 fixed -z-1 "
-  />
+  {#snippet background()}
+    <ScrollFrame
+      class="bg-dark-100 inset-0 bg-dark-100 fixed -z-1 "
+    />
+  {/snippet}
 
   <h1
     class="grid-row-start-1 grid-col-start-2 grid-col-end-2 text-center text-light-50 text-5xl"
@@ -191,11 +200,7 @@
     />
   </BannerGridCell>
 
-  <h1
-    class="grid-row-start-9 grid-col-start-2 grid-col-end-2 text-center text-light-50 text-5xl"
-  >
-    Hobby...
-  </h1>
+  <!-- <h1 class="grid-row-start-9 grid-col-start-2 grid-col-end-2 text-center text-light-50 text-5xl" > Hobby... </h1> -->
   <BannerGridCell align="left" row={10}>
     <h2 class="text-light-50 text-3xl">Drawing</h2>
     <div class="text-light-50 text-lg">
@@ -248,7 +253,9 @@
 </Banner>
 
 <Banner id="skill" isFullScreen containerClass="!max-w-99rem">
-  <div slot="background" class=" backdrop-blur-lg inset-0 absolute" />
+  {#snippet background()}
+    <div class=" backdrop-blur-lg inset-0 absolute"s></div>
+  {/snippet}
   <div class="flex flex-col self-center max-w-full items-start">
     <div class="px-6 py-4 rounded-lg bg-dark-700/45 mx-8 mb-3">
       <h1 class="text-3xl text-light-900">Skill Set</h1>
@@ -262,7 +269,9 @@
 </Banner>
 
 <Banner id="contact" containerClass="z-1" class="z-1">
-  <div slot="background" class=" bg-blue-900 flex flex-col min-h-150" />
+  {#snippet background()}
+    <div class=" bg-blue-900 flex flex-col min-h-150"></div>
+  {/snippet}
 
   <div class="flex flex-col">
     <h1 class="text-center text-3xl text-light-50 font-light">Contact Me</h1>

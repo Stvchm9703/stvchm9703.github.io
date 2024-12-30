@@ -1,10 +1,15 @@
-<script>
+<script lang="ts">
   import { createSuspense, Suspense } from "@svelte-drama/suspense";
   import MediaQuery from "svelte-media-queries";
   // const suspend = createSuspense();
-  // import Navbar from "$lib/navbar/index-set/main.svelte";
+  
 
-  export let activeId;
+  interface Props {
+    // import Navbar from "$lib/navbar/index-set/main.svelte";
+    activeId: any;
+  }
+
+  let { activeId }: Props = $props();
   const PCNavComponent = import("$lib/navbar/index-set/main.svelte").then(
     (m) => m.default
   );
@@ -15,17 +20,21 @@
  
 </script>
 
-<Suspense let:suspend>
-  <MediaQuery query={mediaQuesySet} let:matches>
-    {@const [tablet, desktop] = matches}
-    {#if tablet}
-      {#await suspend(MobNavComponent) then MyComponent}
-        <MyComponent {activeId} />
-      {/await}
-    {:else if desktop}
-      {#await suspend(PCNavComponent) then MyComponent}
-        <MyComponent />
-      {/await}
-    {/if}
-  </MediaQuery>
+<Suspense >
+  {#snippet children({ suspend })}
+    <MediaQuery query={mediaQuesySet} >
+      {#snippet children({ matches })}
+        {@const [tablet, desktop] = matches}
+        {#if tablet}
+          {#await suspend(MobNavComponent) then MyComponent}
+            <MyComponent {activeId} />
+          {/await}
+        {:else if desktop}
+          {#await suspend(PCNavComponent) then MyComponent}
+            <MyComponent />
+          {/await}
+        {/if}
+            {/snippet}
+    </MediaQuery>
+  {/snippet}
 </Suspense>

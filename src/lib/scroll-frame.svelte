@@ -1,7 +1,12 @@
-<script>
+<script lang="ts">
   // base on https://olivier3lanc.github.io/Scroll-Frames/
 
   import { onMount } from "svelte";
+  interface Props {
+    [key: string]: any
+  }
+
+  let { ...props }: Props = $props();
 
   // Helper function to clamp a number between a min and max
   const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
@@ -46,9 +51,9 @@
       frameId % prefetchFrameOffset === 0 || _prefetchFrame.includes(frameId)
   );
 
-  let frameIndex = 0;
+  let frameIndex = $state(0);
 
-  let elementRef;
+  let elementRef = $state();
 
   // Function to build the background image and sizes
   const build = () => {
@@ -144,7 +149,7 @@
 
 <div
   bind:this={elementRef}
-  class={$$props.class}
+  class={props.class}
   data-frame-current={frameIndex}
 >
   <!-- <div class="absolute inset-0"> -->

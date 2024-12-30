@@ -1,11 +1,20 @@
-<script></script>
+<script lang="ts">
+  interface Props {
+    header?: import('svelte').Snippet;
+    children?: import('svelte').Snippet;
+    modal?: import('svelte').Snippet;
+    [key: string]: any
+  }
 
-<div class="chart-holder cds--chart-holder {$$props.class} bg-gray-300">
+  let { ...props }: Props = $props();
+</script>
+
+<div class="chart-holder cds--chart-holder {props.class} bg-gray-300">
   <div
     class="cds--cc--chart-wrapper cds--cc--layout-column"
     style="height: 100%; width: 100%;"
   >
-    <slot name="header" />
+    {@render props.header?.()}
     <div
       class="layout-child spacer cds--cc--spacer"
       style="height: 15px; width: 100%;"
@@ -17,9 +26,9 @@
       style="height: 1345px; width: 100%;"
     >
       <div class="layout-child graph-frame w-full h-full">
-        <slot />
+        {@render props.children?.()}
       </div>
     </div>
   </div>
-  <slot name="modal" />
+  {@render props.modal?.()}
 </div>

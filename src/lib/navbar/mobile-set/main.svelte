@@ -1,8 +1,8 @@
 <script>
   import NavItem from "./item.svelte";
   import { clickoutside } from "@svelte-put/clickoutside";
-  let isShow = false;
-  let isHoverOn = "";
+  let isShow = $state(false);
+  let isHoverOn = $state("");
   const navItemClick = (name) => {
     setTimeout(() => {
       isShow = false;
@@ -10,9 +10,9 @@
     isHoverOn = name;
   };
 
-  $: navMenuClass =
-    "absolute top-16 w-full b-solid b-x-none b-b-none  b-1 bg-dark400/65  backdrop-blur-lg transition-all duration-500 " +
-    (isShow ? "b-white" : "b-transparent");
+  let navMenuClass =
+    $derived("absolute top-16 w-full b-solid b-x-none b-b-none  b-1 bg-dark400/65  backdrop-blur-lg transition-all duration-500 " +
+    (isShow ? "b-white" : "b-transparent"));
 </script>
 
 <nav
@@ -24,9 +24,9 @@
     <div class="flex flex-1 justify-end items-center">
       <button
         class="block rounded p-1 w-8 h-8 bg-transparent transition-all hover:(bg-gray700/25)"
-        on:click={() => (isShow = !isShow)}
+        onclick={() => (isShow = !isShow)}
       >
-        <i class="i-carbon-menu text-white w-full h-full block" />
+        <i class="i-carbon-menu text-white w-full h-full block"></i>
       </button>
     </div>
   </div>

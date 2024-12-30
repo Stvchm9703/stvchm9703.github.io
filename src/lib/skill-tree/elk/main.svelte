@@ -13,7 +13,7 @@
 
   import Fuse from "fuse.js";
   import DataTable from "./containers/data-table.svelte";
-  let svgContainer;
+  let svgContainer = $state();
 
   let unitWidth = 200,
     unitHeight = 64,
@@ -138,10 +138,10 @@
     );
   };
 
-  let focusOnNodes = [],
-    focusOnEdges = [];
-  let inViewNode = null;
-  let inViewDetail = null;
+  let focusOnNodes = $state([]),
+    focusOnEdges = $state([]);
+  let inViewNode = $state(null);
+  let inViewDetail = $state(null);
   // d3 module
   const init = () => {
     const svgSelection = d3.select(svgContainer);
@@ -160,12 +160,15 @@
 
   const onCardClick = (cardId) => {
     inViewNode = instanceNodes.find((elm) => elm.id === cardId);
-    if (fuseSearchEng) {
+
+    if (fuseSearchEng && inViewNode) {
       let searchResult = fuseSearchEng.search(inViewNode.name);
 
-      inViewDetail = searchResult
-                      .filter((elm) => elm.score >= 0.3)
-                      .map((elm) => elm.item);
+      const result  = searchResult
+                      .filter((elm) => elm.score >= 0.5);
+
+      console.log(result);
+      inViewDetail = result.map(elm=> elm.item)
     }
     // inViewDetail = import(`$assets/data/${inViewNode.name}.md`);
   };
@@ -238,8 +241,7 @@
     }));
 
     fuseSearchEng = new Fuse(repoData, {
-      keys: ["name", "description", "tags", "languages_key"],
-      findAllMatches: true,
+      keys: [ "description", "tags"],
       includeScore: true,
     });
   });
@@ -248,7 +250,7 @@
 <MainContainer>
   <div class="absolute top-2 right-2 bg-gray-100">
     {#if focusOnNodes.length !== 0}
-      <button class="cds--cc--card-node--button" on:click={reset}>
+      <button class="cds--cc--card-node--button" onclick={reset}>
         Reset
       </button>
     {/if}
@@ -284,17 +286,18 @@
       {/each}
     </g>
   </svg>
-  <ModalView
-    slot="modal"
-    isShow={inViewNode !== null}
-    onCloseClick={() => (inViewNode = null)}
-  >
-    {#if inViewNode !== null}
-      <div class="px-3">
-        <h1 class="text-xl">{inViewNode.name}</h1>
-        <hr />
-        <DataTable data={inViewDetail} />
-      </div>
-    {/if}
-  </ModalView>
+  {#snippet modal()}
+    <ModalView
+      isShow={inViewNode !== null}
+      onCloseClick={() => (inViewNode = null)}
+    >
+      {#if inViewNode !== null}
+        <div class="px-3">
+          <h1 class="text-xl">{inViewNode.name}</h1>
+          <hr />
+          <DataTable data={inViewDetail} />
+        </div>
+      {/if}
+    </ModalView>
+  {/snippet}
 </MainContainer>

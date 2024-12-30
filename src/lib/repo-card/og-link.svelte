@@ -1,8 +1,12 @@
-<script>
+<script lang="ts">
   import ImageSet from "$lib/Image.svelte";
   import { onMount } from "svelte";
 
-  export let url = "https://stvchm9703.itch.io/shadow-expeller";
+  interface Props {
+    url?: string;
+  }
+
+  let { url = "https://stvchm9703.itch.io/shadow-expeller" }: Props = $props();
 
   let url_image = "";
 
