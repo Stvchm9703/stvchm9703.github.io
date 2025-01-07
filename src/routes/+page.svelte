@@ -1,8 +1,6 @@
 <script>
   export const prerender = true;
 
-
-
   import Navbar from "$lib/navbar/index-page.svelte";
   import Banner from "$lib/banner.svelte";
   import BannerGridCell from "$lib/banner-grid-cell.svelte";
@@ -16,9 +14,12 @@
   import BaseImage_3 from "$assets/img/centaline_groupmate.jpg?format=webp&w=700;1200&q=85&as=metadata";
 
   import KeyboardImage from "$assets/img/keyboard.jpg?format=webp&q=85";
+  import GameAnimation from "$assets/animation/alicetaria-walking.webm";
   import ScrollFrame from "$lib/scroll-frame.svelte";
   import SkillTree from "$lib/skill-tree/elk/main.svelte";
+  import ProjectSet from "$lib/project-set/card-set.svelte";
   import ImageSet from "$lib/Image.svelte";
+
   import { onMount } from "svelte";
   /**
    * @typedef {Object} Props
@@ -29,7 +30,7 @@
   let { gameLinkSet = [] } = $props();
 
   onMount(() => {
-    console.log(gameLinkSet);
+    console.log({ gameLinkSet });
     console.log(currentSection);
   });
 
@@ -77,9 +78,7 @@
   containerClass="flex flex-col lg:grid  lg:grid-cols-2 xl:grid-cols-3 justify-items-stretch  grid-rows-auto grid-content-start gap-2 md:gap-y-8 lg:gap-y-32 pt-32"
 >
   {#snippet background()}
-    <ScrollFrame
-      class="bg-dark-100 inset-0 bg-dark-100 fixed -z-1 "
-    />
+    <ScrollFrame class="bg-dark-100 inset-0 bg-dark-100 fixed -z-1 " />
   {/snippet}
 
   <h1
@@ -219,13 +218,17 @@
   <BannerGridCell align="left" row={12}>
     <h2 class="text-light-50 text-3xl">Game making</h2>
     <div class="text-light-50 text-lg">
-      make some small util tools for myself, to make my life easier
-      <div class="grid w-24 h-24">
-        {#each gameLinkSet as link}
-          <OgLink />
-        {/each}
-      </div>
+      make some small games, but not a big fans of game playing
     </div>
+  </BannerGridCell>
+   <BannerGridCell align="right" row={12} class="!p-0 !backdrop-filter-none">
+    <video
+      class="aspect-square w-full block max-h-4xl"
+      src={GameAnimation}
+      preload="none"
+      alt="animation"
+       loop="true" autoplay="true"
+    />
   </BannerGridCell>
   <BannerGridCell align="right" row={13}>
     <h2 class="text-light-50 text-3xl">Keyboard</h2>
@@ -251,10 +254,21 @@
     />
   </BannerGridCell>
 </Banner>
+<Banner id="project" isFullScreen containerClass="!max-w-99rem">
+  {#snippet background()}
+    <div class=" backdrop-blur-lg inset-0 absolute"></div>
+  {/snippet}
+  <div class="flex flex-col self-center max-w-full items-start">
+    <div class="px-6 py-4 rounded-lg bg-dark-700/45 mx-8 mb-3">
+      <h1 class="text-3xl text-light-900">Project</h1>
+    </div>
+    <ProjectSet />
+  </div>
+</Banner>
 
 <Banner id="skill" isFullScreen containerClass="!max-w-99rem">
   {#snippet background()}
-    <div class=" backdrop-blur-lg inset-0 absolute"s></div>
+    <div class=" backdrop-blur-lg inset-0 absolute"></div>
   {/snippet}
   <div class="flex flex-col self-center max-w-full items-start">
     <div class="px-6 py-4 rounded-lg bg-dark-700/45 mx-8 mb-3">

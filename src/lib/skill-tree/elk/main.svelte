@@ -160,15 +160,14 @@
 
   const onCardClick = (cardId) => {
     inViewNode = instanceNodes.find((elm) => elm.id === cardId);
-
+    // console.log(inViewNode.name);
     if (fuseSearchEng && inViewNode) {
       let searchResult = fuseSearchEng.search(inViewNode.name);
 
-      const result  = searchResult
-                      .filter((elm) => elm.score >= 0.5);
+      const result = searchResult.filter((elm) => elm.score >= 0.5);
 
-      console.log(result);
-      inViewDetail = result.map(elm=> elm.item)
+      // console.log(result);
+      inViewDetail = result.map((elm) => elm.item);
     }
     // inViewDetail = import(`$assets/data/${inViewNode.name}.md`);
   };
@@ -239,10 +238,12 @@
       ...elm,
       languages_key: Object.keys(elm.languages),
     }));
-
+    // repoData = importData;
     fuseSearchEng = new Fuse(repoData, {
-      keys: [ "description", "tags"],
+      keys: ["tags", "languages", "description"],
       includeScore: true,
+      distance: 5,
+      shouldSort: true,
     });
   });
 </script>

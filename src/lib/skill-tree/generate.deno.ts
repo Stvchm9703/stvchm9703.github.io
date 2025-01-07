@@ -181,7 +181,7 @@ const octokit = new Octokit({
 
 const { data: fullRepoList } = await octokit.rest.search.repos({
   q: "owner:stvchm9703 -is:fork",
-  per_page: 100,
+  per_page: 2000,
 });
 
 // console.log(fullRepoList);
