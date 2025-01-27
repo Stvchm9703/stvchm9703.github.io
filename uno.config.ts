@@ -53,5 +53,14 @@ export default defineConfig({
   ],
   // safelist: ['bg-orange-300', 'prose'],
   theme: {
+    breakpoints: {
+      sm: '20rem',
+      // Because uno does not support comparison sorting of different unit sizes, please convert to the same unit.
+      md: '42rem',
+      // md: `${40 * 16}px`,
+      lg: '66rem',
+      xl: '82rem',
+      '2xl': '98rem',
+    },
   }
 })

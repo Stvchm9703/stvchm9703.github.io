@@ -5,6 +5,7 @@
   export let align = "left";
   export let id = "";
   export let row = 1;
+  export let isTitle = false;
   let isIntersecting = false;
 
   const toStyle = (styleObject) => {
@@ -21,9 +22,9 @@
   // $: rowClass = () => `grid-row-start-${row} grid-row-end-${row + 1}`;
   $: alignClass = () =>
     align === "left"
-      ? " justify-self-end lg:justify-self-start lg:(grid-col-start-1 grid-col-end-2) "
+      ? " justify-self-end lg:justify-self-start 2xl:(grid-col-start-1 grid-col-end-2) "
       : align === "right"
-        ? " justify-self-start lg:justify-self-end lg:(grid-col-start-3 grid-col-end-4) "
+        ? " justify-self-start lg:justify-self-end 2xl:(grid-col-start-3 grid-col-end-4) "
         : "";
   $: intersectingClass = () =>
     isIntersecting
@@ -37,8 +38,13 @@
 
 <div
   {id}
-  class={"block lt-lg:w-full px-6 py-3 lg:(px-6 py-4)  rounded-lg transition transform backdrop-filter backdrop-blur-xl backdrop-brightness-80 place-self-center  f-my-16-56 overflow-hidden " +
-    [alignClass(), intersectingClass(), $$props.class || ""].join(" ")}
+  class={"block lt-lg:w-full px-6 py-3 lg:(px-6 py-4)  rounded-lg transition transform  place-self-center  xl:f-my-16-56 overflow-hidden " +
+    [
+      !isTitle ? "backdrop-filter backdrop-blur-xl backdrop-brightness-80" : "",
+      alignClass(),
+      intersectingClass(),
+      $$props.class || "",
+    ].join(" ")}
   style={toStyle({
     "grid-row-start": row,
     "grid-row-end": row + 1,

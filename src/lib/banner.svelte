@@ -37,7 +37,7 @@
     </slot>
 
     <div
-        class="absolute inset-4 md:inset-16 md:left-24 block z-2 overflow-hidden"
+        class="relative inset-4 lg:inset-16 2xl:left-24 w-auto block z-2 overflow-hidden {isFullScreen ? 'h-full' : ''}"
     >
         <div class="max-w-screen-2xl mx-auto w-full {containerClass}">
             <slot>

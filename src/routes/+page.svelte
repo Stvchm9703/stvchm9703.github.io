@@ -14,25 +14,13 @@
   import BaseImage_3 from "$assets/img/centaline_groupmate.jpg?format=webp&w=700;1200&q=85&as=metadata";
 
   import KeyboardImage from "$assets/img/keyboard.jpg?format=webp&q=85";
-  import GameAnimation from "$assets/animation/alicetaria-walking.webm";
+  import GameAnimation from "$assets/animation/alicetaria-walking.webm?url&format=webm";
   import ScrollFrame from "$lib/scroll-frame.svelte";
   import SkillTree from "$lib/skill-tree/elk/main.svelte";
-  import ProjectSet from "$lib/project-set/card-set.svelte";
+  import ProjectSet from "$lib/project-set/card-list.svelte";
   import ImageSet from "$lib/Image.svelte";
 
-  import { onMount } from "svelte";
-  /**
-   * @typedef {Object} Props
-   * @property {import('./$types').PageData} [gameLinkSet]
-   */
-
-  /** @type {Props} */
-  let { gameLinkSet = [] } = $props();
-
-  onMount(() => {
-    console.log({ gameLinkSet });
-    console.log(currentSection);
-  });
+  // import { onMount } from "svelte";
 
   let currentSection = "index";
 </script>
@@ -41,6 +29,7 @@
   <title>Steven, the web dev</title>
   <!-- <meta /> -->
 </svelte:head>
+
 <Navbar activeId={currentSection} />
 
 <Banner
@@ -74,15 +63,15 @@
 
 <Banner
   id="introduction"
-  class="!h-500vh w-full "
-  containerClass="flex flex-col lg:grid  lg:grid-cols-2 xl:grid-cols-3 justify-items-stretch  grid-rows-auto grid-content-start gap-2 md:gap-y-8 lg:gap-y-32 pt-32"
+  class="w-full my-6"
+  containerClass="flex flex-col xl:grid  xl:grid-cols-2 2xl:grid-cols-3 justify-items-stretch  grid-rows-auto grid-content-start gap-2 lg:gap-y-8  pt-32"
 >
   {#snippet background()}
     <ScrollFrame class="bg-dark-100 inset-0 bg-dark-100 fixed -z-1 " />
   {/snippet}
 
   <h1
-    class="grid-row-start-1 grid-col-start-2 grid-col-end-2 text-center text-light-50 text-5xl"
+    class="grid-row-start-1 2xl:( grid-col-start-2 grid-col-end-2)  xl:(grid-col-start-1 grid-col-end-3)  text-center text-light-50 text-5xl"
   >
     Who I am ...
   </h1>
@@ -91,7 +80,7 @@
     <p class="text-light-200">almost, but not quite,</p>
   </BannerGridCell>
   <h1
-    class="grid-row-start-4 grid-col-start-2 grid-col-end-2 text-center text-light-50 text-5xl"
+    class="grid-row-start-4 2xl:( grid-col-start-2 grid-col-end-2)  xl:(grid-col-start-1 grid-col-end-3) text-center text-light-50 text-5xl"
   >
     In Career
   </h1>
@@ -183,9 +172,7 @@
             Centaline Data Technology Limited operates in the major market of
             Hong Kong with a staff size ranging from 51 to 100 employees. The
             company offers career opportunities and competitive remuneration
-            packages for individuals looking to join their team. The contact
-            person for Centaline Data Technology Limited is Mr. Tomy Pang, who
-            holds the position of Executive Director at the company.
+            packages for individuals looking to join their team.
           </p>
         </li>
       </ul>
@@ -221,13 +208,14 @@
       make some small games, but not a big fans of game playing
     </div>
   </BannerGridCell>
-   <BannerGridCell align="right" row={12} class="!p-0 !backdrop-filter-none">
+  <BannerGridCell align="right" row={12} class="!p-0 !backdrop-filter-none">
     <video
       class="aspect-square w-full block max-h-4xl"
       src={GameAnimation}
       preload="none"
       alt="animation"
-       loop="true" autoplay="true"
+      loop="true"
+      autoplay="true"
     />
   </BannerGridCell>
   <BannerGridCell align="right" row={13}>
@@ -254,12 +242,13 @@
     />
   </BannerGridCell>
 </Banner>
-<Banner id="project" isFullScreen containerClass="!max-w-99rem">
+
+<Banner id="project" isFullScreen containerClass="!max-w-99rem h-full" class="mt-6 w-full">
   {#snippet background()}
     <div class=" backdrop-blur-lg inset-0 absolute"></div>
   {/snippet}
-  <div class="flex flex-col self-center max-w-full items-start">
-    <div class="px-6 py-4 rounded-lg bg-dark-700/45 mx-8 mb-3">
+  <div class="flex flex-col self-center max-w-full items-start w-full h-full max-h-screen">
+    <div class="px-6 py-4 rounded-lg bg-dark-700/45 mb-6">
       <h1 class="text-3xl text-light-900">Project</h1>
     </div>
     <ProjectSet />
@@ -271,7 +260,7 @@
     <div class=" backdrop-blur-lg inset-0 absolute"></div>
   {/snippet}
   <div class="flex flex-col self-center max-w-full items-start">
-    <div class="px-6 py-4 rounded-lg bg-dark-700/45 mx-8 mb-3">
+    <div class="px-6 py-4 rounded-lg bg-dark-700/45 mb-3">
       <h1 class="text-3xl text-light-900">Skill Set</h1>
       <p class="text-light-800">
         Those I known and those I am learning, all skill and tech are mapped on
