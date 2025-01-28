@@ -32,7 +32,7 @@
     </section>
     <section class="flex flex-col min-w-20rem">
       <h2 class="text-xl">
-        <a href="/social"> Social </a>
+        <a href="/social"> Social Media</a>
       </h2>
       <ul class="flex flex-col">
         <li class="">

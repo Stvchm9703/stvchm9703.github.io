@@ -71,16 +71,16 @@
   {/snippet}
 
   <h1
-    class="grid-row-start-1 2xl:( grid-col-start-2 grid-col-end-2)  xl:(grid-col-start-1 grid-col-end-3)  text-center text-light-50 text-5xl"
+    class="grid-row-start-1 2xl:( grid-col-start-2 grid-col-end-2) xl:(grid-col-start-1 grid-col-end-3) text-center text-light-50 text-5xl mt-6 mb-3"
   >
     Who I am ...
   </h1>
   <BannerGridCell align="left" row={2}>
     <h2 class="text-light-50 text-3xl">A Man who run with code</h2>
-    <p class="text-light-200">almost, but not quite,</p>
+    <p class="text-light-200">almost, but not quite. Highly motivated and detail-oriented software developer with 3+ years of experience in designing, developing, and deploying cutting-edge software solutions. Proficient in Javascript, C#, Golang with expertise in Web Application. Proven track record of delivering high-quality projects on time, with a strong passion for innovation and continuous learning.</p>
   </BannerGridCell>
   <h1
-    class="grid-row-start-4 2xl:( grid-col-start-2 grid-col-end-2)  xl:(grid-col-start-1 grid-col-end-3) text-center text-light-50 text-5xl"
+    class="grid-row-start-4 2xl:( grid-col-start-2 grid-col-end-2) xl:(grid-col-start-1 grid-col-end-3) text-center text-light-50 text-5xl mt-6 mb-3"
   >
     In Career
   </h1>
@@ -186,15 +186,40 @@
     />
   </BannerGridCell>
 
-  <!-- <h1 class="grid-row-start-9 grid-col-start-2 grid-col-end-2 text-center text-light-50 text-5xl" > Hobby... </h1> -->
-  <BannerGridCell align="left" row={10}>
+  <BannerGridCell align="right" row={9} class="flex mt-0 mb-a self-start">
+    <div class="aspect-video">
+      <span class="text-light-700"> January 2023 - December 2024 </span>
+      <h2 class="text-light-50 text-3xl">Fulltime Student</h2>
+      <p class="text-light-200">
+        <span class="text-lg text-500"
+          >Master of Information System, University of Technology Sydney</span
+        >
+        <span>
+          Mainly studying in Artifactial Inteligel, Machine Learning, and Deep
+          Learning.
+        </span>
+      </p>
+    </div>
+  </BannerGridCell>
+  <BannerGridCell align="left" row={10} class="!p-0">
+    <ImageSet
+      class="aspect-video w-full block children:grayscale-100"
+      srcList={BaseImage_3}
+      alt="myself image"
+    />
+  </BannerGridCell>
+
+<!--  -->
+
+  <h1 class="grid-row-start-9 grid-col-start-2 grid-col-end-2 text-center text-light-50 text-5xl mt-6 mb-3" > Hobby  </h1>
+  <BannerGridCell align="left" row={12}>
     <h2 class="text-light-50 text-3xl">Drawing</h2>
     <div class="text-light-50 text-lg">
       just a little bit, not much, but I like it
       <div class="grid w-24 h-24"></div>
     </div>
   </BannerGridCell>
-  <BannerGridCell align="right" row={11}>
+  <BannerGridCell align="right" row={13}>
     <h2 class="text-light-50 text-3xl">Program making</h2>
     <div class="text-light-50 text-lg">
       make some small util tools for myself, to make my life easier; but not a
@@ -202,13 +227,13 @@
       <div class="grid w-24 h-24"></div>
     </div>
   </BannerGridCell>
-  <BannerGridCell align="left" row={12}>
+  <BannerGridCell align="left" row={14}>
     <h2 class="text-light-50 text-3xl">Game making</h2>
     <div class="text-light-50 text-lg">
       make some small games, but not a big fans of game playing
     </div>
   </BannerGridCell>
-  <BannerGridCell align="right" row={12} class="!p-0 !backdrop-filter-none">
+  <BannerGridCell align="right" row={15} class="!p-0 !backdrop-filter-none">
     <video
       class="aspect-square w-full block max-h-4xl"
       src={GameAnimation}
@@ -218,7 +243,7 @@
       autoplay="true"
     />
   </BannerGridCell>
-  <BannerGridCell align="right" row={13}>
+  <BannerGridCell align="right" row={16}>
     <h2 class="text-light-50 text-3xl">Keyboard</h2>
     <p class="text-light-50 text-lg">
       nice to type on, nice to look at. speed up my typing speed; also, make for
@@ -231,7 +256,7 @@
     />
   </BannerGridCell>
 
-  <BannerGridCell align="left" row={14}>
+  <BannerGridCell align="left" row={17}>
     <h2 class="text-light-50 text-3xl">Coffee(?)</h2>
     <div class="text-light-50 text-lg">coffee energy, enpower me everyday</div>
     <!-- <img class="mt-5 w-full min-h-24 object-contain" src={BaseImage_2} alt="" /> -->
@@ -243,11 +268,18 @@
   </BannerGridCell>
 </Banner>
 
-<Banner id="project" isFullScreen containerClass="!max-w-99rem h-full" class="mt-6 w-full">
+<Banner
+  id="project"
+  isFullScreen
+  containerClass="!max-w-99rem h-full"
+  class="mt-6 w-full"
+>
   {#snippet background()}
     <div class=" backdrop-blur-lg inset-0 absolute"></div>
   {/snippet}
-  <div class="flex flex-col self-center max-w-full items-start w-full h-full max-h-screen">
+  <div
+    class="flex flex-col self-center max-w-full items-start w-full h-full max-h-screen"
+  >
     <div class="px-6 py-4 rounded-lg bg-dark-700/45 mb-6">
       <h1 class="text-3xl text-light-900">Project</h1>
     </div>
@@ -273,19 +305,23 @@
 
 <Banner id="contact" containerClass="z-1" class="z-1">
   {#snippet background()}
-    <div class=" bg-blue-900 flex flex-col min-h-150"></div>
+    <div class=" absolute inset-0 bg-blue-900 flex flex-col"></div>
   {/snippet}
 
-  <div class="flex flex-col">
-    <h1 class="text-center text-3xl text-light-50 font-light">Contact Me</h1>
+  <div class="flex flex-col 2xl:min-h-150">
+    <h1 class="text-center 2xl:text-3xl text-xl text-light-50 font-light">
+      Contact Me
+    </h1>
     <div class="mt-8 max-w-xl flex flex-col w-full self-center">
       <table class="table-auto">
         <tbody>
           <tr class=" border-b-1 border-white">
-            <td class="py-3 text-2xl text-light-50 font-light">Email:</td>
+            <td class="py-3 2xl:text-2xl text-lg text-light-50 font-light"
+              >Email:</td
+            >
             <td class="py-3 flex justify-end">
               <a
-                class="text-right text-2xl text-light-50 font-light"
+                class="text-right 2xl:text-2xl text-lg text-light-50 font-light"
                 href="mailto:st.ch.inwork@gmail.com"
               >
                 st.ch.inwork@gmail.com
@@ -295,18 +331,20 @@
 
           <tr class=" border-b-1 border-white">
             <td class="py-3 flex flex-col">
-              <span class="text-2xl text-light-50 font-light">Tel:</span>
+              <span class="2xl:text-2xl text-lg text-light-50 font-light"
+                >Tel:</span
+              >
             </td>
             <td class="py-3">
               <div class="flex flex-col">
                 <a
-                  class="text-right text-2xl text-light-50 font-light"
+                  class="text-right 2xl:text-2xl text-lg text-light-50 font-light"
                   href="tel:+85297915541"
                 >
                   +852-97915541
                 </a>
                 <a
-                  class="text-right text-2xl text-light-50 font-light"
+                  class="text-right 2xl:text-2xl text-lg text-light-50 font-light"
                   href="tel:+86435397917"
                 >
                   +86-435397917
@@ -317,13 +355,16 @@
 
           <tr class=" border-b-1 border-white">
             <td class="py-3 flex flex-col">
-              <span class="text-2xl text-light-50 font-light">LinkedIn:</span>
+              <span class="2xl:text-2xl text-lg text-light-50 font-light"
+                >LinkedIn:</span
+              >
             </td>
             <td class="py-3">
               <div class="flex flex-col">
                 <a
-                  class="text-right text-2xl text-light-50 font-light"
+                  class="text-right 2xl:text-2xl text-lg text-light-50 font-light"
                   href="https://www.linkedin.com/in/chengsteven430431182/"
+                  target="_blank"
                 >
                   Steven Cheng
                 </a>
