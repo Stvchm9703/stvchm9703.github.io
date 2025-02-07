@@ -4,9 +4,9 @@
 
 ---
 
-### Project 
+## Project 
 
-#### JobSeek (2024)
+### JobSeek (2024)
 
 A mid scale web application that helps job seekers to find jobs, research the companies and generate a cover letter and CV by using the AI model.
 
@@ -29,19 +29,22 @@ User can apply jobs by taking quiz and sample test to create instance model to p
 
 
 
-#### Scholar-Search (2023)
+### Scholar-Search (2023)
 
 A Web server that implement web-scraping for scholar articles, with extra key extraction and text summarization. 
 - Languages: `Rust`, `HTMX`, `UnoCSS(Tailwind)`
 - Frameworks: `axum`, `askama`, `htmx`
 
-#### Xenosphere (2023)
+### Xenosphere (2023)
 
 Conceptial idea for Creating AI Model with less coding, like shadergraph in Unity Engine. Easy Code, Easy Life
 
-#### GameJam! (2023~2024)
+- languages: `Rust`
 
-##### Shadow Expel 
+
+### GameJam! (2023~2024)
+
+#### Shadow Expel 
 
 mini GameJam for school project, made with Unity Engine
 
@@ -49,46 +52,63 @@ https://github.com/Stvchm9703/code-31-game-jam-Shadow-Expel
 
 https://stvchm9703.itch.io/shadow-expeller
 
-##### Pac Student 
+- languages: `CSharp`
+- frameworks: `Unity Engine`
+
+#### Pac Student 
 
 Pac Man remake with Unity Engine
 
 https://github.com/Stvchm9703/UTS-GameDev-32004
 
-##### Image-Upscaler-Rust
+- languages: `CSharp`
+- frameworks: `Unity Engine`
+
+#### Image-Upscaler-Rust
 
 Mini Tool for extracting SWF pack to PNG
 
 https://github.com/Stvchm9703/image-upscaler-rust
 
-#### Other School Project in 2023~2024
+- languages: `Rust`
 
-##### NLP
+### Other School Project in 2023~2024
+
+#### NLP
 
 for simple implement NLP (Natual Language Processing) Model and comparing
 
 https://github.com/Stvchm9703/nlp-a3-group-project
 
 
-##### Deep Learning
+- languages: `Python`
+- frameworks: `Tensorflow`, `Pytorch`
+
+#### Deep Learning
 
 Assignment for Deep Learning task, mainly in Image processing
 
 https://github.com/Stvchm9703/uts-deep-learning-tutoral-assignment
 
-##### Software Development
+- languages: `Python`
+- frameworks: `Tensorflow`, `Pytorch`, `Jupyter`
+
+#### Software Development
 
 mono-reposity with Python backend service, and Tauri (`Nodejs`) Frontend Application;
 
 https://github.com/Stvchm9703/uts-32555-software-development
 
 
+- languages: `Python`, `Nodejs`
+- frameworks: `Flask`, `Taurijs`, `Solidjs`
+
 ---
 
 
-#### Other Project before 2023
+### Other Project before 2023
 
-##### Unlight-Zwei 
+#### Unlight-Zwei 
 
 Unlight (flash online game) remake with Unity Engine; With backend gRPC service  
 
@@ -114,11 +134,11 @@ repositories :
 
   For the skill / event driven calculation 
 
-##### Rewind-Card 
+#### Rewind-Card 
 
 A CLI tool for revert-engineering for CSS class, value; extract as object mapping
 
-##### 
+- languages: `Rust`, `TailwindCSS`, `lightCSS`
 
 ---
 
