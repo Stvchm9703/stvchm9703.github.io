@@ -17,6 +17,7 @@
   import GameAnimation from "$assets/animation/alicetaria-walking.webm?url&format=webm";
   import ScrollFrame from "$lib/scroll-frame.svelte";
   import SkillTree from "$lib/skill-tree/elk/main.svelte";
+  import SkillV2 from "$lib/skillset/main.svelte"
   import ProjectSet from "$lib/project-set/card-list.svelte";
   import ImageSet from "$lib/Image.svelte";
 
@@ -287,6 +288,7 @@
   </div>
 </Banner>
 
+<!--  -->
 <Banner id="skill" isFullScreen containerClass="!max-w-99rem">
   {#snippet background()}
     <div class=" backdrop-blur-lg inset-0 absolute"></div>
@@ -299,7 +301,7 @@
         the canvas
       </p>
     </div>
-    <SkillTree />
+    <SkillV2 />
   </div>
 </Banner>
 

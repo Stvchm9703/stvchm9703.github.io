@@ -12,14 +12,31 @@ import presetIcons from '@unocss/preset-icons/browser';
 
 import { presetScrollbar } from 'unocss-preset-scrollbar'
 
+import { presetAnimations } from 'unocss-preset-animations'
+
 
 export default defineConfig({
+  content: {
+    pipeline: {
+      include: [
+        // the default
+        /\.(vue|svelte|[jt]sx|mdx?|astro|elm|php|phtml|html)($|\?)/,
+        // include js/ts files
+        'src/**/*.{js,ts}',
+        './node_modules/@selemondev/svelte-marquee/dist/*.svelte'
+      ],
+      // exclude files
+      // exclude: []
+    },
+  },
+  
   shortcuts: [
     // { logo: 'i-logos:svelte-icon w-7em h-7em transform transition-300' },
     // [/^bg-gradient-(.*)$/, match=>`bg-gradient-to-r from-${match[1]}-400 to-${match[1]}-600`],
   ],
   transformers: [transformerVariantGroup(), transformerDirectives()],
   presets: [
+    presetAnimations(),
     presetWind(),
     presetFluid(),
     presetIcons({
