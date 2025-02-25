@@ -16,6 +16,9 @@
     use:clickoutside
     onclickoutside={() => (isShow = false)}
     onmouseout={() => (isShow = false)}
+    onblur = {()=>(isShow  = false)}
+    role="button"
+
 ></div>
 
   <section

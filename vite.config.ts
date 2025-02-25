@@ -3,7 +3,7 @@ import { sveltekit } from "@sveltejs/kit/vite";
 import unocss from '@unocss/vite';
 import ViteCompression from 'vite-plugin-compression'
 // import { extractorSvelte } from "@unocss/core";
-
+import { chunkSplitPlugin } from 'vite-plugin-chunk-split';
 // import {
 //   presetTypography,
 //   presetWebFonts,
@@ -11,7 +11,7 @@ import ViteCompression from 'vite-plugin-compression'
 // } from 'unocss';
 // import { presetDaisy } from 'unocss-preset-daisy';
 
-
+import { visualizer } from 'rollup-plugin-visualizer';
 import { imagetools } from "vite-imagetools";
 import dynamicImport from 'vite-plugin-dynamic-import'
 // import type { UserConfig } from "vite";
@@ -25,7 +25,8 @@ export default defineConfig(({ mode }) => {
     plugins: [
       imagetools({
         force: true,
-        removeMetadata: false
+        removeMetadata: true,
+        
       }),
       dynamicImport({
       }),
@@ -34,10 +35,36 @@ export default defineConfig(({ mode }) => {
       }),
       sveltekit(),
       ViteCompression({ algorithm: 'gzip' }),
+      chunkSplitPlugin(),
+      visualizer({ open: true, filename: 'bundle-visualization.html' })
     ],
 
     optimizeDeps: {
       include: ['pixi.js'],
     },
+
+    build: {
+      rollupOptions: {
+
+        treeshake: true,  // Ensure tree shaking is enabled
+
+        output: {
+          manualChunks: (id) => {
+            if (id.includes('/svelte/') || id.includes('/@svelte/')) {
+              return 'svelte'
+            } else if (id.includes('node_modules')) {
+              return 'vendor';
+            } else if (id.includes('routes')) {
+              return 'pages'
+            } else if (id.includes('lib')) {
+              return 'lib'
+            } else {
+              return 'main';
+            }
+          }
+        }
+      }
+    }
+
   };
 });

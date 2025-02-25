@@ -1,5 +1,5 @@
 <script>
-  export const prerender = true;
+  // export const p`rerender = true;
 
   import Navbar from "$lib/navbar/index-page.svelte";
   import Banner from "$lib/banner.svelte";
@@ -12,11 +12,13 @@
   import BaseImage_1 from "$assets/img/profile.jpg?format=webp&w=700;1200&q=85&as=metadata";
   import BaseImage_2 from "$assets/img/pepper_dayly.jpg?format=webp&w=700;1200&q=85&as=metadata";
   import BaseImage_3 from "$assets/img/centaline_groupmate.jpg?format=webp&w=700;1200&q=85&as=metadata";
+  import BaseImage_4 from "$assets/img/coffee.jpg?format=webp&w=700;1200&q=85&as=metadata";
+  import BaseImage_5 from "$assets/img/2024_uts.jpg?format=webp&w=700;1200&q=85&as=metadata";
 
   import KeyboardImage from "$assets/img/keyboard.jpg?format=webp&q=85";
   import GameAnimation from "$assets/animation/alicetaria-walking.webm?url&format=webm";
   import ScrollFrame from "$lib/scroll-frame.svelte";
-  import SkillTree from "$lib/skill-tree/elk/main.svelte";
+  // import SkillTree from "$lib/skill-tree/elk/main.svelte";
   import SkillV2 from "$lib/skillset/main.svelte"
   import ProjectSet from "$lib/project-set/card-list.svelte";
   import ImageSet from "$lib/Image.svelte";
@@ -202,17 +204,17 @@
       </p>
     </div>
   </BannerGridCell>
-  <BannerGridCell align="left" row={10} class="!p-0">
+  <BannerGridCell align="left" row={9} class="!p-0">
     <ImageSet
       class="aspect-video w-full block children:grayscale-100"
-      srcList={BaseImage_3}
+      srcList={BaseImage_5}
       alt="myself image"
     />
   </BannerGridCell>
 
 <!--  -->
 
-  <h1 class="grid-row-start-9 grid-col-start-2 grid-col-end-2 text-center text-light-50 text-5xl mt-6 mb-3" > Hobby  </h1>
+  <h1 class="grid-row-start-11 grid-col-start-2 grid-col-end-2 text-center text-light-50 text-5xl mt-6 mb-3" > Hobby  </h1>
   <BannerGridCell align="left" row={12}>
     <h2 class="text-light-50 text-3xl">Drawing</h2>
     <div class="text-light-50 text-lg">
@@ -234,7 +236,7 @@
       make some small games, but not a big fans of game playing
     </div>
   </BannerGridCell>
-  <BannerGridCell align="right" row={15} class="!p-0 !backdrop-filter-none">
+  <BannerGridCell align="right" row={14} class="!p-0 !backdrop-filter-none">
     <video
       class="aspect-square w-full block max-h-4xl"
       src={GameAnimation}
@@ -242,7 +244,9 @@
       alt="animation"
       loop="true"
       autoplay="true"
-    />
+    >
+    <track kind="captions"/>
+  </video>
   </BannerGridCell>
   <BannerGridCell align="right" row={16}>
     <h2 class="text-light-50 text-3xl">Keyboard</h2>
@@ -251,7 +255,7 @@
       cool stuff
     </p>
     <img
-      class="mt-5 w-full min-h-24 object-contain"
+      class="mt-5 w-full min-h-24 object-contain aspect-ratio-video"
       src={KeyboardImage}
       alt=""
     />
@@ -262,9 +266,9 @@
     <div class="text-light-50 text-lg">coffee energy, enpower me everyday</div>
     <!-- <img class="mt-5 w-full min-h-24 object-contain" src={BaseImage_2} alt="" /> -->
     <ImageSet
-      class="mt-5 w-full min-h-24 object-contain"
-      srcList={BaseImage_2}
-      alt="myself image"
+      class="mt-5 w-full min-h-24 object-contain aspect-ratio-video rounded"
+      srcList={BaseImage_4}
+      alt="coffee image"
     />
   </BannerGridCell>
 </Banner>

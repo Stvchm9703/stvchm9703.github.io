@@ -18,19 +18,14 @@
     </section>
     <section class="flex flex-col min-w-20rem">
       <h2 class="text-xl">Blog Post</h2>
-      <ul class="flex flex-col">
-       
-      </ul>
+      <ul class="flex flex-col"></ul>
     </section>
     <section class="flex flex-col min-w-20rem">
-      <h2 class="text-xl">
-        <a href="/social"> Social Media</a>
-      </h2>
+      <h2 class="text-xl">Social Media</h2>
       <ul class="flex flex-col">
         <li class="">
-          <a href="/blogs?tag=github" target="_blank"> <span>Linkedin</span></a>
+          <a href="https://www.linkedin.com/in/cheng-steven-430431182/" target="_blank"> <span>Linkedin</span></a>
         </li>
-     
       </ul>
     </section>
   </div>

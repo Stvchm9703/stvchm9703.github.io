@@ -45,7 +45,9 @@
   }
 }
 
-
+.direction-reverse {
+  animation-direction: reverse !important;
+}
 
 @media (prefers-reduced-motion: reduce) {
   .motion-reduce\:animate-none {
