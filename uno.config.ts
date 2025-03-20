@@ -2,18 +2,18 @@ import {
   defineConfig,
   presetTypography,
   presetWebFonts,
-  presetMini, presetWind
-} from 'unocss';
+  presetMini,
+  presetWind,
+} from "unocss";
 // import { presetDaisy } from 'unocss-preset-daisy';
-import transformerVariantGroup from '@unocss/transformer-variant-group'
-import { presetFluid } from 'unocss-preset-fluid';
-import transformerDirectives from '@unocss/transformer-directives';
-import presetIcons from '@unocss/preset-icons/browser';
+import transformerVariantGroup from "@unocss/transformer-variant-group";
+import { presetFluid } from "unocss-preset-fluid";
+import transformerDirectives from "@unocss/transformer-directives";
+import presetIcons from "@unocss/preset-icons/browser";
 
-import { presetScrollbar } from 'unocss-preset-scrollbar'
+import { presetScrollbar } from "unocss-preset-scrollbar";
 
-import { presetAnimations } from 'unocss-preset-animations'
-
+import { presetAnimations } from "unocss-preset-animations";
 
 export default defineConfig({
   content: {
@@ -22,17 +22,19 @@ export default defineConfig({
         // the default
         /\.(vue|svelte|[jt]sx|mdx?|astro|elm|php|phtml|html)($|\?)/,
         // include js/ts files
-        'src/**/*.{js,ts}',
-        './node_modules/@selemondev/svelte-marquee/dist/*.svelte'
+        "src/**/*.{js,ts}",
+        "./node_modules/@selemondev/svelte-marquee/dist/*.svelte",
       ],
       // exclude files
       // exclude: []
     },
   },
-  
+
   shortcuts: [
     // { logo: 'i-logos:svelte-icon w-7em h-7em transform transition-300' },
     // [/^bg-gradient-(.*)$/, match=>`bg-gradient-to-r from-${match[1]}-400 to-${match[1]}-600`],
+    { title: "text-light-50 lg:text-5xl text-2xl leading-loose" },
+    { subtitle: "text-light-50 lg:text-3xl text-xl leading-loose" },
   ],
   transformers: [transformerVariantGroup(), transformerDirectives()],
   presets: [
@@ -41,18 +43,19 @@ export default defineConfig({
     presetFluid(),
     presetIcons({
       collections: {
-        carbon: () => import('@iconify-json/carbon/icons.json').then(i => i.default),
-      }
+        carbon: () =>
+          import("@iconify-json/carbon/icons.json").then((i) => i.default),
+      },
     }),
     // presetAtoUI(),
     presetTypography(),
     presetWebFonts({
-      provider: 'bunny',
+      provider: "bunny",
       fonts: {
         // these will extend the default theme
         // sans: 'Roboto',
-        mono: ['JetBrains Mono', 'JetBrains Mono:400,700'],
-        sans: ['Zen Kaku Gothic Antique', 'Inter', 'sans-serif'],
+        mono: ["JetBrains Mono", "JetBrains Mono:400,700"],
+        sans: ["Zen Kaku Gothic Antique", "Inter", "sans-serif"],
       },
     }),
 
@@ -65,19 +68,19 @@ export default defineConfig({
       getCSS: ({ theme }) => `
       html { scroll-behavior: smooth; }
       *{ font-family: ${theme.fontFamily.sans}; }
-    `
-    }
+    `,
+    },
   ],
   // safelist: ['bg-orange-300', 'prose'],
   theme: {
     breakpoints: {
-      sm: '20rem',
+      sm: "20rem",
       // Because uno does not support comparison sorting of different unit sizes, please convert to the same unit.
-      md: '42rem',
+      md: "42rem",
       // md: `${40 * 16}px`,
-      lg: '66rem',
-      xl: '82rem',
-      '2xl': '98rem',
+      lg: "66rem",
+      xl: "82rem",
+      "2xl": "98rem",
     },
-  }
-})
+  },
+});

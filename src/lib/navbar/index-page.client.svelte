@@ -2,7 +2,7 @@
   import { createSuspense, Suspense } from "@svelte-drama/suspense";
   import MediaQuery from "svelte-media-queries";
   // const suspend = createSuspense();
-  
+
 
   interface Props {
     // import Navbar from "$lib/navbar/index-set/main.svelte";
@@ -17,10 +17,10 @@
     (m) => m.default
   );
   const mediaQuesySet = ["(max-width: 82rem)", "(min-width: 82rem)"];
- 
+
 </script>
 
-<Suspense >
+<Suspense>
   {#snippet children({ suspend })}
     <MediaQuery query={mediaQuesySet} >
       {#snippet children({ matches })}

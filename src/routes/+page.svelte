@@ -1,7 +1,7 @@
 <script>
   // export const p`rerender = true;
 
-  import Navbar from "$lib/navbar/index-page.svelte";
+  import Navbar from "$lib/navbar/index-page.client.svelte";
   import Banner from "$lib/banner.svelte";
   import BannerGridCell from "$lib/banner-grid-cell.svelte";
 
@@ -12,11 +12,9 @@
   import BaseImage_1 from "$assets/img/profile.jpg?format=webp&w=700;1200&q=85&as=metadata";
   import BaseImage_2 from "$assets/img/pepper_dayly.jpg?format=webp&w=700;1200&q=85&as=metadata";
   import BaseImage_3 from "$assets/img/centaline_groupmate.jpg?format=webp&w=700;1200&q=85&as=metadata";
-  import BaseImage_4 from "$assets/img/coffee.jpg?format=webp&w=700;1200&q=85&as=metadata";
+  // import BaseImage_4 from "$assets/img/coffee.jpg?format=webp&w=700;1200&q=85&as=metadata";
   import BaseImage_5 from "$assets/img/2024_uts.jpg?format=webp&w=700;1200&q=85&as=metadata";
 
-  import KeyboardImage from "$assets/img/keyboard.jpg?format=webp&q=85";
-  import GameAnimation from "$assets/animation/alicetaria-walking.webm?url&format=webm";
   import ScrollFrame from "$lib/scroll-frame.svelte";
   // import SkillTree from "$lib/skill-tree/elk/main.svelte";
   import SkillV2 from "$lib/skillset/main.svelte"
@@ -57,9 +55,9 @@
     </div>
   {/snippet}
   <BannerGridCell align="left">
-    <h1 class="text-light-50 text-5xl leading-loose">Steven - Cheng Ho Man</h1>
+    <h1 class="title">Steven - Cheng Ho Man</h1>
     <p class="text-light-200 leading-loose">
-      Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation
+      <!-- Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation -->
     </p>
   </BannerGridCell>
 </Banner>
@@ -74,13 +72,20 @@
   {/snippet}
 
   <h1
-    class="grid-row-start-1 2xl:( grid-col-start-2 grid-col-end-2) xl:(grid-col-start-1 grid-col-end-3) text-center text-light-50 text-5xl mt-6 mb-3"
+    class="grid-row-start-1 2xl:( grid-col-start-2 grid-col-end-2) xl:(grid-col-start-1 grid-col-end-3) text-center title mt-6 mb-3"
   >
     Who I am ...
   </h1>
-  <BannerGridCell align="left" row={2}>
-    <h2 class="text-light-50 text-3xl">A Man who run with code</h2>
-    <p class="text-light-200">almost, but not quite. Highly motivated and detail-oriented software developer with 3+ years of experience in designing, developing, and deploying cutting-edge software solutions. Proficient in Javascript, C#, Golang with expertise in Web Application. Proven track record of delivering high-quality projects on time, with a strong passion for innovation and continuous learning.</p>
+  <BannerGridCell align="left" row={2} class="xl:min-h-64">
+    <h2 class="subtitle">A Man who run with code</h2>
+    <div class="text-light-200">almost, but not quite. Highly motivated and detail-oriented software developer with 3+ years of experience in designing, developing, and deploying cutting-edge software solutions. Proficient in Javascript, C#, Golang with expertise in Web Application. Proven track record of delivering high-quality projects on time, with a strong passion for innovation and continuous learning.</div>
+  </BannerGridCell>
+
+  <BannerGridCell align="right" row={2} class="xl:min-h-64">
+    <h2 class="subtitle">A Game Maker</h2>
+    <div class="text-light-200">
+        small, fanart, with C# skill, that how I create games using Unity Engine.
+    </div>
   </BannerGridCell>
   <h1
     class="grid-row-start-4 2xl:( grid-col-start-2 grid-col-end-2) xl:(grid-col-start-1 grid-col-end-3) text-center text-light-50 text-5xl mt-6 mb-3"
@@ -90,7 +95,7 @@
   <BannerGridCell align="right" row={5} class="flex mt-0 mb-a self-start">
     <div class="aspect-video">
       <span class="text-light-700"> September 2015 - July 2017 </span>
-      <h2 class="text-light-50 text-3xl">Student</h2>
+      <h2 class="subtitle">Student</h2>
       <ul class="text-light-200">
         <li>
           <p>Associate of Science in Information Systems Development</p>
@@ -115,7 +120,7 @@
   <BannerGridCell align="right" row={6} class="flex mt-0 mb-a self-start">
     <div class="aspect-video">
       <span class="text-light-700"> November 2017 - May 2019 </span>
-      <h2 class="text-light-50 text-3xl">Web Programmer</h2>
+      <h2 class="subtitle">Web Programmer</h2>
       <ul class="text-light-200">
         <li class="my-2">
           <p class="text-lg text-500">Teksbotics (Hong Kong) Limited</p>
@@ -147,7 +152,7 @@
   <BannerGridCell align="right" row={7} class="flex mt-0 mb-a self-start">
     <div class="aspect-video">
       <span class="text-light-700"> September 2017 - July 2020 </span>
-      <h2 class="text-light-50 text-3xl">Student</h2>
+      <h2 class="subtitle">Student</h2>
       <ul class="text-light-200">
         <li>
           <p>Bachelor of Science (Hons) Computing Science</p>
@@ -162,7 +167,7 @@
   <BannerGridCell align="right" row={8} class="flex mt-0 mb-a self-start">
     <div class="aspect-video">
       <span class="text-light-700"> January 2021 - November 2022 </span>
-      <h2 class="text-light-50 text-3xl">Frontend Developer</h2>
+      <h2 class="subtitle">Frontend Developer</h2>
       <ul class="text-light-200">
         <li class="my-1">
           <p class="text-lg text-500">Centaline Data Technology Limited</p>
@@ -192,7 +197,7 @@
   <BannerGridCell align="right" row={9} class="flex mt-0 mb-a self-start">
     <div class="aspect-video">
       <span class="text-light-700"> January 2023 - December 2024 </span>
-      <h2 class="text-light-50 text-3xl">Fulltime Student</h2>
+      <h2 class="subtitle">Fulltime Student</h2>
       <p class="text-light-200">
         <span class="text-lg text-500"
           >Master of Information System, University of Technology Sydney</span
@@ -214,63 +219,6 @@
 
 <!--  -->
 
-  <h1 class="grid-row-start-11 grid-col-start-2 grid-col-end-2 text-center text-light-50 text-5xl mt-6 mb-3" > Hobby  </h1>
-  <BannerGridCell align="left" row={12}>
-    <h2 class="text-light-50 text-3xl">Drawing</h2>
-    <div class="text-light-50 text-lg">
-      just a little bit, not much, but I like it
-      <div class="grid w-24 h-24"></div>
-    </div>
-  </BannerGridCell>
-  <BannerGridCell align="right" row={13}>
-    <h2 class="text-light-50 text-3xl">Program making</h2>
-    <div class="text-light-50 text-lg">
-      make some small util tools for myself, to make my life easier; but not a
-      big fans of code leeting
-      <div class="grid w-24 h-24"></div>
-    </div>
-  </BannerGridCell>
-  <BannerGridCell align="left" row={14}>
-    <h2 class="text-light-50 text-3xl">Game making</h2>
-    <div class="text-light-50 text-lg">
-      make some small games, but not a big fans of game playing
-    </div>
-  </BannerGridCell>
-  <BannerGridCell align="right" row={14} class="!p-0 !backdrop-filter-none">
-    <video
-      class="aspect-square w-full block max-h-4xl"
-      src={GameAnimation}
-      preload="none"
-      alt="animation"
-      loop="true"
-      autoplay="true"
-    >
-    <track kind="captions"/>
-  </video>
-  </BannerGridCell>
-  <BannerGridCell align="right" row={16}>
-    <h2 class="text-light-50 text-3xl">Keyboard</h2>
-    <p class="text-light-50 text-lg">
-      nice to type on, nice to look at. speed up my typing speed; also, make for
-      cool stuff
-    </p>
-    <img
-      class="mt-5 w-full min-h-24 object-contain aspect-ratio-video"
-      src={KeyboardImage}
-      alt=""
-    />
-  </BannerGridCell>
-
-  <BannerGridCell align="left" row={17}>
-    <h2 class="text-light-50 text-3xl">Coffee(?)</h2>
-    <div class="text-light-50 text-lg">coffee energy, enpower me everyday</div>
-    <!-- <img class="mt-5 w-full min-h-24 object-contain" src={BaseImage_2} alt="" /> -->
-    <ImageSet
-      class="mt-5 w-full min-h-24 object-contain aspect-ratio-video rounded"
-      srcList={BaseImage_4}
-      alt="coffee image"
-    />
-  </BannerGridCell>
 </Banner>
 
 <Banner
@@ -286,7 +234,7 @@
     class="flex flex-col self-center max-w-full items-start w-full h-full max-h-screen"
   >
     <div class="px-6 py-4 rounded-lg bg-dark-700/45 mb-6">
-      <h1 class="text-3xl text-light-900">Project</h1>
+      <h1 class="subtitle">Project</h1>
     </div>
     <ProjectSet />
   </div>
@@ -299,7 +247,7 @@
   {/snippet}
   <div class="flex flex-col self-center max-w-full items-start">
     <div class="px-6 py-4 rounded-lg bg-dark-700/45 mb-3">
-      <h1 class="text-3xl text-light-900">Skill Set</h1>
+      <h1 class="subtitle">Skill Set</h1>
       <p class="text-light-800">
         Those I known and those I am learning, all skill and tech are mapped on
         the canvas
