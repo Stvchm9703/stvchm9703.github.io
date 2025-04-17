@@ -21,3 +21,6 @@ pnpm-debug.log*
 build/
 src/lib/skill-tree/full-repo-data*.json
 src/lib/skill-tree/check-list.txt
+
+tools/convert_blog_post/target/
+blog_post/Anytype.*.*/

@@ -1,11 +1,5 @@
 <script>
     import { intersect } from "@svelte-put/intersect";
-    // import { derived } from "svelte/store";
-
-    // export let align = "left";
-    // export let id = "";
-    // export let row = 1;
-    // export let isTitle = false;
 
     let {
         align = "left",

@@ -74,7 +74,7 @@
   <h1
     class="grid-row-start-1 2xl:( grid-col-start-2 grid-col-end-2) xl:(grid-col-start-1 grid-col-end-3) text-center title mt-6 mb-3"
   >
-    Who I am ...
+    About Me
   </h1>
   <BannerGridCell align="left" row={2} class="xl:min-h-64">
     <h2 class="subtitle">A Man who run with code</h2>

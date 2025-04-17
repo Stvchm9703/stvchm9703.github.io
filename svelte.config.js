@@ -35,6 +35,10 @@ const config = {
       "$lib/*": "src/lib/*",
       $assets: "src/assets",
       "$assets/*": "src/assets/*",
+      $type: "src/types",
+      "$type/*": "src/types/*",
+      $types: "src/types",
+      "$types/*": "src/types/*",
     },
     paths: {
       base: process.argv.includes("dev") ? "" : process.env.BASE_PATH,
@@ -45,7 +49,7 @@ const config = {
   },
   vitePlugin: {
     inspector: {
-      // showToggleButton: "always",
+      showToggleButton: "always",
     },
   },
 };

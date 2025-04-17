@@ -1,5 +1,5 @@
 <script>
-    export let item = {};
+    let { item } = $props();
 </script>
 
 <a
@@ -8,7 +8,6 @@
     target="_blank"
 >
     <div class="items">
-        <!-- <div class="flex-none w-12 h-12 rounded-full"></div> -->
         <div class="">
             <span class="text-lg font-bold line-clamp-2 break-words text-wrap"
                 >{item.name}</span
