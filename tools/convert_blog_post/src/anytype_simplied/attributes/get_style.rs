@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use crate::anytype_proto::anytype_model::{self, block, block::content };
+use crate::anytype_proto::anytype_model::{self, block, block::content};
 
 use super::AttributeMap;
 
@@ -62,17 +62,21 @@ impl GetStyle for anytype_model::block::content::File {
     }
 }
 
-
 // #[prost(message, tag = "16")]
 // Layout(content::Layout),
 impl GetStyle for anytype_model::block::content::Layout {
     fn get_style(&self) -> AttributeMap {
         let mut style_map = BTreeMap::new();
-        style_map.insert("layout",  content::layout::Style::from_i32( self.style).unwrap().as_str_name().to_string());
+        style_map.insert(
+            "layout".to_string(),
+            content::layout::Style::from_i32(self.style)
+                .unwrap()
+                .as_str_name()
+                .to_string(),
+        );
         style_map
     }
 }
-
 
 // #[prost(message, tag = "17")]
 // Div(content::Div),
@@ -81,49 +85,48 @@ impl GetStyle for anytype_model::block::content::Div {
         BTreeMap::new()
     }
 }
-/**
+// /**
 
+//         // #[prost(message, tag = "16")]
+//         Layout(content::Layout),
 
-        // #[prost(message, tag = "16")]
-        Layout(content::Layout),
+//         #[prost(message, tag = "17")]
+//         Div(content::Div),
 
-        #[prost(message, tag = "17")]
-        Div(content::Div),
+//         #[prost(message, tag = "18")]
+//         Bookmark(content::Bookmark),
 
-        #[prost(message, tag = "18")]
-        Bookmark(content::Bookmark),
+//         #[prost(message, tag = "19")]
+//         Icon(content::Icon),
 
-        #[prost(message, tag = "19")]
-        Icon(content::Icon),
+//         #[prost(message, tag = "20")]
+//         Link(content::Link),
 
-        #[prost(message, tag = "20")]
-        Link(content::Link),
+//         #[prost(message, tag = "21")]
+//         Dataview(content::Dataview),
 
-        #[prost(message, tag = "21")]
-        Dataview(content::Dataview),
+//         #[prost(message, tag = "22")]
+//         Relation(content::Relation),
 
-        #[prost(message, tag = "22")]
-        Relation(content::Relation),
+//         #[prost(message, tag = "23")]
+//         FeaturedRelations(content::FeaturedRelations),
 
-        #[prost(message, tag = "23")]
-        FeaturedRelations(content::FeaturedRelations),
+//         #[prost(message, tag = "24")]
+//         Latex(content::Latex),
 
-        #[prost(message, tag = "24")]
-        Latex(content::Latex),
+//         #[prost(message, tag = "25")]
+//         TableOfContents(content::TableOfContents),
 
-        #[prost(message, tag = "25")]
-        TableOfContents(content::TableOfContents),
+//         #[prost(message, tag = "26")]
+//         Table(content::Table),
 
-        #[prost(message, tag = "26")]
-        Table(content::Table),
+//         #[prost(message, tag = "27")]
+//         TableColumn(content::TableColumn),
 
-        #[prost(message, tag = "27")]
-        TableColumn(content::TableColumn),
-
-        #[prost(message, tag = "28")]
-        TableRow(content::TableRow),
-        #[prost(message, tag = "29")]
-        Widget(content::Widget),
-        #[prost(message, tag = "30")]
-        Chat(content::Chat),
- */
+//         #[prost(message, tag = "28")]
+//         TableRow(content::TableRow),
+//         #[prost(message, tag = "29")]
+//         Widget(content::Widget),
+//         #[prost(message, tag = "30")]
+//         Chat(content::Chat),
+//  */

@@ -1,7 +1,7 @@
 use std::{cell::Ref, collections::BTreeMap};
 
 use super::{
-    attribute::AttributeMap,
+    attributes::AttributeMap,
     collection::{Collection, CollectionId},
     content_block::ContentBlock,
 };

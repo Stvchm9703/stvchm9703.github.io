@@ -59,7 +59,7 @@ impl ContentBlock {
         content_block.children_ids = block.children_ids.clone();
         // content_block.children = Vec::new();
 
-        content_block.raw_content = serde_json::to_string(block.content.as_ref().unwrap()).unwrap();
+        // content_block.raw_content = serde_json::to_string(block.content.as_ref().unwrap()).unwrap();
         Ok(content_block)
     }
 }
