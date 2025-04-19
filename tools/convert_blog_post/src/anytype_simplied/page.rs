@@ -1,8 +1,8 @@
-use std::{cell::Ref, collections::BTreeMap};
+use std::collections::BTreeMap;
 
 use super::{
     attributes::AttributeMap,
-    collection::{Collection, CollectionId},
+    collection::CollectionId,
     content_block::ContentBlock,
 };
 use crate::{

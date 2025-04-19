@@ -2,19 +2,14 @@ mod anytype;
 mod anytype_proto;
 mod anytype_simplied;
 use std::{
-    collections::{BTreeMap, HashMap},
     fs::File,
-    io::{BufReader, Bytes},
+    io::BufReader,
     path::PathBuf,
 };
 
-use crate::anytype::{
-    enum_set::ObjectType,
-    object::{AnytypeObject, Data},
-};
+use crate::anytype::object::AnytypeObject;
 
 use crate::anytype_simplied::{convert_anytype_object, convert_snapshot};
-use serde_json::to_string;
 
 use crate::anytype_proto::anytype::SnapshotWithType;
 
@@ -43,7 +38,7 @@ fn test_run() {
         // Process each file here
         //
         let path = entry.ok().unwrap();
-        let mut fil = parse_json_file(&path).unwrap();
+        let fil = parse_json_file(&path).unwrap();
         file_objs.push(fil);
         // let snapshot = fil.snapshot;
         // if let Some(data) = snapshot.data {
@@ -98,7 +93,7 @@ fn test_prost() {
 fn parse_from_pb_file(file_path: &PathBuf) -> Result<SnapshotWithType, Box<dyn std::error::Error>> {
     let buffer = std::fs::read(file_path)?;
     // let mut buf = Bytes::from(buffer);
-    let mut buf = prost::bytes::Bytes::from(buffer);
+    let buf = prost::bytes::Bytes::from(buffer);
 
     let test_file: SnapshotWithType = SnapshotWithType::decode(buf.as_ref())?;
     // println!("test_file {:#?}", test_file);

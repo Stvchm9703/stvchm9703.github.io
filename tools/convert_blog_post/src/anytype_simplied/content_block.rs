@@ -7,15 +7,15 @@ use serde::{Deserialize, Serialize};
 use crate::{
     anytype::{
         object::Block as ATBlock,
-        trait_impl::{GetBlockComponentStyle, GetLayoutStyle},
+        trait_impl::GetBlockComponentStyle,
     },
     anytype_proto::{
-        anytype_model::{Block as PBlock, block},
+        anytype_model::Block as PBlock,
         trait_impl::to_val_map,
     },
 };
 
-use super::component_base::resolve_component_name;
+use super::{attributes::AttributeMap, component_base::resolve_component_name};
 
 #[derive(Default, Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 pub struct ContentBlock {

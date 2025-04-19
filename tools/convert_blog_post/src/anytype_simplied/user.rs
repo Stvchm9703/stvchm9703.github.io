@@ -1,9 +1,7 @@
-use prost_types::{Value, value::Kind};
-use serde_json::to_value;
 
 use crate::anytype::object::AnytypeObject;
 use crate::anytype_proto::trait_impl::to_val_string;
-use crate::anytype_proto::{anytype::SnapshotWithType, trait_impl::ProstTypeValue};
+use crate::anytype_proto::anytype::SnapshotWithType;
 use anyhow::Error;
 use std::collections::BTreeMap;
 

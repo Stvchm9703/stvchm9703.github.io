@@ -1,10 +1,7 @@
-use crate::anytype_proto::{
-    anytype_model::{
-        block::{self, Content, content},
+use crate::anytype_proto::anytype_model::{
+        block::{Content, content},
         link_preview::Type as LinkPreviewType,
-    },
-    trait_impl::to_val_map,
-};
+    };
 
 pub fn resolve_component_name(content: &Content) -> String {
     match content {

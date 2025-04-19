@@ -8,7 +8,7 @@ pub mod tag;
 pub mod user;
 pub mod workspace;
 
-use std::{clone, collections::BTreeMap};
+use std::collections::BTreeMap;
 
 use collection::Collection;
 use page::Page;
@@ -37,7 +37,7 @@ pub fn convert_anytype_object(at_object: &FileDataSet) -> BTreeMap<String, Works
         .filter(|obj| obj.sb_type == SbType::Page)
         .collect::<Vec<_>>();
 
-    let mut user_raw = at_object
+    let user_raw = at_object
         .into_iter()
         .filter_map(|obj| {
             if obj.sb_type == SbType::Participant {
@@ -48,7 +48,7 @@ pub fn convert_anytype_object(at_object: &FileDataSet) -> BTreeMap<String, Works
         })
         .collect::<Vec<_>>();
 
-    let mut workspace_raw = at_object
+    let workspace_raw = at_object
         .into_iter()
         .filter_map(|obj| {
             if obj.sb_type == SbType::Workspace {
@@ -116,7 +116,7 @@ pub fn convert_snapshot(at_object: &Vec<SnapshotWithType>) -> BTreeMap<String, W
         .filter(|obj| obj.sb_type == SmartBlockType::Page as i32)
         .collect::<Vec<_>>();
 
-    let mut user_raw = at_object
+    let user_raw = at_object
         .into_iter()
         .filter_map(|obj| {
             if obj.sb_type == SmartBlockType::Participant as i32 {
@@ -129,7 +129,7 @@ pub fn convert_snapshot(at_object: &Vec<SnapshotWithType>) -> BTreeMap<String, W
 
     println!("user map ;{:#?} {}", user_raw[0], user_raw.len());
 
-    let mut workspace_raw = at_object
+    let workspace_raw = at_object
         .into_iter()
         .filter_map(|obj| {
             if obj.sb_type == SmartBlockType::Workspace as i32 {
@@ -145,7 +145,7 @@ pub fn convert_snapshot(at_object: &Vec<SnapshotWithType>) -> BTreeMap<String, W
         workspace_raw.len()
     );
 
-    let mut article_raw = page_raw
+    let article_raw = page_raw
         .clone()
         .into_iter()
         .filter_map(|obj| {
@@ -204,7 +204,7 @@ pub fn convert_snapshot(at_object: &Vec<SnapshotWithType>) -> BTreeMap<String, W
     //         .collect::<Vec<_>>(),
     // );
 
-    let mut workspace_map: BTreeMap<String, Workspace> = BTreeMap::new();
+    let workspace_map: BTreeMap<String, Workspace> = BTreeMap::new();
     // workspace_raw.into_iter().for_each(|workspace| {
     //     workspace_map.insert(workspace.id.clone(), workspace);
     // });

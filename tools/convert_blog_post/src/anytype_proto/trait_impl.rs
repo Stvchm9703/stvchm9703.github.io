@@ -8,16 +8,12 @@ extern crate serde;
 use std::collections::BTreeMap;
 
 use anyhow::Result;
-use prost_types::{
-    Value,
-    value::Kind::{BoolValue, ListValue, NumberValue, StringValue, StructValue},
-};
+use prost_types::value::Kind::{BoolValue, ListValue, NumberValue, StringValue, StructValue};
 use serde::{
     // Deserialize, Serialize,
     ser::{SerializeMap, SerializeSeq, SerializeStruct, Serializer},
 };
 
-use super::anytype_model;
 // impl serde::Serialize for prost_types::Value {
 
 //     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -126,7 +122,7 @@ pub fn to_val_map(value: &prost_types::Struct) -> Result<BTreeMap<String, String
 
 mod test {
     use super::*;
-    use prost_types::{NullValue, Value, value};
+    
 
     #[test]
     fn test_to_val_string() {
@@ -148,5 +144,4 @@ mod test {
         assert_eq!(result.unwrap(), 42.0);
     }
 }
-
-/// ----------
+// ----------
