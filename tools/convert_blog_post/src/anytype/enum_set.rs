@@ -26,9 +26,9 @@ pub enum FormulaEnum {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum IconSize {
     #[serde(rename = "SizeNone")]
-    SizeNone,
+    None,
     #[serde(rename = "SizeSmall")]
-    SizeSmall,
+    Small,
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum MarkType {
@@ -53,7 +53,11 @@ pub enum TextStyle {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum VerticalAlign {
     #[serde(rename = "VerticalAlignTop")]
-    VerticalAlignTop,
+    Top,
+    #[serde(rename = "VerticalAlignMiddle")]
+    Middle,
+    #[serde(rename = "VerticalAlignBottom")]
+    Bottom,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -83,26 +87,26 @@ pub enum TimeFormat {
     Format12,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum BackgroundColor {
-    #[serde(rename = "")]
-    Empty,
-    Lime,
-    Orange,
-    Red,
-}
+// #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+// #[serde(rename_all = "snake_case")]
+// pub enum BackgroundColor {
+//     #[serde(rename = "")]
+//     Empty,
+//     Lime,
+//     Orange,
+//     Red,
+// }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum Align {
     #[serde(rename = "AlignLeft")]
-    AlignLeft,
+    Left,
 
     #[serde(rename = "AlignCenter")]
-    AlignCenter,
+    Center,
 
     #[serde(rename = "AlightRight")]
-    AlightRight,
+    Right,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -151,4 +155,33 @@ pub enum ObjectType {
     Date,
     #[serde(rename = "ot-spaceView")]
     SpaceView,
+}
+
+impl ToString for ObjectType {
+    fn to_string(&self) -> String {
+        match self {
+            ObjectType::Image => "ot-image".to_string(),
+            ObjectType::Participant => "ot-participant".to_string(),
+            ObjectType::Page => "ot-page".to_string(),
+            ObjectType::Collection => "ot-collection".to_string(),
+            ObjectType::Set => "ot-set".to_string(),
+            ObjectType::Bookmark => "ot-bookmark".to_string(),
+            ObjectType::Space => "ot-space".to_string(),
+            ObjectType::Dashboard => "ot-dashboard".to_string(),
+            ObjectType::Relation => "ot-relation".to_string(),
+            ObjectType::RelationOption => "ot-relationOption".to_string(),
+            ObjectType::Template => "ot-template".to_string(),
+            ObjectType::Task => "ot-task".to_string(),
+            ObjectType::Project => "ot-project".to_string(),
+            ObjectType::ObjectType => "ot-objectType".to_string(),
+            ObjectType::File => "ot-file".to_string(),
+            ObjectType::Audio => "ot-audio".to_string(),
+            ObjectType::Note => "ot-note".to_string(),
+            ObjectType::ChatDerived => "ot-chatDerived".to_string(),
+            ObjectType::Video => "ot-video".to_string(),
+            ObjectType::Profile => "ot-profile".to_string(),
+            ObjectType::Date => "ot-date".to_string(),
+            ObjectType::SpaceView => "ot-spaceView".to_string(),
+        }
+    }
 }

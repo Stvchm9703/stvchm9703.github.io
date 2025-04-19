@@ -1,15 +1,25 @@
+use prost_types::{Value, value::Kind};
+use serde_json::to_value;
+
 use crate::anytype::object::AnytypeObject;
+use crate::anytype_proto::trait_impl::to_val_string;
+use crate::anytype_proto::{anytype::SnapshotWithType, trait_impl::ProstTypeValue};
+use anyhow::Error;
 use std::collections::BTreeMap;
+
+pub type UserId = String;
+pub type UserMap = BTreeMap<UserId, User>;
 
 #[derive(Default, Debug, Clone, PartialEq, Eq)]
 pub struct User {
-    pub id: String,
+    pub id: UserId,
     pub name: String,
     pub email: String,
     pub description: String,
 }
 
 impl User {
+    #[deprecated]
     pub fn from_anytype(raw: &AnytypeObject) -> Self {
         let data = raw.snapshot.data.details.clone();
         User {
@@ -20,7 +30,7 @@ impl User {
             ..Default::default()
         }
     }
-
+    #[deprecated]
     pub fn from_anytype_list(raw_list: &Vec<&AnytypeObject>) -> BTreeMap<String, Self> {
         let mut users: BTreeMap<String, User> = BTreeMap::new();
 
@@ -39,5 +49,37 @@ impl User {
         }
 
         users
+    }
+
+    pub fn from_anytype_proto(raw: &SnapshotWithType) -> Result<Self, Error> {
+        let mut tmp = Self {
+            ..Default::default()
+        };
+
+        let ref data_map = raw
+            .snapshot
+            .as_ref()
+            .unwrap()
+            .data
+            .as_ref()
+            .unwrap()
+            .details
+            .as_ref()
+            .unwrap()
+            .fields;
+        // let data_map = snapshot.data.as_ref().unwrap().details.unwrap().fields;
+        // // prost::Message::
+
+        if let Some(id) = data_map.get("id") {
+            tmp.id = to_val_string(&id)?;
+        }
+        if let Some(name) = data_map.get("name") {
+            tmp.name = to_val_string(&name)?;
+        }
+        if let Some(description) = data_map.get("description") {
+            tmp.description = to_val_string(&description)?;
+        }
+
+        Ok(tmp)
     }
 }
