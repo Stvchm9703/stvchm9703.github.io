@@ -13,9 +13,13 @@ fn main() {
     if fs::exists("src/anytype_proto/anytype.rs").unwrap() == false {
         prost_build::Config::new()
             .out_dir(out_dir)
-            // .bytes(&["."])
-            // .btree_map(&["."])
-            // .enable_type_names()
+            // .enum_attribute(".", "#[derive(serde::Serialize, serde::Deserialize)]")
+            // .enum_attribute(".", "#[serde(rename_all = \"snake_case\")]")
+            .message_attribute(".", "#[derive(serde::Serialize, serde::Deserialize)]")
+            .message_attribute(".", "#[serde(rename_all = \"snake_case\")]")
+            .extern_path(".google.protobuf", "crate::anytype_proto::google_protobuf")
+            .btree_map(&[".google.protobuf.Struct.fields"])
+            .compile_well_known_types()
             .compile_protos(
                 &["protos/anytype/models.proto"], // .proto 文件
                 &["protos/anytype/"],             // 包含目录

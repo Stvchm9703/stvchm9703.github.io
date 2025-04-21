@@ -1,7 +1,7 @@
 use crate::anytype_proto::anytype_model::{
-        block::{Content, content},
-        link_preview::Type as LinkPreviewType,
-    };
+    block::{Content, content},
+    link_preview::Type as LinkPreviewType,
+};
 
 pub fn resolve_component_name(content: &Content) -> String {
     match content {

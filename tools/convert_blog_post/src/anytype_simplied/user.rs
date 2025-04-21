@@ -1,19 +1,24 @@
-
 use crate::anytype::object::AnytypeObject;
-use crate::anytype_proto::trait_impl::to_val_string;
 use crate::anytype_proto::anytype::SnapshotWithType;
+use crate::anytype_proto::trait_impl::{get_field_value, to_val_map};
 use anyhow::Error;
+use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
+
+use super::attributes::AttributeMap;
 
 pub type UserId = String;
 pub type UserMap = BTreeMap<UserId, User>;
 
-#[derive(Default, Debug, Clone, PartialEq, Eq)]
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct User {
     pub id: UserId,
     pub name: String,
     pub email: String,
     pub description: String,
+
+    #[serde(skip_serializing)]
+    pub attributes: AttributeMap,
 }
 
 impl User {
@@ -63,20 +68,14 @@ impl User {
             .unwrap()
             .details
             .as_ref()
-            .unwrap()
-            .fields;
+            .unwrap();
         // let data_map = snapshot.data.as_ref().unwrap().details.unwrap().fields;
         // // prost::Message::
 
-        if let Some(id) = data_map.get("id") {
-            tmp.id = to_val_string(&id)?;
-        }
-        if let Some(name) = data_map.get("name") {
-            tmp.name = to_val_string(&name)?;
-        }
-        if let Some(description) = data_map.get("description") {
-            tmp.description = to_val_string(&description)?;
-        }
+        tmp.id = get_field_value(data_map, "id")?;
+        tmp.name = get_field_value(data_map, "name")?;
+        tmp.description = get_field_value(data_map, "description")?;
+        tmp.attributes = to_val_map(data_map)?;
 
         Ok(tmp)
     }

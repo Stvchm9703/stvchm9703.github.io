@@ -1,26 +1,38 @@
 use std::collections::BTreeMap;
 
 use anyhow::{Error, Ok};
+use serde::{Deserialize, Serialize};
 
 use crate::{
     anytype::object::AnytypeObject,
-    anytype_proto::{anytype::SnapshotWithType, trait_impl::to_val_string},
+    anytype_proto::{
+        anytype::SnapshotWithType,
+        trait_impl::{get_field_value, get_field_value_list, to_val_map},
+    },
 };
 
-use super::page::{Page, PageId, PageMap};
+use super::{
+    attributes::AttributeMap,
+    page::{Page, PageId, PageMap},
+    workspace::WorkspaceId,
+};
 
 // use super::article::Article;
 
 pub type CollectionId = String;
 pub type CollectionMap = BTreeMap<CollectionId, Box<Collection>>;
 
-#[derive(Default, Debug, Clone, PartialEq, Eq)]
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Collection {
     pub id: CollectionId,
     pub name: String,
     pub description: String,
     pub cover: String,
     pub styles: Vec<String>,
+    #[serde(skip_serializing)]
+    pub attributes: AttributeMap,
+    #[serde(skip_serializing)]
+    pub workspace_id: WorkspaceId,
 
     pub articale_id_list: Vec<PageId>,
     pub articles: PageMap,
@@ -59,18 +71,15 @@ impl Collection {
             .unwrap()
             .details
             .as_ref()
-            .unwrap()
-            .fields;
+            .unwrap();
 
-        if let Some(id) = data_map.get("id") {
-            tmp.id = to_val_string(&id)?;
-        }
-        if let Some(name) = data_map.get("name") {
-            tmp.name = to_val_string(&name)?;
-        }
-        if let Some(description) = data_map.get("description") {
-            tmp.description = to_val_string(&description)?;
-        }
+        tmp.id = get_field_value(data_map, "id")?;
+        tmp.name = get_field_value(data_map, "name")?;
+        tmp.attributes = to_val_map(data_map)?;
+        tmp.articale_id_list = get_field_value_list(data_map, "links")?;
+        tmp.workspace_id = get_field_value(data_map, "spaceId")?;
+        // tmp.description = get_field_value(data_map, "description")?;
+        // tmp.serie = get_field_value(data_map, "Serie")?;
 
         // let mut articale_id_list: Vec<String> = vec![];
         // if let Some(collections) = raw.snapshot.data.collections.clone() {
@@ -79,14 +88,10 @@ impl Collection {
         Ok(tmp)
     }
 
-    pub fn insert_articles<T>(&mut self, files: &mut T) -> Result<(), Error>
-    where
-        T: Iterator<Item = Page>,
-    {
-        for file in files.into_iter() {
-            if file.collection_id == self.id {
-                self.articale_id_list.push(file.id.to_owned());
-                self.articles.insert(file.id.to_owned(), Box::new(file));
+    pub fn insert_articles(&mut self, files: &Vec<Page>) -> Result<(), Error> {
+        for key in self.articale_id_list.iter() {
+            if let Some(file) = files.iter().find(|f| &f.id == key) {
+                self.articles.insert(file.id.to_owned(), file.to_owned());
             }
         }
         Ok(())

@@ -9,9 +9,9 @@
 // pub mod anytype {
 //     include!(concat!(env!("OUT_DIR"), "/anytype.rs"));
 // }
-extern crate enum_repr;
-pub mod anytype;
 
+pub mod anytype;
 pub mod anytype_model;
 
+pub mod google_protobuf;
 pub mod trait_impl;

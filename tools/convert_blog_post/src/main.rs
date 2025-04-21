@@ -1,11 +1,7 @@
 mod anytype;
 mod anytype_proto;
 mod anytype_simplied;
-use std::{
-    fs::File,
-    io::BufReader,
-    path::PathBuf,
-};
+use std::{fs::File, io::BufReader, path::PathBuf};
 
 use crate::anytype::object::AnytypeObject;
 
@@ -26,6 +22,7 @@ const ANYTYPE_BASE_PATH: &str = "../../blog_post/Anytype.20250415.122153.2";
 
 const ANYTYPE_PB_PATH: &str = "../../blog_post/Anytype.20250418.013727.47";
 
+#[deprecated]
 fn test_run() {
     // Test the functionality of the convert_blog_post tool
     // ...
@@ -50,6 +47,7 @@ fn test_run() {
     convert_anytype_object(&file_objs);
 }
 
+#[deprecated]
 fn parse_json_file(file_path: &PathBuf) -> Result<AnytypeObject, Box<dyn std::error::Error>> {
     // Parse the JSON file and convert it to a blog post
     // ...
@@ -92,11 +90,7 @@ fn test_prost() {
 
 fn parse_from_pb_file(file_path: &PathBuf) -> Result<SnapshotWithType, Box<dyn std::error::Error>> {
     let buffer = std::fs::read(file_path)?;
-    // let mut buf = Bytes::from(buffer);
     let buf = prost::bytes::Bytes::from(buffer);
-
     let test_file: SnapshotWithType = SnapshotWithType::decode(buf.as_ref())?;
-    // println!("test_file {:#?}", test_file);
-    // assert_eq!(test_file.data.first().unwrap().hello, "hello world 1");
     Ok(test_file)
 }
