@@ -12,7 +12,7 @@
             {#each tableOfContents as item}
                 <a
                     key={item.id}
-                    href={`#${item.id}`}
+                    href={item.url}
                     class="block text-sm hover:underline py-1"
                 >
                     {item.title}

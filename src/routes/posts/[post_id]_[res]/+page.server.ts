@@ -1,19 +1,28 @@
-import type { PageLoad } from "./$types";
+import type { PageLoad, EntryGenerator } from "./$types";
 
 export let prerender = true;
-export const load: PageLoad = async ({ fetch }) => {
-  // const res = await fetch("/my-server-route.json");
-  // return await res.json();
-  return {
-    title: "My Blog Post",
-    content: "This is my blog post content.",
-  };
+
+const blogPostIndex = () => import("/blog_post_resolved/index.json");
+
+export const load: PageLoad = async ({ fetch, params }) => {
+  const index_req = await fetch("http://localhost:3000/index.json");
+  const index = await index_req.json();
+
+  const target_post = index.find((item) => item.post_id === params.post_id);
+
+  if (!target_post) {
+    throw new Error(`Post with ID ${params.post_id} not found`);
+  }
+
+  const content = await fetch(
+    `http://localhost:3000/${target_post.page_content_path.replace("blog_post_resolved/", "")}`,
+  );
+
+  return await content.json();
 };
 
-export const entries: EntryGenerator = () => {
-  return [
-    /// test route for prerender
-    { post_id: "1", res: "hello-world" },
-    { post_id: "2", res: "another-blog-post" },
-  ];
+export const entries: EntryGenerator = async () => {
+  const index_req = await fetch("http://localhost:3000/index.json");
+  const index = await index_req.json();
+  return index;
 };

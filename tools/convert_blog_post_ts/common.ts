@@ -1,4 +1,8 @@
 import type { Tag, TagId, TagMap } from "./tag";
+import type {
+  Block_Content_Text_Mark,
+  Block_Content_Text_Mark_Type,
+} from "../../protos/anytype/models";
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 export type DataMap = { [key: string]: any };
@@ -42,3 +46,12 @@ export function setRelationNameMap(tag: Tag): void {
   GLOBAL_RELATION_NAMEMAP.set(tag.relationKey, tag);
   GLOBAL_RELATION_NAMEMAP_STR.set(tag.name, tag.relationKey);
 }
+// export type TextMark =
+export interface TextMark {
+  /** range of symbols to apply this mark. From(symbol) To(symbol) */
+  range: Range | undefined;
+  type: TextMarkType | string | number;
+  /** link, color, etc */
+  param: string;
+}
+export type TextMarkType = Block_Content_Text_Mark_Type;

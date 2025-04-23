@@ -7,15 +7,17 @@ import {
 } from "unocss";
 
 import presetWind4 from "@unocss/preset-wind4";
+import { colors } from "@unocss/preset-wind4/colors";
+const colorKey = Object.keys(colors);
 // import { presetDaisy } from 'unocss-preset-daisy';
 import transformerVariantGroup from "@unocss/transformer-variant-group";
 import { presetFluid } from "unocss-preset-fluid";
 import transformerDirectives from "@unocss/transformer-directives";
 import presetIcons from "@unocss/preset-icons/browser";
-
 import { presetScrollbar } from "unocss-preset-scrollbar";
-
 import { presetAnimations } from "unocss-preset-animations";
+
+import { flatten } from "lodash-es";
 
 export default defineConfig({
   content: {
@@ -57,8 +59,17 @@ export default defineConfig({
       fonts: {
         // these will extend the default theme
         // sans: 'Roboto',
-        mono: ["JetBrains Mono", "JetBrains Mono:400,700"],
-        sans: ["Zen Kaku Gothic Antique", "Inter", "sans-serif"],
+        mono: [
+          "JetBrains Mono",
+          "'JetBrains Mono':300,400,600,700",
+          "Fira Code",
+          "Fira Mono:400,700",
+        ],
+        sans: [
+          "Zen Kaku Gothic Antique:300,400,600,700",
+          "Inter",
+          "sans-serif",
+        ],
       },
     }),
 
@@ -71,10 +82,18 @@ export default defineConfig({
       getCSS: ({ theme }) => `
       html { scroll-behavior: smooth; }
       *{ font-family: ${theme.fontFamily.sans}; }
+      code, pre, .font-mono {
+        font-family: ${theme.fontFamily.mono};
+      }
     `,
     },
   ],
-  // safelist: ['bg-orange-300', 'prose'],
+  safelist: [
+    ...flatten(
+      colorKey.map((color) => [`bg-${color}-300/30`, `text-${color}-700`]),
+    ),
+    "prose",
+  ],
   theme: {
     breakpoints: {
       sm: "20rem",

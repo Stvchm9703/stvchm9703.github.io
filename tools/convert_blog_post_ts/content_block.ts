@@ -23,7 +23,7 @@ import type {
 import { Block } from "../../protos/anytype/models";
 
 import { Block_Align, Block_VerticalAlign } from "../../protos/anytype/models";
-import type { DataMap } from "./common";
+import type { DataMap, TextMark } from "./common";
 
 export type ContentBlockMap = Map<string, ContentBlock>;
 
@@ -184,14 +184,6 @@ interface TableCellData {
   content: string;
   marks: TextMark[];
   [key: string]: any;
-}
-
-interface TextMark {
-  range: {
-    from?: number;
-    to?: number;
-  };
-  type: string;
 }
 
 function resolveTableRowComponent(

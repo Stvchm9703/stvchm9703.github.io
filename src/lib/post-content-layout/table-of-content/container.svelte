@@ -12,8 +12,9 @@
         {#each tableOfContents as item}
             <a
                 key={item.id}
-                href={`#${item.id}`}
+                href={item.url}
                 class={"block text-sm hover:underline py-1 border-l-2 border-transparent hover:border-primary pl-2 ransition-colors"}
+                style={`padding-left: ${item.level * 0.75}rem;`}
             >
                 {item.title}
             </a>
