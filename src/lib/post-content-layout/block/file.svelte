@@ -11,22 +11,21 @@
     }: ContentBlock = $props();
 
     const { type: fileType, style, name: fileName } = componentAttr;
+    const baseClass = ["w-full", "my-2", "max-h-240"];
 </script>
 
 {#if fileType === "Image"}
-    <figure class="w-full my-2">
+    <figure class={cn([baseClass, resolveStyle(style)])}>
         <figcaption></figcaption>
         <picture>
-            <img src={`/blog/image/${fileName}`} />
+            <img src={`/blog/assets/images/${fileName}`} alt="image" />
         </picture>
     </figure>
 {:else if fileType === "Video"}
-    <figure class="w-full my-2 aspect-16/9">
+    <figure class={cn([baseClass, "aspect-16/9", resolveStyle(style)])}>
         <figcaption></figcaption>
-        <video>
-            <img src={`/blog/image/${fileName}`} />
+        <video src={`/blog/assets/videos/${fileName}`}>
+            <track kind="captions" />
         </video>
     </figure>
-{:else}
-    {fileType}
 {/if}

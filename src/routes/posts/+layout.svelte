@@ -5,6 +5,9 @@
     const { today_date, today_year  } = page.data;
     const { children } = $props();
 </script>
+<svelte:head>
+    <title>Steven Dev;s Log</title>
+</svelte:head>
 
 <div class="container mx-auto px-4  max-w-7xl">
     <section class="py-4">

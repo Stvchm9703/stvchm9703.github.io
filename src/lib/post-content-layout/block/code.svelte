@@ -1,14 +1,9 @@
 <script lang="ts">
     import { Highlight, LineNumbers } from "svelte-highlight";
     import Copy from "svelte-radix/Copy.svelte";
-    import { typescript } from "svelte-highlight/languages";
+    import { typescript, type LanguageType } from "svelte-highlight/languages";
     import horizonDark from "svelte-highlight/styles/gruvbox-dark-soft";
-    import {
-        resolveMarks,
-        pathResolver,
-        headerIdResolver,
-        resolveStyle,
-    } from "./common";
+    import { headerIdResolver, resolveStyle } from "./common";
     import type { ContentBlock } from "$generateor/content_block";
     import { Button } from "$lib/components/ui/button";
     import { onMount } from "svelte";
@@ -24,11 +19,14 @@
     const { text, style: element_style, marks, ...other } = componentAttr;
     const hasText = text !== undefined && text !== "" && text !== null;
 
-    let lang = typescript;
-    onMount(() => {
+    let lang: LanguageType = $state.raw(typescript);
+
+    onMount(async () => {
         console.log("mounted");
 
-        // lang = import(`svelte-highlight/languages/${fields["lang"]}`).default;
+        lang = await import(`svelte-highlight/languages/${fields["lang"]}`)
+            .default;
+
         console.log(lang);
     });
 

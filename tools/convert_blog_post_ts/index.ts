@@ -8,6 +8,8 @@ import * as Collection from "./collection";
 import * as Page from "./page";
 import * as Tag from "./tag";
 
+import { isEmpty } from "lodash-es";
+
 import { intersectionBy, intersection } from "lodash-es";
 
 import {
@@ -126,7 +128,7 @@ const resolveCollection = async (
     page.relatedArticles = relatedArticles;
   }
 
-  const output_file_list = [];
+  let output_file_list = [];
 
   for (const pageId in article_coll.articles) {
     let page = article_coll.articles[pageId];
@@ -136,10 +138,13 @@ const resolveCollection = async (
       post_id: page.id,
       res: pathResolver(page.title),
       page_content_path,
+      publish_date: page.publish_date,
     });
 
     await Bun.write(page_content_path, JSON.stringify(page, null, 2));
   }
+
+  output_file_list = output_file_list.sort((a, b) => a - b);
   await Bun.write(
     "blog_post_resolved/index.json",
     JSON.stringify(output_file_list, null, 2),
@@ -151,25 +156,27 @@ const resolveCollection = async (
     (elm) => elm.name === "Series",
   );
 
+  const allPageLink: Page.PageLink[] = [];
+  for (const pageId in article_coll.articles) {
+    const page: Page.Page = article_coll.articles[pageId];
+    allPageLink.push({
+      id: page.id,
+      title: page.title,
+      componentId: "",
+      url: `posts/${page.id}_1`,
+      level: 0,
+      coverImage: page.coverImage,
+      publish_date: page.publish_date,
+      serie: page.serie,
+      snippet: page.snippet,
+      tags: page.tags,
+    } as Page.PageLink);
+  }
+
   const seriesIndexList = seriesSet?.options.map((serieOption) => {
-    const resultList: Page.PageLink[] = [];
-    for (const pageId in article_coll.articles) {
-      const page: Page.Page = article_coll.articles[pageId];
-      if (page.serie?.id === serieOption.id) {
-        resultList.push({
-          id: page.id,
-          title: page.title,
-          componentId: "",
-          url: `posts/${page.id}_1`,
-          level: 0,
-          coverImage: page.coverImage,
-          publish_date: page.publish_date,
-          serie: page.serie,
-          snippet: page.snippet,
-          tags: page.tags,
-        } as Page.PageLink);
-      }
-    }
+    const resultList: Page.PageLink[] = allPageLink.filter(
+      (page) => page.serie?.id === serieOption.id,
+    );
 
     return {
       id: serieOption.id,
@@ -177,6 +184,28 @@ const resolveCollection = async (
       description: serieOption.description,
       resultList,
     };
+  });
+
+  const untaggedSerie: Page.PageLink[] = allPageLink.filter((page) =>
+    isEmpty(page.serie),
+  );
+
+  seriesIndexList.push({
+    id: "-",
+    name: "Others",
+    description: "",
+    resultList: untaggedSerie,
+  });
+
+  const latestUpdated = allPageLink
+    .sort((a, b) => a.publish_date - b.publish_date)
+    .slice(0, 3);
+
+  seriesIndexList.push({
+    id: "latestUpdated",
+    name: "Latest Updated",
+    description: "",
+    resultList: latestUpdated,
   });
 
   await Bun.write(

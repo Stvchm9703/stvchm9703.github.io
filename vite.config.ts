@@ -15,6 +15,8 @@ import { defineConfig, loadEnv } from "vite";
 import deadFile from "vite-plugin-deadfile";
 // import transformerDirectives from '@unocss/transformer-directives'
 
+console.log("schould be here");
+
 export default defineConfig(({ mode }) => {
   process.env = { ...process.env, ...loadEnv(mode, process.cwd()) };
   // console.log(process.env)
@@ -37,7 +39,15 @@ export default defineConfig(({ mode }) => {
         // force: true,
         removeMetadata: true,
       }),
-      dynamicImport({}),
+      dynamicImport({
+        filter(id) {
+          // `node_modules` is exclude by default, so we need to include it explicitly
+          // https://github.com/vite-plugin/vite-plugin-dynamic-import/blob/v1.3.0/src/index.ts#L133-L135
+          if (id.includes("/node_modules/svelte-highlight/languages")) {
+            return true;
+          }
+        },
+      }),
       unocss({
         // mode: 'dist-chunk',
       }),

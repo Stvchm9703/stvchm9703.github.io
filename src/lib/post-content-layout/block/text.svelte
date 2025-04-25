@@ -132,7 +132,10 @@
     </div>
 {:else if element_style === "Toggle"}
     <Accordion.Root id={headerIdResolver(element_style, id)} class="w-full">
-        <Accordion.Item value={headerIdResolver(element_style, id)}>
+        <Accordion.Item
+            class="border-slate-300"
+            value={headerIdResolver(element_style, id)}
+        >
             <Accordion.Trigger>
                 {@html resolveMarks(tMarks, text)}
             </Accordion.Trigger>

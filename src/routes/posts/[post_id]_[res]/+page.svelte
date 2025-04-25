@@ -1,7 +1,7 @@
 <script lang="ts">
     import { page } from "$app/state";
     import { Button } from "$lib/components/ui/button";
-    import { Blocks, Calendar } from "lucide-svelte";
+    // import { Blocks, Calendar } from "lucide-svelte";
     import * as Breadcrumb from "$lib/components/ui/breadcrumb";
     import Slash from "svelte-radix/Slash.svelte";
     import Separator from "$lib/components/ui/separator/separator.svelte";
@@ -13,26 +13,23 @@
     import PostCard from "$lib/post-layout/card/base-card.svelte";
 
     // CMS - content block render Component
-    // import BlockHeading from "$lib/post-content-layout/block/heading.svelte";
-    // import BlockParagraph from "$lib/post-content-layout/block/paragraph.svelte";
     import BlockCode from "$lib/post-content-layout/block/code.svelte";
-    // import BlockImage from "$lib/post-content-layout/block/image.svelte";
     import BlockLatex from "$lib/post-content-layout/block/latex.svelte";
-    // import BlockQuote from "$lib/post-content-layout/block/quote.svelte";
-    // import BlockVideo from "$lib/post-content-layout/block/video.svelte";
     import BlockText from "$lib/post-content-layout/block/text.svelte";
     import BlockTable from "$lib/post-content-layout/block/table.svelte";
-
     import BlockBookmark from "$lib/post-content-layout/block/bookmark.svelte";
     import BlockLink from "$lib/post-content-layout/block/link.svelte";
-
     import BlockFile from "$lib/post-content-layout/block/file.svelte";
+
+    import { isEmpty } from "lodash-es";
 
     import type { Page as IPage } from "$generateor/page";
 
     const post = page.data as IPage;
 
-    // console.log(post);
+    console.log(post.serie);
+    console.log(isEmpty([]));
+    console.log(isEmpty(post.serie));
 
     // import example_post from "./example";
     // const post: PostContent = example_post;
@@ -79,12 +76,11 @@
         <Breadcrumb.Separator>
             <Slash tabindex="-1" />
         </Breadcrumb.Separator>
-
-        {#if post.serie !== null}
+        {#if isEmpty(post.serie) == false}
             <Breadcrumb.Item>
-                <Breadcrumb.Link href="/posts/serie/{post.serie.id}"
-                    >{post.serie.name}</Breadcrumb.Link
-                >
+                <Breadcrumb.Link href="/posts/series/{post.serie?.id}">
+                    {post.serie?.name}
+                </Breadcrumb.Link>
             </Breadcrumb.Item>
             <Breadcrumb.Separator>
                 <Slash tabindex="-1" />
@@ -170,27 +166,18 @@
                         <BlockCode {...block} />
                     {:else if block.componentType === "Text"}
                         <BlockText {...block} />
-                    {/if}
-                    {#if block.componentType === "Table"}
+                    {:else if block.componentType === "Table"}
                         <BlockTable {...block} />
-                    {/if}
-
-                    {#if block.componentType === "Bookmark"}
+                    {:else if block.componentType === "Bookmark"}
                         <BlockBookmark {...block} />
-                    {/if}
-                    <!--
-                    {#if block.componentType === "Image"}
-                        <BlockImage {...block} />
-                    {/if} -->
-                    {#if block.componentType === "File"}
+                    {:else if block.componentType === "File"}
                         <BlockFile {...block} />
-                    {/if}
-
-                    {#if block.componentType === "Link"}
+                    {:else if block.componentType === "Link"}
                         <BlockLink {...block} />
-                    {/if}
-                    {#if block.componentType === "Latex"}
+                    {:else if block.componentType === "Latex"}
                         <BlockLatex {...block} />
+                    {:else}
+                        <span> not yet implement : {block.componentType} </span>
                     {/if}
 
                     <!-- <span class="block">
