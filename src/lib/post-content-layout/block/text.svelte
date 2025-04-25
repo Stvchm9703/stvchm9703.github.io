@@ -1,5 +1,10 @@
 <script lang="ts">
     import type { ContentBlock } from "$generateor/content_block";
+    import { Checkbox } from "$lib/components/ui/checkbox";
+    import { Label } from "$lib/components/ui/label";
+    import * as Accordion from "$lib/components/ui/accordion";
+    import Self from "./text.svelte";
+    import { cn } from "$lib/utils";
     import {
         resolveMarks,
         pathResolver,
@@ -91,6 +96,53 @@
             </footer>
         {/if}
     </blockquote>
+{:else if element_style === "Callout" && hasText}
+    <div
+        id={headerIdResolver(element_style, id)}
+        class={cn([
+            resolveStyle(content_style),
+            "my-6",
+            "flex-col",
+            "py-4",
+            "px-6",
+            "rounded-md",
+            "bg-slate-300",
+        ])}
+    >
+        <!-- {@debug element_style} -->
+        <p>
+            {@html resolveMarks(tMarks, text)}
+        </p>
+    </div>
+{:else if element_style === "Checkbox" && hasText}
+    <div class="items-center flex gap-3 my-6">
+        <Checkbox
+            id={headerIdResolver(element_style, id)}
+            checked={other["checked"]}
+            disabled
+        />
+        <div class="grid gap-1.5 leading-none">
+            <Label
+                for={headerIdResolver(element_style, id)}
+                class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+                {@html resolveMarks(tMarks, text)}
+            </Label>
+        </div>
+    </div>
+{:else if element_style === "Toggle"}
+    <Accordion.Root id={headerIdResolver(element_style, id)} class="w-full">
+        <Accordion.Item value={headerIdResolver(element_style, id)}>
+            <Accordion.Trigger>
+                {@html resolveMarks(tMarks, text)}
+            </Accordion.Trigger>
+            <Accordion.Content class="pl-3 lg:pl-8 pr-2">
+                {#each other["items"] as item}
+                    <Self {...item} />
+                {/each}
+            </Accordion.Content>
+        </Accordion.Item>
+    </Accordion.Root>
 {:else if element_style === undefined && hasText}
     <p
         id={headerIdResolver(element_style, id)}

@@ -15,7 +15,7 @@ import { ExternalBookmarkLink } from "./external_link";
 import type { TagList, TagMap, Tag, TagOptionLabel } from "./tag";
 import type { UserId } from "./user";
 import type { WorkspaceId } from "./workspace";
-import { last } from "lodash-es";
+import { FileObject } from "./file_object";
 
 export type PageId = string;
 export type PageMap = Map<string, Page>;
@@ -50,6 +50,11 @@ export interface PageLink {
   title: string;
   componentId: string;
   url: string;
+  coverImage?: string;
+  snippet?: string;
+  tags?: TagOptionLabel[];
+  serie?: TagOptionLabel;
+  publish_date?: number;
 }
 
 export const getPages = (snapshot_list: SnapshotWithType[]): Page[] => {
@@ -109,7 +114,7 @@ export function fromAnytype(raw: SnapshotWithType): Page {
   resolveTOCComponent(tmp);
 
   resolveTextNumberComponent(tmp);
-
+  resolveTextToggleComponent(tmp);
   // console.log("resolved :", tmp);
   return tmp;
 }
@@ -155,7 +160,7 @@ function resolveReformedContents(self: Page): Page {
       if (
         block.componentType === "Smartblock" ||
         block.componentType === "FeaturedRelations" ||
-        block.componentType === "Relation" ||
+        // block.componentType === "Relation" ||
         block.componentType === "Div"
 
         // || block.componentType === "TableOfContents"
@@ -182,16 +187,6 @@ function resolveChildrenIds(self: Page, id: string): string[] {
   const rootBlock = self.contents.get(id);
   if (!rootBlock) return [];
 
-  // console.log(
-  //   rootBlock.id,
-  //   rootBlock.componentType,
-  //   rootBlock.childrenIds.length,
-  //   JSON.stringify({
-  //     attr: rootBlock.componentAttr,
-  //     fields: rootBlock.fields,
-  //   }),
-  // );
-
   const orderlist: string[] = [];
 
   if (rootBlock.componentType !== "Div") {
@@ -215,7 +210,7 @@ function resolveChildrenIds(self: Page, id: string): string[] {
   return orderlist;
 }
 
-let _seriesRel = null;
+let _seriesRel: Tag | null = null;
 
 export function resolveSeries(self: Page): Page {
   if (self.serie === null || self.serie.length === 0) return self;
@@ -338,13 +333,88 @@ export function resolveTextNumberComponent(self: Page): Page {
       target.componentAttr["text"] = undefined;
     }
   });
-  // self.reformedContents = self.reformedContents.map((elm) => {
-  //   let elems = mapped.get(elm.id);
-  //   if (elems) {
-  //     elm.componentAttr["items"] = elems;
-  //   }
-  //   return elm;
-  // });
+
+  return self;
+}
+
+export function resolveTextToggleComponent(self: Page): Page {
+  // let number_set: ContentBlock.ContentBlock[][] = [[]];
+  let mapped = new Map<string, ContentBlock.ContentBlock[]>();
+  let stacked: ContentBlock.ContentBlock[] = [];
+  // let to_remove: ContentBlock.ContentBlock[] = [];
+  let to_remove_id: string[] = [];
+  for (const elm of self.reformedContents) {
+    if (
+      elm.componentType === "Text" &&
+      elm.componentAttr["style"]?.startsWith("Toggle")
+    ) {
+      const children = elm.childrenIds
+        .map((id) => {
+          return self.reformedContents.find((subElm) => subElm.id === id);
+        })
+        .filter((p) => p !== undefined);
+
+      elm.componentAttr["items"] = children;
+      to_remove_id.push(...elm.childrenIds);
+    }
+  }
+
+  self.reformedContents = self.reformedContents.filter(
+    (elm) => to_remove_id.includes(elm.id) === false,
+  );
+
+  return self;
+}
+
+export function resolveRelationCustomComponent(
+  self: Page,
+  extFileList: FileObject[],
+): Page {
+  let list_buffer = self.reformedContents
+    .map((elm, idx) => {
+      if (elm.componentType !== "Relation") return elm;
+      const fieldKey = elm.componentAttr["key"];
+      const tag = GLOBAL_RELATION_IDMAP.values().find(
+        (p) => p.relationKey === fieldKey,
+      );
+      if (tag === undefined) return null;
+
+      if (tag.name !== "custom-component") return null;
+      let next_item = self.reformedContents[idx + 1];
+      if (next_item.componentType !== "File") return null;
+
+      const targetFileObject = extFileList.find(
+        (f) => f.id === next_item.componentAttr["targetObjectId"],
+      );
+
+      const customComponentFieldValue = self.attributes[fieldKey];
+      const commandList: string[] = customComponentFieldValue
+        .split(";")
+        .filter((p) => p !== "");
+
+      const targetCommand = commandList.find((f) =>
+        f.includes(targetFileObject?.title),
+      );
+
+      elm.componentType = "CustomComponent";
+      // elm.componentAttr["fileId"] = next_item.componentAttr["targetObjectId"];
+      elm.componentAttr["targetCommand"] = targetCommand;
+      elm.componentAttr["origanalCommand"] = commandList;
+      // elm.componentAttr["fileAttr"] = next_item.componentAttr;
+      // targetFileObject?.attributes = undefined;
+      elm.componentAttr["fileObject"] = {
+        id: targetFileObject?.id,
+        title: targetFileObject?.title,
+        fileUrl: targetFileObject?.fileUrl,
+        fileExt: targetFileObject?.fileExt,
+      };
+      return elm;
+    })
+    .filter((elm) => elm !== null);
+
+  // console.log(list_buffer.filter(elm => elm.))
+
+  self.reformedContents = list_buffer;
 
   return self;
 }

@@ -16,11 +16,25 @@ import {
   setRelationNameMap,
 } from "./common";
 import { getBookmarkLinks } from "./external_link";
+import { parseArgs } from "util";
+import { getFileObjects } from "./file_object";
 
-const ANYTYPE_EXPORT_PATH = "blog_post/Anytype.20250423.162011.34/**/*.pb";
+// const ANYTYPE_EXPORT_PATH = "blog_post/Anytype.20250424.095547.72/**/*.pb";
 
 const main = async () => {
-  const glob = new Glob(ANYTYPE_EXPORT_PATH);
+  const { values, positionals } = parseArgs({
+    args: Bun.argv,
+    options: {
+      importPath: {
+        type: "string",
+      },
+    },
+    strict: true,
+    allowPositionals: true,
+  });
+  const importPath = `${values["importPath"]}/**/*.pb`;
+
+  const glob = new Glob(importPath);
   let snapshot_list: PbSnapshot.SnapshotWithType[] = [];
   for await (const file of glob.scan()) {
     // console.log(`looking in <${file}>`);
@@ -35,11 +49,12 @@ const main = async () => {
   // Bun.file();
   // console.log(snapshot_list[0].snapshot?.data?.details);
 
-  resolveCollection(snapshot_list);
+  resolveCollection(snapshot_list, values["importPath"]);
 };
 
 const resolveCollection = async (
   snapshot_list: PbSnapshot.SnapshotWithType[],
+  imoprtPath: string,
 ) => {
   const taglist = Tag.getTags(snapshot_list);
   taglist.forEach(setRelationNameMap);
@@ -48,6 +63,9 @@ const resolveCollection = async (
   const collections = Collection.getCollections(snapshot_list);
   const rawPages = Page.getPages(snapshot_list);
   const rawBookmarks = getBookmarkLinks(snapshot_list);
+
+  const rawFile = getFileObjects(snapshot_list);
+  // console.log(rawFile);
 
   // article collection
   const article_coll = collections.find((c) => c.name === "Article");
@@ -68,6 +86,7 @@ const resolveCollection = async (
     }
 
     Page.resolveLinkComponent(page, rawBookmarks);
+    Page.resolveRelationCustomComponent(page, rawFile);
 
     // // page.raw_tag_list = undefined;
     // delete page.raw_tag_list;
@@ -119,19 +138,90 @@ const resolveCollection = async (
       page_content_path,
     });
 
-    Bun.write(page_content_path, JSON.stringify(page, null, 2));
+    await Bun.write(page_content_path, JSON.stringify(page, null, 2));
   }
-  Bun.write(
+  await Bun.write(
     "blog_post_resolved/index.json",
     JSON.stringify(output_file_list, null, 2),
   );
 
-  // console.log(article_coll.articles.values()[0].contents);
-  // console.log(GLOBAL_RELATIONSHIP_NAMEMAP.get("tag"));
+  // series index to articles
 
-  // console.log(GLOBAL_RELATIONSHIP_NAMEMAP);
-  // console.log({ publishDate: tags.filter((e) => e.name.includes("publish")) });
-  // debug;
+  const seriesSet = GLOBAL_RELATION_IDMAP.values().find(
+    (elm) => elm.name === "Series",
+  );
+
+  const seriesIndexList = seriesSet?.options.map((serieOption) => {
+    const resultList: Page.PageLink[] = [];
+    for (const pageId in article_coll.articles) {
+      const page: Page.Page = article_coll.articles[pageId];
+      if (page.serie?.id === serieOption.id) {
+        resultList.push({
+          id: page.id,
+          title: page.title,
+          componentId: "",
+          url: `posts/${page.id}_1`,
+          level: 0,
+          coverImage: page.coverImage,
+          publish_date: page.publish_date,
+          serie: page.serie,
+          snippet: page.snippet,
+          tags: page.tags,
+        } as Page.PageLink);
+      }
+    }
+
+    return {
+      id: serieOption.id,
+      name: serieOption.name,
+      description: serieOption.description,
+      resultList,
+    };
+  });
+
+  await Bun.write(
+    "blog_post_resolved/series.json",
+    JSON.stringify(seriesIndexList, null, 2),
+  );
+
+  // tags index to articles
+  const tagIndexList = defaultTag?.options.map((tagOption) => {
+    const resultList: Page.PageLink[] = [];
+    for (const pageId in article_coll.articles) {
+      const page: Page.Page = article_coll.articles[pageId];
+      if (page.tags.findIndex((p) => p.id === tagOption.id) !== -1) {
+        resultList.push({
+          id: page.id,
+          title: page.title,
+          componentId: "",
+          url: `posts/${page.id}_1`,
+          level: 0,
+          coverImage: page.coverImage,
+          publish_date: page.publish_date,
+          serie: page.serie,
+          snippet: page.snippet,
+          tags: page.tags,
+        } as Page.PageLink);
+      }
+    }
+
+    return {
+      id: tagOption.id,
+      name: tagOption.name,
+      description: tagOption.description,
+      resultList,
+    };
+  });
+
+  await Bun.write(
+    "blog_post_resolved/tags.json",
+    JSON.stringify(tagIndexList, null, 2),
+  );
+
+  for (const fileobj of rawFile) {
+    const file = Bun.file(`${imoprtPath}/${fileobj.fileUrl}`);
+    await Bun.write(`blog_post_resolved/${fileobj.fileUrl}`, file);
+  }
 };
 
 const pathResolver = (path: string) =>

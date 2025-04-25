@@ -16,14 +16,17 @@
     // import BlockHeading from "$lib/post-content-layout/block/heading.svelte";
     // import BlockParagraph from "$lib/post-content-layout/block/paragraph.svelte";
     import BlockCode from "$lib/post-content-layout/block/code.svelte";
-    import BlockImage from "$lib/post-content-layout/block/image.svelte";
+    // import BlockImage from "$lib/post-content-layout/block/image.svelte";
+    import BlockLatex from "$lib/post-content-layout/block/latex.svelte";
     // import BlockQuote from "$lib/post-content-layout/block/quote.svelte";
-    import BlockVideo from "$lib/post-content-layout/block/video.svelte";
+    // import BlockVideo from "$lib/post-content-layout/block/video.svelte";
     import BlockText from "$lib/post-content-layout/block/text.svelte";
     import BlockTable from "$lib/post-content-layout/block/table.svelte";
 
     import BlockBookmark from "$lib/post-content-layout/block/bookmark.svelte";
     import BlockLink from "$lib/post-content-layout/block/link.svelte";
+
+    import BlockFile from "$lib/post-content-layout/block/file.svelte";
 
     import type { Page as IPage } from "$generateor/page";
 
@@ -38,10 +41,10 @@
 
     function resolveComponent(type: string) {
         switch (type) {
-            case "image":
-                return BlockImage;
-            case "video":
-                return BlockVideo;
+            // case "image":
+            //     return BlockImage;
+            // case "video":
+            //     return BlockVideo;
             case "Text":
                 return BlockText;
             case "Link":
@@ -96,7 +99,7 @@
 
 <section class="flex flex-col lg:flex-row gap-8">
     <!-- {/* Sidebar with TOC and Related Chapters */} -->
-    <aside class="lg:w-64 xl:w-72 shrink-0">
+    <aside class="lg:w-64 xl:w-72 flex-none">
         <!-- {/* Table of Contents - Desktop */} -->
         <div class="hidden lg:block sticky top-8">
             <TableOfContents tableOfContents={post.tableOfContents} />
@@ -116,7 +119,7 @@
     </aside>
 
     <!-- {/* Main Content */} -->
-    <div class="flex-1">
+    <div class="flex-none w-auto grow-1 shrink-1 basis-[56rem] max-w-[58rem]">
         <!-- {/* Article Header */} -->
         <article>
             <div class="mb-8">
@@ -175,14 +178,26 @@
                     {#if block.componentType === "Bookmark"}
                         <BlockBookmark {...block} />
                     {/if}
-
+                    <!--
                     {#if block.componentType === "Image"}
                         <BlockImage {...block} />
+                    {/if} -->
+                    {#if block.componentType === "File"}
+                        <BlockFile {...block} />
                     {/if}
 
                     {#if block.componentType === "Link"}
                         <BlockLink {...block} />
                     {/if}
+                    {#if block.componentType === "Latex"}
+                        <BlockLatex {...block} />
+                    {/if}
+
+                    <!-- <span class="block">
+                        {block.componentType} - {JSON.stringify(
+                            block.componentAttr,
+                        )}
+                    </span> -->
                 {/each}
             </div>
         </article>

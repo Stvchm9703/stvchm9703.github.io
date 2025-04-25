@@ -61,15 +61,11 @@ export default defineConfig({
         // sans: 'Roboto',
         mono: [
           "JetBrains Mono",
-          "'JetBrains Mono':300,400,600,700",
-          "Fira Code",
-          "Fira Mono:400,700",
+          "'JetBrains Mono':300,400,600",
+          // "Fira Code",
+          // "Fira Mono:400,700",
         ],
-        sans: [
-          "Zen Kaku Gothic Antique:300,400,600,700",
-          "Inter",
-          "sans-serif",
-        ],
+        sans: ["Zen Kaku Gothic Antique:300,400,600", "Inter", "sans-serif"],
       },
     }),
 

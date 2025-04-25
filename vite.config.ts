@@ -1,4 +1,4 @@
-import { resolve } from "path";
+// import { resolve } from "path";
 import { sveltekit } from "@sveltejs/kit/vite";
 // import unocss from '@unocss/svelte-scoped/vite';
 import unocss from "@unocss/vite";
@@ -48,10 +48,17 @@ export default defineConfig(({ mode }) => {
     ],
 
     optimizeDeps: {
-      include: ["pixi.js"],
+      // include: ["pixi.js"],
     },
 
     build: {
+      cssMinify: "lightningcss",
+
+      terserOptions: {
+        parse: {
+          html5_comments: false,
+        },
+      },
       rollupOptions: {
         treeshake: true, // Ensure tree shaking is enabled
 
@@ -69,6 +76,7 @@ export default defineConfig(({ mode }) => {
               return "main";
             }
           },
+          compact: true,
         },
       },
     },

@@ -6,6 +6,9 @@ import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 import { svelte_client_components as clientComponents } from "svelte-client-components";
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
+  compilerOptions: {
+    css: "external",
+  },
   // Consult https://github.com/sveltejs/svelte-preprocess
   // for more information about preprocessors
   preprocess: [clientComponents(), vitePreprocess()],
