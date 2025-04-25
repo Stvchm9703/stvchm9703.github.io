@@ -27,9 +27,9 @@
 
     const post = page.data as IPage;
 
-    console.log(post.serie);
-    console.log(isEmpty([]));
-    console.log(isEmpty(post.serie));
+    // console.log(post.serie);
+    // console.log(isEmpty([]));
+    // console.log(isEmpty(post.serie));
 
     // import example_post from "./example";
     // const post: PostContent = example_post;

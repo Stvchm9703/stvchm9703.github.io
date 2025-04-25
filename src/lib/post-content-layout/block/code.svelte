@@ -22,12 +22,11 @@
     let lang: LanguageType = $state.raw(typescript);
 
     onMount(async () => {
-        console.log("mounted");
-
+        // console.log("mounted");
         lang = await import(`svelte-highlight/languages/${fields["lang"]}`)
             .default;
 
-        console.log(lang);
+        // console.log(lang);
     });
 
     const copy = async () => {
