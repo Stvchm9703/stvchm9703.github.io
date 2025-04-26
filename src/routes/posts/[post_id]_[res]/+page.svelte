@@ -4,24 +4,24 @@
     // import { Blocks, Calendar } from "lucide-svelte";
     import * as Breadcrumb from "$lib/components/ui/breadcrumb";
     import Slash from "svelte-radix/Slash.svelte";
-    import Separator from "$lib/components/ui/separator/separator.svelte";
-    import TableOfContents from "$lib/post-content-layout/table-of-content/container.svelte";
-    import TableOfContentsMobile from "$lib/post-content-layout/table-of-content/mob-list.svelte";
-    import RelatedChapters from "$lib/post-content-layout/related-chapter/container.svelte";
-    import RelatedChaptersMobile from "$lib/post-content-layout/related-chapter/mob-list.svelte";
-    import Tag from "$lib/post-content-layout/tag/tag.svelte";
-    import PostCard from "$lib/post-layout/card/base-card.svelte";
+    // import Separator from "$lib/components/ui/separator/separator.svelte";
+    import TableOfContents from "$lib/components/post-content-layout/table-of-content/container.svelte";
+    import TableOfContentsMobile from "$lib/components/post-content-layout/table-of-content/mob-list.svelte";
+    import RelatedChapters from "$lib/components/post-content-layout/related-chapter/container.svelte";
+    import RelatedChaptersMobile from "$lib/components/post-content-layout/related-chapter/mob-list.svelte";
+    import Tag from "$lib/components/post-content-layout/tag/tag.svelte";
+    import PostCard from "$lib/components/post-layout/card/base-card.svelte";
 
     // CMS - content block render Component
-    import BlockCode from "$lib/post-content-layout/block/code.svelte";
-    import BlockLatex from "$lib/post-content-layout/block/latex.svelte";
-    import BlockText from "$lib/post-content-layout/block/text.svelte";
-    import BlockTable from "$lib/post-content-layout/block/table.svelte";
-    import BlockBookmark from "$lib/post-content-layout/block/bookmark.svelte";
-    import BlockLink from "$lib/post-content-layout/block/link.svelte";
-    import BlockFile from "$lib/post-content-layout/block/file.svelte";
+    import BlockCode from "$lib/components/post-content-layout/block/code.svelte";
+    import BlockLatex from "$lib/components/post-content-layout/block/latex.svelte";
+    import BlockText from "$lib/components/post-content-layout/block/text.svelte";
+    import BlockTable from "$lib/components/post-content-layout/block/table.svelte";
+    import BlockBookmark from "$lib/components/post-content-layout/block/bookmark.svelte";
+    import BlockLink from "$lib/components/post-content-layout/block/link.svelte";
+    import BlockFile from "$lib/components/post-content-layout/block/file.svelte";
 
-    import { isEmpty } from "lodash-es";
+    import isEmpty from "lodash-es/is-empty";
 
     import type { Page as IPage } from "$generateor/page";
 
@@ -176,7 +176,7 @@
                         <BlockLink {...block} />
                     {:else if block.componentType === "Latex"}
                         <BlockLatex {...block} />
-                    {:else}
+                    {:else if block.componentType === "Layout" || block.componentType === "TableOfContents"}{:else}
                         <span> not yet implement : {block.componentType} </span>
                     {/if}
 

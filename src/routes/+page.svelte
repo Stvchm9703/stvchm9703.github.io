@@ -1,11 +1,11 @@
 <script>
   // export const p`rerender = true;
 
-  import Navbar from "$lib/navbar/index-page.client.svelte";
-  import Banner from "$lib/banner.svelte";
-  import BannerGridCell from "$lib/banner-grid-cell.svelte";
+  import Navbar from "$lib/components/navbar/index-page.client.svelte";
+  import Banner from "$lib/components/banner.svelte";
+  import BannerGridCell from "$lib/components/banner-grid-cell.svelte";
 
-  import Footer from "$lib/footer.svelte";
+  import Footer from "$lib/components/footer.svelte";
   // import SampleImage from "$assets/img/placeholder-hero.jpg?format=webp&w=750;900;1200;2400&q=85&as=metadata";
   import IndexImage_L0 from "$assets/series/index-page/cover_l0.png?format=webp&w=1200;1800;2400&q=85&as=metadata";
   //   import IndexImage_L1 from "$assets/series/index-page/cover_l1.png?format=webp&w=1800;2400;3000&q=85&as=metadata";
@@ -15,11 +15,11 @@
   // import BaseImage_4 from "$assets/img/coffee.jpg?format=webp&w=700;1200&q=85&as=metadata";
   import BaseImage_5 from "$assets/img/2024_uts.jpg?format=webp&w=700;1200&q=85&as=metadata";
 
-  import ScrollFrame from "$lib/scroll-frame.svelte";
+  import ScrollFrame from "$lib/components/scroll-frame.svelte";
   // import SkillTree from "$lib/skill-tree/elk/main.svelte";
-  import SkillV2 from "$lib/skillset/main.svelte"
-  import ProjectSet from "$lib/project-set/card-list.svelte";
-  import ImageSet from "$lib/Image.svelte";
+  import SkillV2 from "$lib/components/skillset/main.svelte"
+  import ProjectSet from "$lib/components/project-set/card-list.svelte";
+  import ImageSet from "$lib/components/Image.svelte";
 
   // import { onMount } from "svelte";
 

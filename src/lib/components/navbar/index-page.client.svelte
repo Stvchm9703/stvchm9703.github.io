@@ -10,10 +10,10 @@
   }
 
   let { activeId }: Props = $props();
-  const PCNavComponent = import("$lib/navbar/index-set/main.svelte").then(
+  const PCNavComponent = import("$lib/components/navbar/index-set/main.svelte").then(
     (m) => m.default
   );
-  const MobNavComponent = import("$lib/navbar/mobile-set-2/main.svelte").then(
+  const MobNavComponent = import("$lib/components/navbar/mobile-set-2/main.svelte").then(
     (m) => m.default
   );
   const mediaQuesySet = ["(max-width: 82rem)", "(min-width: 82rem)"];

@@ -1,5 +1,5 @@
 <script>
-    import BannerGridCell from "$lib/banner-grid-cell.svelte";
+    import BannerGridCell from "$components/banner-grid-cell.svelte";
     import BaseImage_4 from "$assets/img/coffee.jpg?format=webp&w=700;1200&q=85&as=metadata";
 
     import KeyboardImage from "$assets/img/keyboard.jpg?format=webp&q=85";

@@ -1,8 +1,8 @@
 <script>
     import { Separator } from "$lib/components/ui/separator";
-    import Headline from "$lib/post-layout/headline.svelte";
-    import PostContainer from "$lib/post-layout/post-list-container.svelte";
-    import PostCard from "$lib/post-layout/card";
+    import Headline from "$lib/components/post-layout/headline.svelte";
+    import PostContainer from "$lib/components/post-layout/post-list-container.svelte";
+    import PostCard from "$lib/components/post-layout/card";
     import { cn, displayDate } from "$lib/utils";
 
     import { page } from "$app/state";

@@ -63,11 +63,12 @@ export default defineConfig(({ mode }) => {
 
     build: {
       cssMinify: "lightningcss",
-
+      minify: "terser",
       terserOptions: {
         parse: {
           html5_comments: false,
         },
+        compress: true,
       },
       rollupOptions: {
         treeshake: true, // Ensure tree shaking is enabled

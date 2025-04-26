@@ -1,7 +1,7 @@
 <script>
     import { CalendarIcon } from "lucide-svelte";
     import Separator from "$lib/components/ui/separator/separator.svelte";
-    import Image from "$lib/Image.svelte";
+    import Image from "$lib/components/Image.svelte";
     import { cn, displayDate } from "$lib/utils";
     const { post, content_slot } = $props();
 

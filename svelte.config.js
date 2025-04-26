@@ -42,7 +42,8 @@ const config = {
       "$type/*": "src/types/*",
       $types: "src/types",
       "$types/*": "src/types/*",
-
+      $components: "src/lib/components",
+      "$components/*": "src/lib/components/*",
       $generateor: "tools/convert_blog_post_ts",
       "$generateor/*": "tools/convert_blog_post_ts/*",
     },
