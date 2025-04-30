@@ -1,0 +1,1 @@
+import{ah as a,ai as o}from"./C6-Njnt1.js";const s=(s,r)=>a.lang.round(o.parse(s)[r]);export{s as c};
