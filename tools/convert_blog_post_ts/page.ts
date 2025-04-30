@@ -370,6 +370,7 @@ export function resolveRelationCustomComponent(
   self: Page,
   extFileList: FileObject[],
 ): Page {
+  let toDelete: string[] = [];
   let list_buffer = self.reformedContents
     .map((elm, idx) => {
       if (elm.componentType !== "Relation") return elm;
@@ -408,13 +409,18 @@ export function resolveRelationCustomComponent(
         fileUrl: targetFileObject?.fileUrl,
         fileExt: targetFileObject?.fileExt,
       };
+
+      toDelete.push(next_item.id);
       return elm;
     })
     .filter((elm) => elm !== null);
 
+  // console.log({ toDelete });
   // console.log(list_buffer.filter(elm => elm.))
 
-  self.reformedContents = list_buffer;
+  self.reformedContents = list_buffer.filter(
+    (p) => toDelete.includes(p.id) === false,
+  );
 
   return self;
 }

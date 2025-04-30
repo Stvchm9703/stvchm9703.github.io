@@ -1,6 +1,7 @@
 <script lang="ts">
     import * as Card from "$lib/components/ui/card";
     import type { ContentBlock } from "$generateor/content_block";
+    import Tag from "$lib/components/post-content-layout/tag/tag.svelte";
     import { resolveMarks, resolveStyle, headerIdResolver } from "./common";
 
     let { class: className, id, componentAttr, componentType } = $props();
@@ -23,9 +24,19 @@
                         ? componentAttr.title
                         : componentAttr.href}</Card.Title
                 >
-                <Card.Description class="text-sm font-normal"
-                    >{componentAttr.description}</Card.Description
-                >
+                <Card.Description class="flex flex-col ">
+                    <p class="text-sm font-normal">
+                        {componentAttr.description}
+                    </p>
+                    <div class="flex flex-row gap-4">
+                        <span class="text-xs font-normal">
+                            {componentAttr.date}
+                        </span>
+                        {#each componentAttr.tags as tag}
+                            <Tag {...tag} />
+                        {/each}
+                    </div>
+                </Card.Description>
             </div>
         </Card.Content>
     </Card.Root>

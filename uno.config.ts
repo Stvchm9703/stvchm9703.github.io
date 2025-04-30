@@ -20,6 +20,7 @@ import { presetAnimations } from "unocss-preset-animations";
 import { flatten } from "lodash-es";
 
 export default defineConfig({
+  outputToCssLayers: true,
   content: {
     pipeline: {
       include: [

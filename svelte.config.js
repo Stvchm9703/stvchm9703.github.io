@@ -12,7 +12,7 @@ const config = {
   // Consult https://github.com/sveltejs/svelte-preprocess
   // for more information about preprocessors
   preprocess: [clientComponents(), vitePreprocess()],
-
+  appDir: "app",
   kit: {
     // inspector: process.argv.includes('dev'),
     adapter: adapter({
@@ -23,6 +23,7 @@ const config = {
       precompress: !process.argv.includes("dev"),
       strict: true,
     }),
+    appDir: "app",
     prerender: {
       // default: true,
       handleHttpError: "ignore",

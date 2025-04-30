@@ -13,28 +13,20 @@
     import PostCard from "$lib/components/post-layout/card/base-card.svelte";
 
     // CMS - content block render Component
+    import BlockText from "$lib/components/post-content-layout/block/text.svelte";
     import BlockCode from "$lib/components/post-content-layout/block/code.svelte";
     import BlockLatex from "$lib/components/post-content-layout/block/latex.svelte";
-    import BlockText from "$lib/components/post-content-layout/block/text.svelte";
     import BlockTable from "$lib/components/post-content-layout/block/table.svelte";
     import BlockBookmark from "$lib/components/post-content-layout/block/bookmark.svelte";
     import BlockLink from "$lib/components/post-content-layout/block/link.svelte";
     import BlockFile from "$lib/components/post-content-layout/block/file.svelte";
 
-    import isEmpty from "lodash-es/is-empty";
+    import { isEmpty } from "lodash-es";
 
     import type { Page as IPage } from "$generateor/page";
+    import { displayDate } from "$lib/utils";
 
     const post = page.data as IPage;
-
-    // console.log(post.serie);
-    // console.log(isEmpty([]));
-    // console.log(isEmpty(post.serie));
-
-    // import example_post from "./example";
-    // const post: PostContent = example_post;
-    // import type { PostContent } from "$types/post-content";
-    // console.log(page.data);
 
     function resolveComponent(type: string) {
         switch (type) {
@@ -137,9 +129,7 @@
                         <!-- <Calendar class="w-4 h-4 text-current" /> -->
                         <i class="w-4 h-4 i-carbon-calendar"></i>
                         <span class="text-sm"
-                            >{new Date(
-                                post.publish_date * 1000,
-                            ).toLocaleDateString()}</span
+                            >{displayDate(post.publish_date)}</span
                         >
                     </div>
                     <!-- <div class="flex items-center gap-2">
@@ -176,7 +166,7 @@
                         <BlockLink {...block} />
                     {:else if block.componentType === "Latex"}
                         <BlockLatex {...block} />
-                    {:else if block.componentType === "Layout" || block.componentType === "TableOfContents"}{:else}
+                    {:else if block.componentType === "Layout" || block.componentType === "TableOfContents"}{:else if block.componentType === "CustomComponent"}{:else}
                         <span> not yet implement : {block.componentType} </span>
                     {/if}
 

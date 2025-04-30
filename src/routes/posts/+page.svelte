@@ -39,6 +39,7 @@
                     content={post.snippet}
                     post_date={displayDate(post.publish_date)}
                     link={post.url}
+                    tags={post.tags}
                 />
             {/each}
         </PostContainer>

@@ -378,19 +378,6 @@
             updated_at_date: 1606143020,
         },
     ]);
-    // onMount(async () => {
-    //   let importData = (await import(`$assets/content/full-repo-data.json`)).default;
-    //   // console.log(importData);
-    //   importData = importData
-    //   .filter((elm)=>elm.description !== null)
-    //   .map((elm) => ({
-    //     ...elm,
-    //     updated_at_date: DateTime.fromISO(elm.updated_at).toUnixInteger(),
-    //   }));
-    //   importData = importData.sort((a, b) => b.updated_at_date - a.updated_at_date);
-    //   tmp = importData.slice(0,24);
-    //   console.log(tmp)
-    // });
 </script>
 
 <div

@@ -2,6 +2,7 @@
     import { CalendarIcon } from "lucide-svelte";
     import Separator from "$lib/components/ui/separator/separator.svelte";
     import Image from "$lib/components/Image.svelte";
+    import Tag from "$lib/components/post-content-layout/tag/tag.svelte";
     import { cn, displayDate } from "$lib/utils";
     const { post, content_slot } = $props();
 
@@ -21,7 +22,6 @@
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="md:col-span-2">
-
                 {@render content_slot?.()}
                 {#if !content_slot}
                 <p class="text-lg font-serif leading-relaxed">
@@ -29,7 +29,7 @@
                 </p>
                 <div class="flex gap-4 mt-3">
                     {#each post.tags as tag}
-                        <a class="px-2 py-1  rounded-md text-sm bg-slate-300" href="/posts/tags/{tag.id}">{tag.name}</a>
+                       <Tag id={tag.id} name={tag.name} />
                     {/each}
                 </div>
                 {/if}
