@@ -1,1 +1,0 @@
-import{s as r,c as s,a,C as e}from"./CA7LegOn.js";import{_ as o}from"./CZM0F3Zc.js";var t={parser:a,get db(){return new e},renderer:s,styles:r,init:o((r=>{r.class||(r.class={}),r.class.arrowMarkerAbsolute=r.arrowMarkerAbsolute}),"init")};export{t as diagram};

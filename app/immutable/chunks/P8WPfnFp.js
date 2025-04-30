@@ -1,0 +1,1 @@
+import{ah as a,ai as o}from"./B5BqhgZB.js";const s=(s,r)=>a.lang.round(o.parse(s)[r]);export{s as c};
