@@ -1,0 +1,1 @@
+import{d as o,_ as s}from"../chunks/B1rO-tXm.js";export{o as component,s as universal};
