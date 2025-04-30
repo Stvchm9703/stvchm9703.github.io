@@ -1,0 +1,1 @@
+import{d as o,_ as s}from"../chunks/BU01bvGz.js";export{o as component,s as universal};

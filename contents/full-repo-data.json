@@ -1,0 +1,1081 @@
+[
+  {
+    "id": "R_kgDOKFbQwQ",
+    "name": "Stvchm9703/canvas-note-to-obsidian",
+    "description": "simply convert the module note from canvas to obsidian",
+    "url": "https://github.com/Stvchm9703/canvas-note-to-obsidian",
+    "languages": {
+      "Go": 3299
+    },
+    "tags": [
+      "Golang",
+      "Canvas",
+      "Obsidian"
+    ],
+    "license": "MIT License",
+    "updated_at": "2023-09-04T20:54:08Z"
+  },
+  {
+    "id": "R_kgDOI_oHkw",
+    "name": "Stvchm9703/uts-32555-software-development",
+    "description": "2023 UTS 32555 Assignment project :  Yummy Pizza system ",
+    "url": "https://github.com/Stvchm9703/uts-32555-software-development",
+    "languages": {
+      "Python": 166000,
+      "JavaScript": 60229,
+      "TypeScript": 13203,
+      "Makefile": 960,
+      "Rust": 582,
+      "Dockerfile": 575,
+      "Mako": 510,
+      "HTML": 500
+    },
+    "tags": [
+      "Python",
+      "TypeScript",
+      "Docker",
+      "Flask",
+      "Tauri.app",
+      "Solid-js"
+    ],
+    "license": "MIT License",
+    "updated_at": "2023-03-06T02:08:48Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnkyMDk5MjM4MDk=",
+    "name": "Stvchm9703/unlight-zwei-unity",
+    "description": "Unity Project for Unlight Zwei",
+    "url": "https://github.com/Stvchm9703/unlight-zwei-unity",
+    "languages": {
+      "C#": 2637433,
+      "Starlark": 321393,
+      "ShaderLab": 37058
+    },
+    "tags": [
+      "Unity",
+      "C#",
+      "CSharp",
+      "Game Development",
+      "Unlight-Zwei"
+    ],
+    "license": "MIT License",
+    "updated_at": "2021-06-06T16:46:37Z"
+  },
+  {
+    "id": "R_kgDOIYChhQ",
+    "name": "Stvchm9703/rewind-card",
+    "description": "(╬▔皿▔)╯[reverse-card] : CSS file to tailwind token, with configurable file. ",
+    "url": "https://github.com/Stvchm9703/rewind-card",
+    "languages": {
+      "Rust": 114371
+    },
+    "tags": [
+      "Rust",
+      "Tailwind css",
+      "CSS",
+      "Reverse Engineering"
+    ],
+    "license": "MIT License",
+    "updated_at": "2022-11-29T20:55:44Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnkyMTcxMDk1Mzk=",
+    "name": "Stvchm9703/Unlight-Zwei",
+    "description": "Whole project maintain version controlling",
+    "url": "https://github.com/Stvchm9703/Unlight-Zwei",
+    "languages": {
+      "Ruby": 1950072,
+      "JavaScript": 233477,
+      "C#": 85531,
+      "ActionScript": 43836,
+      "Go": 34713,
+      "TSQL": 15067
+    },
+    "tags": [
+      "Ruby",
+      "JavaScript",
+      "C#",
+      "ActionScript",
+      "Golang",
+      "Unlight-Zwei",
+      "gRPC client",
+      "gRPC"
+    ],
+    "license": "MIT License",
+    "updated_at": "2020-07-14T05:39:22Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnkxNzA5OTcxODk=",
+    "name": "Stvchm9703/kiyo_tsuki_wapi",
+    "description": "kiyo tsuki web server with api ",
+    "url": "https://github.com/Stvchm9703/kiyo_tsuki_wapi",
+    "languages": {},
+    "tags": [
+      "PHP",
+      "Wordpress",
+      "Web Server",
+      "API"
+    ],
+    "license": "Apache License 2.0",
+    "updated_at": "2019-02-16T14:33:58Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnkyMTk5MzI1MjQ=",
+    "name": "Stvchm9703/IDCT-Unity-DLL",
+    "description": "DLL sub-mod",
+    "url": "https://github.com/Stvchm9703/IDCT-Unity-DLL",
+    "languages": {},
+    "tags": [
+      "Unity",
+      "C#",
+      "CSharp",
+      "DLL"
+    ],
+    "license": "MIT License",
+    "updated_at": "2019-11-12T20:56:47Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnkyMTE0OTgyNzQ=",
+    "name": "Stvchm9703/IDCT-Proj-Unity",
+    "description": "tic-tac-toe ui and game-logic ",
+    "url": "https://github.com/Stvchm9703/IDCT-Proj-Unity",
+    "languages": {
+      "Starlark": 321393,
+      "C#": 235458
+    },
+    "tags": [
+      "Unity",
+      "C#",
+      "CSharp",
+      "Game Development"
+    ],
+    "license": "GNU General Public License v3.0",
+    "updated_at": "2020-05-25T08:47:38Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnkzMzIxOTA3MTc=",
+    "name": "Stvchm9703/cdt-oir-template-generate-app-module-template",
+    "description": null,
+    "url": "https://github.com/Stvchm9703/cdt-oir-template-generate-app-module-template",
+    "languages": {},
+    "tags": [
+      "Vue",
+      "Nuxtjs",
+      "template",
+      "CDT"
+    ],
+    "updated_at": "2021-01-23T11:10:52Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnkzMDk2OTA5MjY=",
+    "name": "Stvchm9703/hyper-nuxt",
+    "description": "hybrid SSR Generation for Nuxt SSR, with mutli-language support ",
+    "url": "https://github.com/Stvchm9703/hyper-nuxt",
+    "languages": {
+      "JavaScript": 22275,
+      "TypeScript": 11758,
+      "Vue": 639
+    },
+    "tags": [
+      "Nuxtjs",
+      "SSR",
+      "Vue",
+      "TypeScript",
+      "JavaScript"
+    ],
+    "license": "MIT License",
+    "updated_at": "2021-02-09T06:15:38Z"
+  },
+  {
+    "id": "R_kgDOLKAS5A",
+    "name": "Stvchm9703/stv--helix-config",
+    "description": "helix zmk config, for drawing FF14 and other shortcut",
+    "url": "https://github.com/Stvchm9703/stv--helix-config",
+    "languages": {
+      "C": 16
+    },
+    "updated_at": "2024-02-01T14:54:18Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnkxOTQ0MTQ4MjI=",
+    "name": "Stvchm9703/ads-mongodb-proj2",
+    "description": "ads-mongodb test 2",
+    "url": "https://github.com/Stvchm9703/ads-mongodb-proj2",
+    "languages": {
+      "JavaScript": 13283,
+      "Vue": 5998,
+      "HTML": 571
+    },
+    "tags": [
+      "MongoDB",
+      "Vue",
+      "JavaScript",
+      "Nuxtjs"
+    ],
+    "updated_at": "2019-07-26T17:59:25Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnkyMTAwMDQ4ODc=",
+    "name": "Stvchm9703/Unlight_zwei_logic_lib2",
+    "description": "Golang Logic Libs for Unlight-Zwei",
+    "url": "https://github.com/Stvchm9703/Unlight_zwei_logic_lib2",
+    "languages": {
+      "Go": 19081
+    },
+    "license": "MIT License",
+    "updated_at": "2019-09-24T15:43:38Z"
+  },
+  {
+    "id": "R_kgDOH0BlKg",
+    "name": "Stvchm9703/centanet-v6",
+    "description": "the trial version of nuxt3 based ",
+    "url": "https://github.com/Stvchm9703/centanet-v6",
+    "languages": {
+      "TypeScript": 350448,
+      "JavaScript": 37404,
+      "Vue": 4997,
+      "CSS": 116
+    },
+    "tags": [
+      "Nuxtjs",
+      "TypeScript",
+      "JavaScript",
+      "Vue",
+      "CSS"
+    ],
+    "updated_at": "2022-08-13T05:50:13Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnkxOTkwODYwNDU=",
+    "name": "Stvchm9703/ADS-web-api-server",
+    "description": "backend support api server",
+    "url": "https://github.com/Stvchm9703/ADS-web-api-server",
+    "languages": {
+      "Go": 119311,
+      "Vue": 76116,
+      "JavaScript": 10491,
+      "CSS": 4593,
+      "Batchfile": 106,
+      "Shell": 35
+    },
+    "tags": [
+      "Golang",
+      "Vue",
+      "JavaScript",
+      "CSS",
+      "API",
+      "Backend",
+      "MongoDB"
+    ],
+    "license": "MIT License",
+    "updated_at": "2020-06-16T05:28:16Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnkyNDE4MDc4ODY=",
+    "name": "Stvchm9703/unlight-zwei-account-service",
+    "description": "unlight-zwei account service",
+    "url": "https://github.com/Stvchm9703/unlight-zwei-account-service",
+    "languages": {
+      "Go": 21276,
+      "Makefile": 1749
+    },
+    "tags": [
+      "Golang",
+      "gRPC",
+      "gRPC service",
+      "Unlight-Zwei"
+    ],
+    "license": "GNU Lesser General Public License v3.0",
+    "updated_at": "2020-11-23T14:32:43Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnkyOTE2MTc3ODA=",
+    "name": "Stvchm9703/Stvchm9703.github.io.page",
+    "description": "page content for Stvchm9703.github.io",
+    "url": "https://github.com/Stvchm9703/Stvchm9703.github.io.page",
+    "languages": {
+      "Jupyter Notebook": 355209,
+      "Batchfile": 211
+    },
+    "tags": [
+      "Jupyter Notebook",
+      "Python",
+      "HTML",
+      "CSS",
+      "Website",
+      "Vue",
+      "Nuxtjs"
+    ],
+    "license": "GNU Lesser General Public License v2.1",
+    "updated_at": "2020-10-26T04:52:57Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnkzMTUzNDU5NTM=",
+    "name": "Stvchm9703/WSConsoleServer",
+    "description": "Rust Base remote log service, via the websocket ",
+    "url": "https://github.com/Stvchm9703/WSConsoleServer",
+    "languages": {
+      "Rust": 8347
+    },
+    "tags": [
+      "Rust",
+      "WebSocket",
+      "Remote Log"
+    ],
+    "license": "GNU Lesser General Public License v2.1",
+    "updated_at": "2020-11-23T14:50:20Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnkzNTAwMDkxNTI=",
+    "name": "Stvchm9703/submarine-api",
+    "description": "the rust based CMS system",
+    "url": "https://github.com/Stvchm9703/submarine-api",
+    "languages": {
+      "Rust": 4251
+    },
+    "tags": [
+      "Rust",
+      "CMS",
+      "API",
+      "GraphQL"
+    ],
+    "updated_at": "2021-03-28T15:45:43Z"
+  },
+  {
+    "id": "R_kgDOKR57qA",
+    "name": "Stvchm9703/cdt-schoolnet__testing-conv",
+    "description": null,
+    "url": "https://github.com/Stvchm9703/cdt-schoolnet__testing-conv",
+    "languages": {
+      "Python": 3593,
+      "Shell": 370,
+      "Batchfile": 237
+    },
+    "tags": [
+      "Python",
+      "Test Coverage",
+      "E2E testing",
+      "Frontend",
+      "CDT"
+    ],
+    "updated_at": "2023-09-11T04:44:03Z"
+  },
+  {
+    "id": "R_kgDOL1MssQ",
+    "name": "Stvchm9703/nlp-a3-group-project",
+    "description": "the nlp a3 group project, the tokenizer masking task",
+    "url": "https://github.com/Stvchm9703/nlp-a3-group-project",
+    "languages": {
+      "Python": 91765,
+      "Jupyter Notebook": 40016,
+      "Makefile": 681
+    },
+    "license": "MIT License",
+    "updated_at": "2024-05-16T16:33:29Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnkyMTQ1MDg3ODE=",
+    "name": "Stvchm9703/Stvchm9703.github.io__old-nuxt",
+    "description": "github blogging , for studying and life remind",
+    "url": "https://github.com/Stvchm9703/Stvchm9703.github.io__old-nuxt",
+    "languages": {
+      "HTML": 115410,
+      "JavaScript": 1511
+    },
+    "tags": [
+      "Nuxtjs",
+      "Vue",
+      "JavaScript",
+      "HTML",
+      "CSS",
+      "Website",
+      "Frontend"
+    ],
+    "updated_at": "2023-12-17T12:34:43Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnkyMTc2MDc3NTM=",
+    "name": "Stvchm9703/Unlight-Zwei-ScptRunner",
+    "description": "Unlight Zwei - Script Interpreter Runner ",
+    "url": "https://github.com/Stvchm9703/Unlight-Zwei-ScptRunner",
+    "languages": {
+      "JavaScript": 469511
+    },
+    "tags": [
+      "JavaScript",
+      "Unlight-Zwei",
+      "Script",
+      "Interpreter",
+      "gRPC service",
+      "gRPC"
+    ],
+    "updated_at": "2020-05-25T09:12:17Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnkyMTU1MDQ4OTc=",
+    "name": "Stvchm9703/IDCT-Proj-Svr",
+    "description": "IDCT-Project Server Golang implement",
+    "url": "https://github.com/Stvchm9703/IDCT-Proj-Svr",
+    "languages": {
+      "Go": 73550,
+      "Makefile": 5400,
+      "Batchfile": 1979,
+      "Dockerfile": 496,
+      "Shell": 448
+    },
+    "tags": [
+      "Golang",
+      "Docker",
+      "Game Development",
+      "gRPC",
+      "gRPC service"
+    ],
+    "license": "MIT License",
+    "updated_at": "2020-05-25T08:54:18Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnkzMzUzMzM3NzE=",
+    "name": "Stvchm9703/gulp-wp-theme-template",
+    "description": "wordpress theme with gulp-js bundling ",
+    "url": "https://github.com/Stvchm9703/gulp-wp-theme-template",
+    "languages": {},
+    "tags": [
+      "WordPress",
+      "Gulp",
+      "JavaScript",
+      "CSS",
+      "HTML"
+    ],
+    "license": "GNU General Public License v2.0",
+    "updated_at": "2021-02-02T15:25:27Z"
+  },
+  {
+    "id": "R_kgDOKgLPVQ",
+    "name": "Stvchm9703/scholar-search",
+    "description": null,
+    "url": "https://github.com/Stvchm9703/scholar-search",
+    "languages": {
+      "Rust": 55522,
+      "HTML": 10879
+    },
+    "tags": [
+      "Rust",
+      "HTMX",
+      "Pytorch",
+      "NLP"
+    ],
+    "license": "MIT License",
+    "updated_at": "2024-01-02T09:53:13Z"
+  },
+  {
+    "id": "R_kgDOLfvy7Q",
+    "name": "Stvchm9703/image-upscaler-rust",
+    "description": "Image Upscaler with Rust, and unpacking the SWF file",
+    "url": "https://github.com/Stvchm9703/image-upscaler-rust",
+    "languages": {
+      "Rust": 48412
+    },
+    "tag": [
+      "Rust",
+      "SWF unpacker",
+      "Image Processing",
+      "Image Upscaler"
+    ],
+    "updated_at": "2024-03-13T11:43:19Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnk0MDM1NjY0Njc=",
+    "name": "Stvchm9703/modular",
+    "description": "A test-framework-server , for replacing storybook Webpack base server. ** A Lab server for testing Web Element Component, with Vite and your chemical love **",
+    "url": "https://github.com/Stvchm9703/modular",
+    "languages": {},
+    "license": "Mozilla Public License 2.0",
+    "updated_at": "2021-09-06T09:43:23Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnkyMzk0ODU0MDc=",
+    "name": "Stvchm9703/unlight-zwei-room-service",
+    "description": "Room Related Service for Project Unlight Zwei",
+    "url": "https://github.com/Stvchm9703/unlight-zwei-room-service",
+    "languages": {
+      "Go": 69324,
+      "Makefile": 4795,
+      "Batchfile": 1805,
+      "Dockerfile": 200,
+      "Shell": 55
+    },
+    "tags": [
+      "Golang",
+      "Docker",
+      "Game Development",
+      "gRPC",
+      "gRPC service",
+      "Unlight-Zwei"
+    ],
+    "license": "MIT License",
+    "updated_at": "2020-05-25T09:10:21Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnkzMDI4NTM2Mzk=",
+    "name": "Stvchm9703/flask-api-example",
+    "description": "Simple Flask API server, with Http Auth ",
+    "url": "https://github.com/Stvchm9703/flask-api-example",
+    "languages": {
+      "Python": 38609
+    },
+    "tags": [
+      "Python",
+      "Flask",
+      "API",
+      "HTTP Auth"
+    ],
+    "license": "Creative Commons Zero v1.0 Universal",
+    "updated_at": "2020-10-10T08:40:25Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnkyNzI3MTA4ODU=",
+    "name": "Stvchm9703/dive-scope",
+    "description": "A Database engine for wipping from Relational DB to Document DB, or  Graphical DB",
+    "url": "https://github.com/Stvchm9703/dive-scope",
+    "languages": {
+      "Rust": 594
+    },
+    "license": "GNU Lesser General Public License v3.0",
+    "updated_at": "2020-07-07T08:31:53Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnkxODM5Mzc1NDI=",
+    "name": "Stvchm9703/docbuilder",
+    "description": "recap the code file is bored for quick builder, just make it in markdown for document ",
+    "url": "https://github.com/Stvchm9703/docbuilder",
+    "languages": {
+      "Go": 13128,
+      "Vue": 7344
+    },
+    "tags": [
+      "Golang",
+      "Vue",
+      "JavaScript",
+      "CSS",
+      "HTML",
+      "Markdown",
+      "Document"
+    ],
+    "license": "MIT License",
+    "updated_at": "2019-05-26T14:54:38Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnkzNDA4MjMzMDc=",
+    "name": "Stvchm9703/opencv--image-feature-detect",
+    "description": "opencv implement for image reg",
+    "url": "https://github.com/Stvchm9703/opencv--image-feature-detect",
+    "languages": {
+      "Python": 36842,
+      "Makefile": 77,
+      "Batchfile": 19
+    },
+    "tags": [
+      "Python",
+      "OpenCV",
+      "Image Reg"
+    ],
+    "updated_at": "2021-03-14T04:06:45Z"
+  },
+  {
+    "id": "R_kgDOLcwTRA",
+    "name": "Stvchm9703/uts-deep-learning-tutoral-assignment",
+    "description": "Deep Learning Tutorial and Assignment",
+    "url": "https://github.com/Stvchm9703/uts-deep-learning-tutoral-assignment",
+    "languages": {
+      "Jupyter Notebook": 20543323,
+      "Makefile": 1422,
+      "Python": 357
+    },
+    "tag": [
+      "Python",
+      "Jupyter Notebook",
+      "Deep Learning",
+      "Pytorch"
+    ],
+    "license": "MIT License",
+    "updated_at": "2024-05-29T10:12:19Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnkyMDk2NDAzMjY=",
+    "name": "Stvchm9703/Unlight_zwei_logic_libs",
+    "description": "rust lang ulight zwei game logic and server",
+    "url": "https://github.com/Stvchm9703/Unlight_zwei_logic_libs",
+    "languages": {
+      "Rust": 27569
+    },
+    "tags": [
+      "Rust",
+      "Game Development",
+      "Unlight-Zwei"
+    ],
+    "license": "MIT License",
+    "updated_at": "2019-09-28T09:55:09Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnkzMTUxMTc2NjA=",
+    "name": "Stvchm9703/WSConsoleClient",
+    "description": "Remote Debuger client ",
+    "url": "https://github.com/Stvchm9703/WSConsoleClient",
+    "languages": {
+      "C#": 6717
+    },
+    "tags": [
+      "C#",
+      "Remote Debuger",
+      "WebSocket", 
+      "Dev Tool"
+    ],
+    "license": "Apache License 2.0",
+    "updated_at": "2020-11-22T19:44:15Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnkzNTc4MzE3MDY=",
+    "name": "Stvchm9703/storybook-vue-i18n-addons",
+    "description": null,
+    "url": "https://github.com/Stvchm9703/storybook-vue-i18n-addons",
+    "languages": {
+      "JavaScript": 19470,
+      "CSS": 2112
+    },
+    "tags": [
+      "JavaScript",
+      "CSS",
+      "HTML",
+      "Storybook",
+      "Vue",
+      "i18n"
+    ],
+    "license": "MIT License",
+    "updated_at": "2021-04-14T08:31:06Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnkzODcyMzA0ODE=",
+    "name": "Stvchm9703/tracker-schedule-app",
+    "description": null,
+    "url": "https://github.com/Stvchm9703/tracker-schedule-app",
+    "languages": {
+      "TypeScript": 46604,
+      "JavaScript": 8076,
+      "SCSS": 3803,
+      "CSS": 2083
+    },
+    "updated_at": "2021-12-19T18:43:50Z"
+  },
+  {
+    "id": "R_kgDOJAfsRQ",
+    "name": "Stvchm9703/uts-32130-data-analytics",
+    "description": "remark node and lab test for data analytics",
+    "url": "https://github.com/Stvchm9703/uts-32130-data-analytics",
+    "languages": {
+      "HTML": 4481684,
+      "Jupyter Notebook": 2588825,
+      "Python": 14615
+    },
+    "tags": [
+      "Python",
+      "Jupyter Notebook",
+      "Data Analytics",
+      "Data Science",
+      "Pytorch"
+    ],
+    "license": "MIT License",
+    "updated_at": "2023-04-08T14:04:15Z"
+  },
+  {
+    "id": "R_kgDOLsXo6g",
+    "name": "Stvchm9703/code-31-game-jam-Shadow-Expel",
+    "description": "little game jam",
+    "url": "https://github.com/Stvchm9703/code-31-game-jam-Shadow-Expel",
+    "languages": {
+      "ShaderLab": 882686,
+      "C#": 454059,
+      "HLSL": 20629,
+      "HTML": 4752,
+      "CSS": 1448
+    },
+    "tags": [
+      "Unity",
+      "C#",
+      "CSharp",
+      "Game Development",
+      "Game Jam"
+    ],
+    "updated_at": "2024-05-02T07:44:37Z"
+  },
+  {
+    "id": "R_kgDOIbBing",
+    "name": "Stvchm9703/stvchm9703",
+    "description": "profile page - 2022",
+    "url": "https://github.com/Stvchm9703/stvchm9703",
+    "languages": {
+      "Svelte": 49640,
+      "TypeScript": 7737,
+      "JavaScript": 7418,
+      "CSS": 6350,
+      "HTML": 284
+    },
+    "tags": [
+      "Svelte",
+      "TypeScript",
+      "JavaScript",
+      "CSS",
+      "HTML",
+      "Profile"
+    ],
+    "updated_at": "2024-06-15T05:24:30Z"
+  },
+  {
+    "id": "R_kgDOKR20Vg",
+    "name": "Stvchm9703/SCATS-Student-Traffic-Data-Innovation-Challenge-23",
+    "description": null,
+    "url": "https://github.com/Stvchm9703/SCATS-Student-Traffic-Data-Innovation-Challenge-23",
+    "languages": {
+      "Jupyter Notebook": 322751,
+      "Python": 5943
+    },
+    "tags": [
+      "Python",
+      "Jupyter Notebook",
+      "Data Science",
+      "Data Analytics",
+      "Pytorch",
+      "Machine Learning"
+    ],
+    "updated_at": "2023-09-11T00:35:17Z"
+  },
+  {
+    "id": "R_kgDOKZegrw",
+    "name": "Stvchm9703/ML-NLP-assignment",
+    "description": null,
+    "url": "https://github.com/Stvchm9703/ML-NLP-assignment",
+    "languages": {
+      "Python": 53518,
+      "Rust": 42438,
+      "Jupyter Notebook": 1553,
+      "HTML": 240
+    },
+    "tags": [
+      "Python",
+      "Rust",
+      "Jupyter Notebook",
+      "NLP",
+      "Machine Learning",
+      "Pytorch"
+    ],
+    "updated_at": "2023-10-02T05:19:21Z"
+  },
+  {
+    "id": "R_kgDOKI9Mmg",
+    "name": "Stvchm9703/stv--crkbd-config",
+    "description": null,
+    "url": "https://github.com/Stvchm9703/stv--crkbd-config",
+    "languages": {},
+    "updated_at": "2023-08-19T11:31:28Z"
+  },
+  {
+    "id": "R_kgDOLon2sg",
+    "name": "Stvchm9703/deep-learning-project",
+    "description": null,
+    "url": "https://github.com/Stvchm9703/deep-learning-project",
+    "languages": {
+      "JavaScript": 16919759,
+      "Jupyter Notebook": 2476608,
+      "SCSS": 141308,
+      "Rust": 76812,
+      "TypeScript": 33997,
+      "Python": 21761,
+      "Makefile": 2530,
+      "Ruby": 565,
+      "HTML": 305,
+      "Objective-C++": 100,
+      "C++": 82
+    },
+    "tags": [
+      "JavaScript",
+      "Jupyter Notebook",
+      "SCSS",
+      "Rust",
+      "TypeScript",
+      "Python",
+      "Machine Learning",
+      "Deep Learning",
+      "Pytorch",
+      "Tauri.app"
+    ],
+    "updated_at": "2024-05-29T11:32:36Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnkyMjE3NTQ4OTc=",
+    "name": "Stvchm9703/IDCT-Unity-Android",
+    "description": "IDCT exported android project",
+    "url": "https://github.com/Stvchm9703/IDCT-Unity-Android",
+    "languages": {
+      "ASP": 545175,
+      "Java": 9788
+    },
+    "tags": [
+      "Unity",
+      "C#",
+      "CSharp",
+      "Android",
+      "Game Development"
+    ],
+    "updated_at": "2020-05-25T08:45:00Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnkzMjQ5NjQzODE=",
+    "name": "Stvchm9703/TSX-sample",
+    "description": "trial of typescript react",
+    "url": "https://github.com/Stvchm9703/TSX-sample",
+    "languages": {
+      "JavaScript": 4866,
+      "HTML": 1406,
+      "TypeScript": 1170,
+      "SCSS": 189
+    },
+    "tags": [
+      "TypeScript",
+      "JavaScript",
+      "CSS",
+      "HTML",
+      "React",
+      "Frontend"
+    ],
+    "license": "MIT License",
+    "updated_at": "2020-12-28T09:45:01Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnkxNzEwMTY2NDM=",
+    "name": "Stvchm9703/kiyotsuki_website",
+    "description": "kiyotsuki production main website",
+    "url": "https://github.com/Stvchm9703/kiyotsuki_website",
+    "languages": {
+      "Vue": 4862,
+      "TypeScript": 2887,
+      "HTML": 555,
+      "JavaScript": 293
+    },
+    "tags": [
+      "Vue",
+      "TypeScript",
+      "JavaScript",
+      "HTML",
+      "CSS",
+      "Website",
+      "Frontend"
+    ],
+    "license": "Apache License 2.0",
+    "updated_at": "2019-02-18T19:07:11Z"
+  },
+  {
+    "id": "R_kgDOI_99bg",
+    "name": "Stvchm9703/uts-32606-database",
+    "description": "postgress-sql databsae project",
+    "url": "https://github.com/Stvchm9703/uts-32606-database",
+    "languages": {
+      "TypeScript": 1063999,
+      "JavaScript": 72855
+    },
+    "tags": [
+      "PostgreSQL",
+      "TypeScript",
+      "Deno",
+      "Prisma",
+      "Backend"
+    ],
+    "license": "MIT License",
+    "updated_at": "2024-05-29T20:38:01Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnkxODg2OTUxMzY=",
+    "name": "Stvchm9703/FYP-GoWildServer",
+    "description": "golang firebase-like server, Tracking the app behavior and user behavior",
+    "url": "https://github.com/Stvchm9703/FYP-GoWildServer",
+    "languages": {
+      "Go": 45927
+    },
+    "tags": [
+      "Golang",
+      "Backend",
+      "API"
+    ],
+    "license": "Apache License 2.0",
+    "updated_at": "2019-06-24T15:40:59Z"
+  },
+  {
+    "id": "R_kgDOGqL_Jw",
+    "name": "Stvchm9703/tracker-schedule-svelte-app",
+    "description": null,
+    "url": "https://github.com/Stvchm9703/tracker-schedule-svelte-app",
+    "languages": {
+      "Svelte": 11135,
+      "TypeScript": 8035,
+      "JavaScript": 1548,
+      "HTML": 313
+    },
+    "tags": [
+      "Svelte",
+      "Website",
+      "JavaScript",
+      "Tailwind css",
+      "Frontend"
+    ],
+    "updated_at": "2022-01-11T16:03:52Z"
+  },
+  {
+    "id": "R_kgDOJQkTXA",
+    "name": "Stvchm9703/cdt-schoolnet",
+    "description": null,
+    "url": "https://github.com/Stvchm9703/cdt-schoolnet",
+    "languages": {
+      "JavaScript": 736048,
+      "Vue": 524041,
+      "CSS": 81617,
+      "HTML": 39451,
+      "TypeScript": 1498,
+      "Dockerfile": 301
+    },
+    "tags": [
+      "Vue", 
+      "Nuxtjs",
+      "Nuxt2",
+      "JavaScript",
+      "CSS",
+      "HTML",
+      "Website",
+      "Frontend",
+      "CDT",
+      "Production"
+    ],  
+    "updated_at": "2023-03-30T13:45:45Z"
+  },
+  {
+    "id": "R_kgDOLrxeeg",
+    "name": "Stvchm9703/xenosphere-rs",
+    "description": "template engine, for cross-plaform app building",
+    "url": "https://github.com/Stvchm9703/xenosphere-rs",
+    "languages": {
+      "Rust": 2121
+    },
+    "license": "Apache License 2.0",
+    "updated_at": "2024-04-09T10:42:00Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnkyMTY5NjkyMjI=",
+    "name": "Stvchm9703/IDCT",
+    "description": "the IDCT whole project summary, setting ",
+    "url": "https://github.com/Stvchm9703/IDCT",
+    "languages": {
+      "Makefile": 150
+    },
+    "tags": [
+      "Unity",
+      "C#",
+      "CSharp",
+      "Game Development",
+      "gRPC",
+      "gRPC service"
+    ],
+    "license": "MIT License",
+    "updated_at": "2020-05-25T08:38:06Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnkxOTM5MDIwOTg=",
+    "name": "Stvchm9703/ADS-MongoDBProj",
+    "description": "MongoDB Proj for ADS",
+    "url": "https://github.com/Stvchm9703/ADS-MongoDBProj",
+    "languages": {
+      "CSS": 121073,
+      "JavaScript": 19989,
+      "Vue": 793
+    },
+    "updated_at": "2019-06-28T07:18:29Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnkyNDM0NTUxNzc=",
+    "name": "Stvchm9703/unlight-zwei-game-duel-service",
+    "description": null,
+    "url": "https://github.com/Stvchm9703/unlight-zwei-game-duel-service",
+    "languages": {
+      "Go": 149470,
+      "Makefile": 3180
+    },
+    "tags": [
+      "Golang",
+      "Docker",
+      "Game Development",
+      "gRPC",
+      "gRPC service",
+      "Unlight-Zwei"
+    ],
+    "license": "GNU Lesser General Public License v3.0",
+    "updated_at": "2020-11-27T15:08:36Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnkzMzIxODk1NzU=",
+    "name": "Stvchm9703/page-builder",
+    "description": null,
+    "url": "https://github.com/Stvchm9703/page-builder",
+    "languages": {
+      "Vue": 15034,
+      "JavaScript": 7334,
+      "TypeScript": 2160,
+      "CSS": 2112,
+      "Rust": 1348
+    },
+    "tags": [
+      "Vue",
+      "JavaScript",
+      "TypeScript",
+      "CSS",
+      "HTML",
+      "Rust",
+      "Website",
+      "Frontend",
+      "Design System"
+    ],
+    "updated_at": "2021-01-28T06:13:11Z"
+  },
+  {
+    "id": "MDEwOlJlcG9zaXRvcnkzNjk1NTUyNDc=",
+    "name": "Stvchm9703/cdt-nlp-chatbot",
+    "description": "TF Chatbot project, for chat service",
+    "url": "https://github.com/Stvchm9703/cdt-nlp-chatbot",
+    "languages": {
+      "Jupyter Notebook": 254029,
+      "Python": 101444
+    },
+    "tags": [
+      "Python",
+      "Jupyter Notebook",
+      "NLP",
+      "Chatbot",
+      "Pytorch"
+    ],
+    "license": "Creative Commons Zero v1.0 Universal",
+    "updated_at": "2021-07-05T16:15:10Z"
+  },
+  {
+    "id": "R_kgDOIuICoQ",
+    "name": "Stvchm9703/hospital_run",
+    "description": "2d sprite game",
+    "url": "https://github.com/Stvchm9703/hospital_run",
+    "languages": {
+      "GDScript": 3306,
+      "GAP": 1470
+    },
+    "tags": [
+      "GDScript",
+      "GAP",
+      "Game Development",
+      "Godot"
+    ],
+    "license": "MIT License",
+    "updated_at": "2023-01-04T17:23:01Z"
+  }
+]

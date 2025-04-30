@@ -1,0 +1,1 @@
+import{s as r,b as e,a as s,S as t}from"./BnfDoiLn.js";import{_ as a}from"./kXFF0qGU.js";var o={parser:s,get db(){return new t(2)},renderer:e,styles:r,init:a((r=>{r.state||(r.state={}),r.state.arrowMarkerAbsolute=r.arrowMarkerAbsolute}),"init")};export{o as diagram};

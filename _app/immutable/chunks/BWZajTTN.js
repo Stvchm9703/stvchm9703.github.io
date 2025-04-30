@@ -1,0 +1,1 @@
+import{b as s,E as a,d as n,n as o,e as r,h as t,g as c}from"./CB4773J8.js";function e(e,f,...i){var l,m=e,p=o;s((()=>{p!==(p=f())&&(l&&(r(l),l=null),l=n((()=>p(m,...i))))}),a),t&&(m=c)}export{e as s};
