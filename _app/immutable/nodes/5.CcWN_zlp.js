@@ -1,1 +1,0 @@
-import{_ as o}from"../chunks/BTxdMzLd.js";export{o as component};
