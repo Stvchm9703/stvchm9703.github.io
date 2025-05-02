@@ -1,0 +1,1 @@
+var t;import{_ as s}from"./BRK8b82W.js";var i=(s(t=class{constructor(t){this.init=t,this.records=this.init()}reset(){this.records=this.init()}},"ImperativeState"),t);export{i as I};

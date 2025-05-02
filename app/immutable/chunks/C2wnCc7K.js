@@ -1,0 +1,1 @@
+import{b as s,E as a,z as o,C as r,D as n,h as t,o as c}from"./-SC0CEt4.js";function f(f,i,...l){var m,p=f,u=r;s((()=>{u!==(u=i())&&(m&&(n(m),m=null),m=o((()=>u(p,...l))))}),a),t&&(p=c)}export{f as s};
