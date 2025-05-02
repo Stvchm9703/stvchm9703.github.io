@@ -5,8 +5,8 @@ import unocss from "@unocss/vite";
 import ViteCompression from "vite-plugin-compression";
 // import { extractorSvelte } from "@unocss/core";
 import { chunkSplitPlugin } from "vite-plugin-chunk-split";
-import EntryShakingPlugin from "vite-plugin-entry-shaking";
-
+import entryShakingPlugin from "vite-plugin-entry-shaking";
+import stripComments from "vite-plugin-strip-comments";
 import { visualizer } from "rollup-plugin-visualizer";
 import { imagetools } from "vite-imagetools";
 import dynamicImport from "vite-plugin-dynamic-import";
@@ -17,24 +17,11 @@ import deadFile from "vite-plugin-deadfile";
 
 console.log("schould be here");
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(async ({ mode }) => {
   process.env = { ...process.env, ...loadEnv(mode, process.cwd()) };
-  // console.log(process.env)
+  console.log(process.env);
   return {
     plugins: [
-      // deadFile({
-      //   include: ["src/**"],
-      // }),
-      //
-      // EntryShakingPlugin({
-      //   targets: [
-      //     // Or using glob patterns.
-      //     {
-      //       glob: "src/routes/**",
-      //       // globOptions: { ignore: ["excluded.ts"] },
-      //     },
-      //   ],
-      // }),
       imagetools({
         // force: true,
         removeMetadata: true,
@@ -48,13 +35,40 @@ export default defineConfig(({ mode }) => {
           }
         },
       }),
+      // deadFile({
+      //   include: ["src/**"],
+      // }),
       unocss({
         // mode: 'dist-chunk',
         configFile: "uno.config.ts",
       }),
       sveltekit(),
-      ViteCompression({ algorithm: "gzip" }),
+      // entryShakingPlugin({
+      //   targets: [
+      //     // Or using glob patterns.
+      //     {
+      //       glob: "src/lib/**/*.{ts,js}",
+      //       // globOptions: { ignore: ["excluded.ts"] },
+      //     },
+      //   ],
+      // }),
+      await entryShakingPlugin({
+        targets: [
+          // Or using glob patterns.
+          // { glob: "src/lib/**/*.{ts,js}" },
+          "@lucide/svelte",
+          "bits-ui",
+          { glob: "src/lib/**/*" },
+          { glob: "src/routes/**/*" },
+          // { glob: "src/lib/components/**/*" },
+        ],
+        extensions: ["svelte", "js", "ts"],
+      }),
+      process.env.NODE_ENV === "production"
+        ? stripComments({ type: "none", enforce: "post" })
+        : null,
       chunkSplitPlugin(),
+      ViteCompression({ algorithm: "gzip" }),
       // visualizer({ open: true, filename: "bundle-visualization.html" }),
     ],
 

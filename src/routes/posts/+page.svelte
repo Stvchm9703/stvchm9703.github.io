@@ -1,4 +1,5 @@
 <script>
+    import "uno.css";
     import { Separator } from "$lib/components/ui/separator";
     import Headline from "$lib/components/post-layout/headline.svelte";
     import PostContainer from "$lib/components/post-layout/post-list-container.svelte";

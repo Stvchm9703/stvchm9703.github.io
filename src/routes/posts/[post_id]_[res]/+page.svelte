@@ -1,4 +1,6 @@
 <script lang="ts">
+    import "uno.css";
+
     import { page } from "$app/state";
     import { Button } from "$lib/components/ui/button";
     // import { Blocks, Calendar } from "lucide-svelte";
@@ -10,6 +12,7 @@
         BreadcrumbPage,
         BreadcrumbSeparator,
     } from "$lib/components/ui/breadcrumb";
+
     import Slash from "svelte-radix/Slash.svelte";
     // import Separator from "$lib/components/ui/separator/separator.svelte";
     import TableOfContents from "$lib/components/post-content-layout/table-of-content/container.svelte";

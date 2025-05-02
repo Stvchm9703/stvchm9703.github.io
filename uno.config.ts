@@ -83,18 +83,17 @@ export default defineConfig({
       // config
     }),
   ],
-  preflight: false,
-  // [
-  //   {
-  //     getCSS: ({ theme }) => `
-  //     html { scroll-behavior: smooth; }
-  //     *{ font-family: ${theme.fontFamily.sans}; }
-  //     code, pre, .font-mono {
-  //       font-family: ${theme.fontFamily.mono};
-  //     }
-  //   `,
-  //   },
-  // ],
+  preflights: [
+    {
+      getCSS: ({ theme }) => `
+      html { scroll-behavior: smooth; }
+      *{ font-family: ${theme.fontFamily.sans}; }
+      code, pre, .font-mono {
+        font-family: ${theme.fontFamily.mono};
+      }
+    `,
+    },
+  ],
   safelist: [
     ...flatten(
       colorKey.map((color) => [`bg-${color}-300/30`, `text-${color}-700`]),

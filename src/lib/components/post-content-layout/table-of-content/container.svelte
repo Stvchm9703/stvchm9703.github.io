@@ -3,7 +3,7 @@
     let { tableOfContents } = $props();
 </script>
 
-<div class="border p-4 mb-6 bg-muted/30">
+<div class="border p-4 mb-6 bg-muted/30 print:hidden">
     <h4 class="font-serif text-lg font-bold mb-3 border-b pb-2">
         Table of Contents
     </h4>

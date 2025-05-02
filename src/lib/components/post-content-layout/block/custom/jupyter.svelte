@@ -26,6 +26,17 @@
 
         return null;
     }
+
+    const tabContentClass = cn([
+        presetScrollbar,
+        "lg:h-180",
+        "h-auto",
+        "overflow-scroll",
+    ]);
+
+    const tabTriggerClass = cn([
+        "h-8 rounded-sm bg-transparent py-2 px-4 data-[state=active]:shadow-mini dark:data-[state=active]:bg-muted  data-[state=active]:bg-white",
+    ]);
 </script>
 
 <figure
@@ -35,27 +46,20 @@
         <Tabs.List
             class="rounded-t-md bg-coolgray-200 pb-1 shadow-mini-inset dark:bg-background  flex gap-1 p-1 text-sm font-semibold leading-[0.01em] font-sans dark:border dark:border-neutral-600/30"
         >
-            <Tabs.Trigger
-                value="outputs"
-                class="h-8 rounded-sm bg-transparent py-2 px-4 data-[state=active]:shadow-mini dark:data-[state=active]:bg-muted  data-[state=active]:bg-white"
-            >
+            <Tabs.Trigger value="outputs" class={tabTriggerClass}>
                 Outputs
             </Tabs.Trigger>
-            <Tabs.Trigger
-                value="source"
-                class="h-8 rounded-sm bg-transparent py-2 px-4 data-[state=active]:shadow-mini dark:data-[state=active]:bg-muted  data-[state=active]:bg-white"
-            >
+            <Tabs.Trigger value="source" class={tabTriggerClass}>
                 Source
             </Tabs.Trigger>
         </Tabs.List>
-        <Tabs.Content value="outputs">
+        <Tabs.Content value="outputs" class={tabContentClass}>
             {#if cell_type === "code"}
                 {#each outputs as outputBlock}
                     <section
                         class={cn([
-                            "p-4 font-sans text-sm leading-normal overflow-scroll",
+                            "p-4 font-sans text-sm leading-normal",
                             "jupyter-cell",
-                            presetScrollbar,
                             // "[&_thead>_tr>_th]:(inline text-nowrap break-keep)",
                             outputBlock.data["image/png"]
                                 ? "bg-coolGray-100 flex items-center justify-center"
@@ -85,7 +89,7 @@
                 </section>
             {/if}
         </Tabs.Content>
-        <Tabs.Content value="source" class="overflow-hidden">
+        <Tabs.Content value="source" class={tabContentClass}>
             {#await initHighlight() then mod}
                 <Highlight
                     language={mod}
@@ -116,7 +120,8 @@
 <style>
     @import "$lib/styles/svelte_highlight.css";
     .jupyter-cell {
-        @apply border-1 border-solid border-coolgray-200;
+        /* @apply border-1 border-solid border-coolgray-200; */
+        @apply w-auto content;
     }
     .jupyter-cell :global(th),
     .jupyter-cell :global(td) {
@@ -131,6 +136,7 @@
     .jupyter-cell :global(tbody th) {
         @apply text-right;
     }
+
     .jupyter-cell.markdown {
         @apply p-4 font-sans;
     }

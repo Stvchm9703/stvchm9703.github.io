@@ -1,5 +1,5 @@
 import type { PageLoad, EntryGenerator } from "./$types";
-
+export const csr = false;
 export let prerender = true;
 
 const blogPostIndex = () => import("/blog_post_resolved/index.json");
