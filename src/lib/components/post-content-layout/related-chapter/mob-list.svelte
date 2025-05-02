@@ -2,7 +2,7 @@
     let { relatedChapters } = $props();
 </script>
 
-<div class="lg:hidden mb-6">
+<div class="lg:hidden mb-6 print:hidden">
     <details class="border p-4">
         <summary class="font-serif text-lg font-bold cursor-pointer"
             >In This Series</summary

@@ -10,7 +10,7 @@
         ...rest
     }: ContentBlock = $props();
 
-    const { type: fileType, style, name: fileName } = componentAttr;
+    const { type: fileType, style, name: fileName, fileUrl } = componentAttr;
     const baseClass = ["w-full", "my-2", "max-h-240"];
 </script>
 
@@ -18,13 +18,17 @@
     <figure class={cn([baseClass, resolveStyle(style)])}>
         <figcaption></figcaption>
         <picture>
-            <img src={`/blog/assets/images/${fileName}`} alt="image" />
+            <img
+                src={`/blog/assets/${fileUrl}`}
+                alt="image"
+                aria-label={fileName}
+            />
         </picture>
     </figure>
 {:else if fileType === "Video"}
     <figure class={cn([baseClass, "aspect-16/9", resolveStyle(style)])}>
         <figcaption></figcaption>
-        <video src={`/blog/assets/videos/${fileName}`}>
+        <video src={`/blog/assets/${fileUrl}`}>
             <track kind="captions" />
         </video>
     </figure>

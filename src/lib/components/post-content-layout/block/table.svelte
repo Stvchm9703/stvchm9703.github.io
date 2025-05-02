@@ -1,5 +1,12 @@
 <script lang="ts">
-    import * as Table from "$lib/components/ui/table";
+    import {
+        Table,
+        TableHeader,
+        TableHead,
+        TableBody,
+        TableRow,
+        TableCell,
+    } from "$lib/components/ui/table";
     import type { ContentBlock } from "$generateor/content_block";
     import { resolveMarks, resolveStyle } from "./common";
 
@@ -13,25 +20,25 @@
     };
 </script>
 
-<Table.Root {...rest} {...other} class="table">
-    <Table.Header>
-        <Table.Row>
+<Table {...rest} {...other} class="table">
+    <TableHeader>
+        <TableRow>
             {#each tableData.rowData[0].cells as item}
-                <Table.Head class={resolveStyle(item.style)}
-                    >{@html reresolveMarks(item)}</Table.Head
+                <TableHead class={resolveStyle(item.style)}
+                    >{@html reresolveMarks(item)}</TableHead
                 >
             {/each}
-        </Table.Row>
-    </Table.Header>
-    <Table.Body>
+        </TableRow>
+    </TableHeader>
+    <TableBody>
         {#each tableData.rowData.slice(1) as row}
-            <Table.Row>
+            <TableRow>
                 {#each row.cells as cell}
-                    <Table.Cell class={resolveStyle(cell.style)}>
+                    <TableCell class={resolveStyle(cell.style)}>
                         {@html reresolveMarks(cell)}
-                    </Table.Cell>
+                    </TableCell>
                 {/each}
-            </Table.Row>
+            </TableRow>
         {/each}
-    </Table.Body>
-</Table.Root>
+    </TableBody>
+</Table>

@@ -10,6 +10,7 @@
     class={cn([
         badgeVariants({ variant: "default" }),
         "hover:bg-slate-100 hover:shadow-sm",
+        "border-1 border-solid border-coolgray-200",
     ])}
 >
     {name}

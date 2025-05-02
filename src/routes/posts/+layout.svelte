@@ -32,10 +32,10 @@
         <!-- {/* Footer */} -->
         <footer class="border-t pt-8 pb-12">
             <div
-                class="mt-8 pt-8 text-center text-sm text-muted-foreground"
+                class="text-center text-sm text-muted-foreground"
             >
                 <p>© {today_year} Ho Man Cheng, Steven. All rights reserved.</p>
-                <div class="flex justify-center gap-4 mt-2">
+                <div class="flex justify-center gap-4 mt-2 print:hidden">
                     <a href="/terms" class="hover:underline"> Terms of Service </a>
                     <a href="/privacy" class="hover:underline"> Privacy Policy </a>
                     <a href="/contact" class="hover:underline"> Contact Us </a>

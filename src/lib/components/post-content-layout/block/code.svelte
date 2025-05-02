@@ -2,7 +2,7 @@
     import { Highlight, LineNumbers } from "svelte-highlight";
     import Copy from "svelte-radix/Copy.svelte";
     import { typescript, type LanguageType } from "svelte-highlight/languages";
-    import horizonDark from "svelte-highlight/styles/gruvbox-dark-soft";
+    import "svelte-highlight/styles/gruvbox-dark-soft.css";
     import { headerIdResolver, resolveStyle } from "./common";
     import type { ContentBlock } from "$generateor/content_block";
     import { Button } from "$lib/components/ui/button";
@@ -23,9 +23,8 @@
 
     onMount(async () => {
         // console.log("mounted");
-        lang = await import(`svelte-highlight/languages/${fields["lang"]}`)
-            .default;
-
+        // lang = await import(`svelte-highlight/languages/${fields["lang"]}`)
+        //     .default;
         // console.log(lang);
     });
 
@@ -34,19 +33,21 @@
     };
 </script>
 
-<svelte:head>
+<!-- <svelte:head>
     {#if hasText}
         {@html horizonDark}
     {/if}
-</svelte:head>
+</svelte:head> -->
 <figure
     id={headerIdResolver(element_style, id)}
     class={[
         resolveStyle(content_style),
-        "py-2",
         "font-mono",
         "text-sm",
         "relative",
+        "rounded-md",
+        "overflow-hidden",
+        "my-2",
     ]}
 >
     {#if fields["from"]}
@@ -77,3 +78,7 @@
         <Copy class="h-4 w-4" />
     </Button>
 </figure>
+
+<style>
+    @import "$lib/styles/svelte_highlight.css";
+</style>

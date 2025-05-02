@@ -50,6 +50,7 @@ export default defineConfig(({ mode }) => {
       }),
       unocss({
         // mode: 'dist-chunk',
+        configFile: "uno.config.ts",
       }),
       sveltekit(),
       ViteCompression({ algorithm: "gzip" }),

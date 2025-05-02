@@ -25,14 +25,18 @@ export default defineConfig({
     pipeline: {
       include: [
         // the default
-        /\.(vue|svelte|[jt]sx|mdx?|astro|elm|php|phtml|html)($|\?)/,
+        // /\.(vue|svelte|[jt]sx|mdx?|astro|elm|php|phtml|html)($|\?)/,
         // include js/ts files
-        "src/**/*.{js,ts,svelte}",
-        "./node_modules/@selemondev/svelte-marquee/dist/*.svelte",
+        "src/lib/*.{js,ts,svelte}",
+        "src/lib/styles/*.{ts,css}",
+        "src/lib/components/**/*.{js,ts,svelte}",
+        "src/routes/**/*.{js,ts,svelte}",
+        // "node_modules/@selemondev/svelte-marquee/dist/*.svelte",
       ],
       // exclude files
       // exclude: []
     },
+    // filesystem: ["src/**/*.{html,js,ts,jsx,tsx,vue,svelte,astro,css}"],
   },
 
   shortcuts: [
@@ -41,7 +45,12 @@ export default defineConfig({
     { title: "text-light-50 lg:text-5xl text-2xl leading-loose" },
     { subtitle: "text-light-50 lg:text-3xl text-xl leading-loose" },
   ],
-  transformers: [transformerVariantGroup(), transformerDirectives()],
+  transformers: [
+    transformerVariantGroup(),
+    transformerDirectives({
+      applyVariable: ["--at-apply", "--uno-apply", "--uno"],
+    }),
+  ],
   presets: [
     presetAnimations(),
     presetWind(),
@@ -74,17 +83,18 @@ export default defineConfig({
       // config
     }),
   ],
-  preflights: [
-    {
-      getCSS: ({ theme }) => `
-      html { scroll-behavior: smooth; }
-      *{ font-family: ${theme.fontFamily.sans}; }
-      code, pre, .font-mono {
-        font-family: ${theme.fontFamily.mono};
-      }
-    `,
-    },
-  ],
+  preflight: false,
+  // [
+  //   {
+  //     getCSS: ({ theme }) => `
+  //     html { scroll-behavior: smooth; }
+  //     *{ font-family: ${theme.fontFamily.sans}; }
+  //     code, pre, .font-mono {
+  //       font-family: ${theme.fontFamily.mono};
+  //     }
+  //   `,
+  //   },
+  // ],
   safelist: [
     ...flatten(
       colorKey.map((color) => [`bg-${color}-300/30`, `text-${color}-700`]),

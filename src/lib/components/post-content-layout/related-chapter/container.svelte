@@ -2,7 +2,7 @@
     let { relatedChapters } = $props();
 </script>
 
-<div class="border p-4">
+<div class="border p-4 print:hidden">
     <h4 class="font-serif text-lg font-bold mb-3 border-b pb-2">
         In This Series
     </h4>
@@ -10,8 +10,9 @@
         {#each relatedChapters as chapter}
             <div key={chapter.id} class="text-sm">
                 <a
-                    href={`/chapter/${chapter.id}`}
+                    href={`/posts/${chapter.id}_1`}
                     class="font-medium hover:underline"
+                    target="_blank"
                 >
                     {chapter.title}
                 </a>

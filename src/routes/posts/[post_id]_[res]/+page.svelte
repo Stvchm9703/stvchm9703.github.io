@@ -2,7 +2,14 @@
     import { page } from "$app/state";
     import { Button } from "$lib/components/ui/button";
     // import { Blocks, Calendar } from "lucide-svelte";
-    import * as Breadcrumb from "$lib/components/ui/breadcrumb";
+    import {
+        Breadcrumb,
+        BreadcrumbItem,
+        BreadcrumbLink,
+        BreadcrumbList,
+        BreadcrumbPage,
+        BreadcrumbSeparator,
+    } from "$lib/components/ui/breadcrumb";
     import Slash from "svelte-radix/Slash.svelte";
     // import Separator from "$lib/components/ui/separator/separator.svelte";
     import TableOfContents from "$lib/components/post-content-layout/table-of-content/container.svelte";
@@ -20,6 +27,7 @@
     import BlockBookmark from "$lib/components/post-content-layout/block/bookmark.svelte";
     import BlockLink from "$lib/components/post-content-layout/block/link.svelte";
     import BlockFile from "$lib/components/post-content-layout/block/file.svelte";
+    import BlockJupyter from "$lib/components/post-content-layout/block/custom/jupyter.svelte";
 
     import { isEmpty } from "lodash-es";
 
@@ -54,36 +62,36 @@
     <meta name="description" content={post.snippet} />
 </svelte:head>
 
-<Breadcrumb.Root class="py-4">
-    <Breadcrumb.List>
-        <Breadcrumb.Item>
-            <Breadcrumb.Link href="/">Home</Breadcrumb.Link>
-        </Breadcrumb.Item>
-        <Breadcrumb.Separator>
+<Breadcrumb class="py-4">
+    <BreadcrumbList>
+        <BreadcrumbItem>
+            <BreadcrumbLink href="/">Home</BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator>
             <Slash tabindex="-1" />
-        </Breadcrumb.Separator>
-        <Breadcrumb.Item>
-            <Breadcrumb.Link href="/posts">Blog Post</Breadcrumb.Link>
-        </Breadcrumb.Item>
-        <Breadcrumb.Separator>
+        </BreadcrumbSeparator>
+        <BreadcrumbItem>
+            <BreadcrumbLink href="/posts">Blog Post</BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator>
             <Slash tabindex="-1" />
-        </Breadcrumb.Separator>
+        </BreadcrumbSeparator>
         {#if isEmpty(post.serie) == false}
-            <Breadcrumb.Item>
-                <Breadcrumb.Link href="/posts/series/{post.serie?.id}">
+            <BreadcrumbItem>
+                <BreadcrumbLink href="/posts/series/{post.serie?.id}">
                     {post.serie?.name}
-                </Breadcrumb.Link>
-            </Breadcrumb.Item>
-            <Breadcrumb.Separator>
+                </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator>
                 <Slash tabindex="-1" />
-            </Breadcrumb.Separator>
+            </BreadcrumbSeparator>
         {/if}
 
-        <Breadcrumb.Item>
-            <Breadcrumb.Page>{post.title}</Breadcrumb.Page>
-        </Breadcrumb.Item>
-    </Breadcrumb.List>
-</Breadcrumb.Root>
+        <BreadcrumbItem>
+            <BreadcrumbPage>{post.title}</BreadcrumbPage>
+        </BreadcrumbItem>
+    </BreadcrumbList>
+</Breadcrumb>
 
 <section class="flex flex-col lg:flex-row gap-8">
     <!-- {/* Sidebar with TOC and Related Chapters */} -->
@@ -117,7 +125,7 @@
                     {/each}
                 </div>
                 <h2
-                    class="font-serif text-4xl md:text-5xl font-bold mb-4"
+                    class="font-serif text-3xl md:text-5xl font-bold mb-4"
                     id="introduction"
                 >
                     {post.title}
@@ -154,6 +162,8 @@
                     /> -->
                     {#if block.componentType === "Text" && block.componentAttr["style"] === "Code"}
                         <BlockCode {...block} />
+                    {:else if block.componentType === "JupyterComponent"}
+                        <BlockJupyter {...block} />
                     {:else if block.componentType === "Text"}
                         <BlockText {...block} />
                     {:else if block.componentType === "Table"}
@@ -166,7 +176,7 @@
                         <BlockLink {...block} />
                     {:else if block.componentType === "Latex"}
                         <BlockLatex {...block} />
-                    {:else if block.componentType === "Layout" || block.componentType === "TableOfContents"}{:else if block.componentType === "CustomComponent"}{:else}
+                    {:else if block.componentType === "Layout" || block.componentType === "TableOfContents" || block.componentType === "Relation"}{:else if block.componentType === "CustomComponent"}{:else}
                         <span> not yet implement : {block.componentType} </span>
                     {/if}
 

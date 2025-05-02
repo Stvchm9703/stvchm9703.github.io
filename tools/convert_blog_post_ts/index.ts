@@ -7,7 +7,7 @@ import * as Workspace from "./workspace";
 import * as Collection from "./collection";
 import * as Page from "./page";
 import * as Tag from "./tag";
-
+import * as Jupyter from "./jupyter";
 import { isEmpty } from "lodash-es";
 
 import { intersectionBy, intersection } from "lodash-es";
@@ -68,7 +68,24 @@ const resolveCollection = async (
 
   const rawFile = getFileObjects(snapshot_list);
   // console.log(rawFile);
+  const jupytorFile: Jupyter.JupyterNotebookRoot[] = [];
 
+  for (const fileobj of rawFile) {
+    const file = Bun.file(`${imoprtPath}/${fileobj.fileUrl}`);
+    // console.log(fileobj);
+    // copy for asset snapshot
+    await Bun.write(`blog_post_resolved/${fileobj.fileUrl}`, file);
+    // copy for static serve
+    // if(fileobj.attributes[''])
+    await Bun.write(`static/blog/assets/${fileobj.fileUrl}`, file);
+
+    if (fileobj.fileUrl.endsWith(".ipynb")) {
+      const nb_content = await file.text();
+      const notebook = Jupyter.readJupyterNotebook(nb_content);
+      notebook.fileUrl = fileobj.fileUrl;
+      jupytorFile.push(notebook);
+    }
+  }
   // article collection
   const article_coll = collections.find((c) => c.name === "Article");
   if (!article_coll) {
@@ -88,7 +105,9 @@ const resolveCollection = async (
     }
 
     Page.resolveLinkComponent(page, rawBookmarks);
-    Page.resolveRelationCustomComponent(page, rawFile);
+    Page.resolveJupyterComponent(page, jupytorFile);
+    Page.resolveFileComponent(page, rawFile);
+    // Page.resolveRelationCustomComponent(page, rawFile);
 
     // // page.raw_tag_list = undefined;
     // delete page.raw_tag_list;
@@ -246,11 +265,6 @@ const resolveCollection = async (
     "blog_post_resolved/tags.json",
     JSON.stringify(tagIndexList, null, 2),
   );
-
-  for (const fileobj of rawFile) {
-    const file = Bun.file(`${imoprtPath}/${fileobj.fileUrl}`);
-    await Bun.write(`blog_post_resolved/${fileobj.fileUrl}`, file);
-  }
 };
 
 const pathResolver = (path: string) =>

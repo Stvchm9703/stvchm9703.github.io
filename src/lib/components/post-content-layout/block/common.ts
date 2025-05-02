@@ -53,7 +53,7 @@ export const resolveMarks = (marks: TextMark[], text: string): string => {
         break;
       case 5:
       case "Link":
-        classToken.push("link");
+        classToken.push("link", "font-medium", "hover:underline");
         tag = "a";
         attr = `href="${mark.param}"`;
         break;

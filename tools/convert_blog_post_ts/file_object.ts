@@ -21,6 +21,7 @@ export interface FileObject {
   title: string;
   fileUrl: string;
   fileExt: string;
+  fileType: string;
   attributes: DataMap;
 }
 
@@ -46,7 +47,34 @@ function fromAnytype(raw: SnapshotWithType): FileObject {
     attributes: detailMap ?? {},
     fileUrl: getFieldValue(detailMap, "source") ?? "",
     fileExt: getFieldValue(detailMap, "fileExt") ?? "",
+    fileType: getFieldValue(detailMap, "fileType") ?? "",
   };
 
   return tmp;
 }
+
+const resolveFileType = (fileExt: string, fileMimeType: string): string => {
+  if (fileMimeType.startsWith("image")) return "images";
+  if (fileMimeType.startsWith("video")) return "videos";
+  if (fileMimeType.startsWith("audio")) return "audios";
+  // if (fileMimeType.startsWith('document')) return "Document";
+  if (fileExt === "pdf") return "pdf";
+  if (
+    fileExt === "doc" ||
+    fileExt === "docx" ||
+    fileExt === "xls" ||
+    fileExt === "xlsx" ||
+    fileExt === "ppt" ||
+    fileExt === "pptx"
+  )
+    return "documents";
+
+  if (fileExt === "txt") return "text";
+
+  if (fileExt === "csv" || fileExt === "json" || fileExt === "xml")
+    return "data";
+
+  if (fileExt === "ipynb") return "notebook";
+
+  return "raw";
+};

@@ -2,7 +2,12 @@
     import type { ContentBlock } from "$generateor/content_block";
     import { Checkbox } from "$lib/components/ui/checkbox";
     import { Label } from "$lib/components/ui/label";
-    import * as Accordion from "$lib/components/ui/accordion";
+    import {
+        Accordion,
+        AccordionItem,
+        AccordionContent,
+        AccordionTrigger,
+    } from "$lib/components/ui/accordion";
     import Self from "./text.svelte";
     import { cn } from "$lib/utils";
     import {
@@ -131,21 +136,21 @@
         </div>
     </div>
 {:else if element_style === "Toggle"}
-    <Accordion.Root id={headerIdResolver(element_style, id)} class="w-full">
-        <Accordion.Item
+    <Accordion id={headerIdResolver(element_style, id)} class="w-full">
+        <AccordionItem
             class="border-slate-300"
             value={headerIdResolver(element_style, id)}
         >
-            <Accordion.Trigger>
+            <AccordionTrigger>
                 {@html resolveMarks(tMarks, text)}
-            </Accordion.Trigger>
-            <Accordion.Content class="pl-3 lg:pl-8 pr-2">
+            </AccordionTrigger>
+            <AccordionContent class="pl-3 lg:pl-8 pr-2">
                 {#each other["items"] as item}
                     <Self {...item} />
                 {/each}
-            </Accordion.Content>
-        </Accordion.Item>
-    </Accordion.Root>
+            </AccordionContent>
+        </AccordionItem>
+    </Accordion>
 {:else if element_style === undefined && hasText}
     <p
         id={headerIdResolver(element_style, id)}
