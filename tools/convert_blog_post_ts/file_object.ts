@@ -15,6 +15,7 @@ import { ObjectTypes } from "./enum_token";
 // import type { UserId } from "./user";
 // import type { WorkspaceId } from "./workspace";
 // import { last } from "lodash-es";
+//
 
 export interface FileObject {
   id: string;
@@ -40,14 +41,16 @@ export const getFileObjects = (
 function fromAnytype(raw: SnapshotWithType): FileObject {
   const data = raw.snapshot?.data;
   const detailMap = data?.details;
+  const fileExt = getFieldValue<string>(detailMap, "fileExt") ?? "";
+  const fileMimeType = getFieldValue<string>(detailMap, "fileMimeType") ?? "";
 
   const tmp: FileObject = {
     id: getFieldValue(detailMap, "id") ?? "",
     title: getFieldValue(detailMap, "name") ?? "",
     attributes: detailMap ?? {},
     fileUrl: getFieldValue(detailMap, "source") ?? "",
-    fileExt: getFieldValue(detailMap, "fileExt") ?? "",
-    fileType: getFieldValue(detailMap, "fileType") ?? "",
+    fileExt,
+    fileType: resolveFileType(fileExt, fileMimeType),
   };
 
   return tmp;
@@ -78,3 +81,76 @@ const resolveFileType = (fileExt: string, fileMimeType: string): string => {
 
   return "raw";
 };
+
+export const exportForMetaData = (fileList: FileObject[]) => {
+  const images = fileList
+    .filter((f) => f.fileType === "images")
+    .map(
+      (e) =>
+        ({
+          url: `/blog/assets/${e.fileUrl}`,
+          alt: e.title,
+          height: e.attributes["heightInPixels"],
+          width: e.attributes["widthInPixels"],
+          type: e.attributes["fileMimeType"],
+        }) as OpenGraphImage,
+    );
+
+  const videos = fileList
+    .filter((f) => f.fileType === "videos")
+    .map(
+      (e) =>
+        ({
+          url: `/blog/assets/${e.fileUrl}`,
+          type: e.attributes["fileMimeType"],
+          height: e.attributes["heightInPixels"],
+          width: e.attributes["widthInPixels"],
+        }) as OpenGraphVideos,
+    );
+  const audios = fileList
+    .filter((f) => f.fileType === "audios")
+    .map(
+      (e) =>
+        ({
+          url: `/blog/assets/${e.fileUrl}`,
+          type: e.attributes["fileMimeType"],
+        }) as OpenGraphAudio,
+    );
+
+  let result = {};
+  if (images.length > 0) {
+    // result.images = images;
+    result = Object.assign(result, { images });
+  }
+  if (videos.length > 0) {
+    result = Object.assign(result, { videos });
+  }
+  if (audios.length > 0) {
+    result = Object.assign(result, { audios });
+  }
+
+  return result;
+};
+
+export interface OpenGraphImage {
+  url: string;
+  secureUrl?: string;
+  type?: string;
+  width?: number;
+  height?: number;
+  alt?: string;
+}
+
+export interface OpenGraphVideos {
+  url: string;
+  secureUrl?: string;
+  type?: string;
+  width?: number;
+  height?: number;
+}
+
+export interface OpenGraphAudio {
+  url: string;
+  secureUrl?: string;
+  type?: string;
+}

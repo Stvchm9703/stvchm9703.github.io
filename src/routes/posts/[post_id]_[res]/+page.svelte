@@ -20,7 +20,7 @@
     import RelatedChapters from "$lib/components/post-content-layout/related-chapter/container.svelte";
     import RelatedChaptersMobile from "$lib/components/post-content-layout/related-chapter/mob-list.svelte";
     import Tag from "$lib/components/post-content-layout/tag/tag.svelte";
-    import PostCard from "$lib/components/post-layout/card/base-card.svelte";
+    // import PostCard from "$lib/components/post-layout/card/base-card.svelte";
 
     // CMS - content block render Component
     import BlockText from "$lib/components/post-content-layout/block/text.svelte";
@@ -36,34 +36,18 @@
 
     import type { Page as IPage } from "$generateor/page";
     import { displayDate } from "$lib/utils";
+    import { MetaTags } from "svelte-meta-tags";
 
-    const post = page.data as IPage;
-
-    function resolveComponent(type: string) {
-        switch (type) {
-            // case "image":
-            //     return BlockImage;
-            // case "video":
-            //     return BlockVideo;
-            case "Text":
-                return BlockText;
-            case "Link":
-                return BlockLink;
-            // case "datatable":
-            case "Table":
-                return BlockTable;
-            //     // !todo
-            //     return null;
-            default:
-                return null;
-        }
-    }
+    const post: IPage = page.data.content;
+    const { meta } = page.data;
 </script>
 
-<svelte:head>
+<!-- <svelte:head>
     <title>{post.title} - Steven Dev;s Log</title>
     <meta name="description" content={post.snippet} />
-</svelte:head>
+</svelte:head> -->
+
+<MetaTags {...meta} />
 
 <Breadcrumb class="py-4">
     <BreadcrumbList>
@@ -96,9 +80,9 @@
     </BreadcrumbList>
 </Breadcrumb>
 
-<section class="flex flex-col lg:flex-row gap-8">
+<section class="flex flex-col lg:flex-row gap-4 lg:gap-8">
     <!-- {/* Sidebar with TOC and Related Chapters */} -->
-    <aside class="lg:w-64 xl:w-72 flex-none">
+    <aside class="w-full lg:w-64 xl:w-72 flex-none">
         <!-- {/* Table of Contents - Desktop */} -->
         <div class="hidden lg:block sticky top-8">
             <TableOfContents tableOfContents={post.tableOfContents} />
@@ -179,15 +163,13 @@
                         <BlockLink {...block} />
                     {:else if block.componentType === "Latex"}
                         <BlockLatex {...block} />
-                    {:else if block.componentType === "Layout" || block.componentType === "TableOfContents" || block.componentType === "Relation"}{:else if block.componentType === "CustomComponent"}{:else}
-                        <span> not yet implement : {block.componentType} </span>
+                    {:else if block.componentType === "Layout" || block.componentType === "TableOfContents" || block.componentType === "Relation"}
+                        <!-- <span> not yet implement : {block.componentType} </span> -->
+                    {:else if block.componentType === "CustomComponent"}
+                        <!-- <span> not yet implement : {block.componentType} </span> -->
+                    {:else}
+                        <!-- <span> not yet implement : {block.componentType} </span> -->
                     {/if}
-
-                    <!-- <span class="block">
-                        {block.componentType} - {JSON.stringify(
-                            block.componentAttr,
-                        )}
-                    </span> -->
                 {/each}
             </div>
         </article>

@@ -9,9 +9,10 @@
     // import "$lib/styles/svelte_highlight.css";
     const exmdPlugins = [gfmPlugin()];
 
-    const { componentAttr } = $props();
+    const { id, componentAttr } = $props();
     const { cell, fileName, cellNumber } = componentAttr;
     const { source, outputs, cell_type } = cell;
+    const elemId = `jupyter-${id}`;
 
     async function initHighlight() {
         if (cell_type === "code") {
@@ -29,9 +30,12 @@
 
     const tabContentClass = cn([
         presetScrollbar,
-        "lg:h-180",
+        // "lg:h-180",
         "h-auto",
+        "aspect-3/2",
         "overflow-scroll",
+        "font-sans text-sm",
+        // "p-4  leading-normal"
     ]);
 
     const tabTriggerClass = cn([
@@ -40,6 +44,7 @@
 </script>
 
 <figure
+    id={elemId}
     class="rounded-lg border-none bg-background-alt shadow-sm w-full border p-2 my-3"
 >
     <Tabs.Root value="outputs">
@@ -58,8 +63,8 @@
                 {#each outputs as outputBlock}
                     <section
                         class={cn([
-                            "p-4 font-sans text-sm leading-normal",
                             "jupyter-cell",
+                            "p-4  leading-normal",
                             // "[&_thead>_tr>_th]:(inline text-nowrap break-keep)",
                             outputBlock.data["image/png"]
                                 ? "bg-coolGray-100 flex items-center justify-center"
@@ -72,7 +77,7 @@
                             {@html outputBlock.data["text/plain"].join("")}
                         {:else if outputBlock.data["image/png"]}
                             <img
-                                class="max-w-full"
+                                class="w-full aspect-3/2 block object-contain object-position-center"
                                 src={`data:image/png;base64,${outputBlock.data["image/png"]}`}
                                 alt="Image"
                                 aria-label="render result, {fileName} - cell: {cellNumber}"

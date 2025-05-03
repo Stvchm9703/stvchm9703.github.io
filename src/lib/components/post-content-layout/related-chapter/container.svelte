@@ -16,7 +16,6 @@
                 >
                     {chapter.title}
                 </a>
-                <p class="text-muted-foreground text-xs mt-1">{chapter.date}</p>
             </div>
         {/each}
     </div>

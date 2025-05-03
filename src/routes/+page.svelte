@@ -22,14 +22,18 @@
   import ImageSet from "$lib/components/Image.svelte";
 
   // import { onMount } from "svelte";
+  import { page } from "$app/state";
+    import { MetaTags } from "svelte-meta-tags";
+  const {meta} = page.data;
 
   let currentSection = "index";
 </script>
 
-<svelte:head>
+<!-- <svelte:head>
   <title>Steven, the web dev</title>
-  <!-- <meta /> -->
-</svelte:head>
+</svelte:head> -->
+
+<MetaTags {...meta} />
 
 <Navbar activeId={currentSection} />
 

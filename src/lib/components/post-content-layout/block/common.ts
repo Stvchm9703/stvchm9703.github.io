@@ -7,7 +7,7 @@ export const resolveMarks = (marks: TextMark[], text: string): string => {
   let marksList = marks;
   if (!isArrayLike(marksList)) {
     if (marksList === undefined) {
-      console.warn("unresolved marks");
+      console.warn("unresolved marks", { marks });
       return result;
     }
     if (isArrayLike(marks.marks)) {

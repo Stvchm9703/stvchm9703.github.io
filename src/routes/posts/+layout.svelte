@@ -7,17 +7,26 @@
     // let today_date = new Date().toLocaleDateString();
     const { today_date, today_year  } = page.data;
     const { children } = $props();
+
+    import { MetaTags } from 'svelte-meta-tags';
 </script>
 
 
 <svelte:head>
-    <title>Steven Dev;s Log</title>
+    <meta name="author" content="Steven, Cheng Ho Man" />
 </svelte:head>
 
+<MetaTags
+    title="Steven Dev;s Log"
+    description="Developer blog, Steven Dev;s Log"
+
+
+/>
+
 <div class="container mx-auto px-4  max-w-7xl">
-    <section class="py-4">
+    <section class="pt-4 pb-2 lg:pb-4">
         <!-- {/* Newspaper Header */} -->
-        <div class="border-b-2 border-dark-900 pb-4 mb-8">
+        <div class="border-b-2 border-dark-900 lg:pb-4 lg:mb-8">
             <h1
                 class="font-serif text-5xl md:text-7xl text-center font-bold tracking-tight"
             >
@@ -35,7 +44,7 @@
 
     <section class="py-4">
         <!-- {/* Footer */} -->
-        <footer class="border-t pt-8 pb-12">
+        <footer class="border-t pt-4 pb-6 lg:pt-8 lg:pb-12">
             <div
                 class="text-center text-sm text-muted-foreground"
             >

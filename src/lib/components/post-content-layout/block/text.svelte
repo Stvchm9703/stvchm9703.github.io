@@ -32,32 +32,34 @@
 
     const hasText = text !== undefined && text !== "" && text !== null;
     let tMarks = marks.marks || [];
+    const resolveHeaderId = (text: string, id: string) =>
+        headerIdResolver(text, id).replaceAll("-", "_").toLowerCase();
 </script>
 
 {#if element_style === "Header1" && hasText}
     <h2
-        id={headerIdResolver(text, id)}
+        id={resolveHeaderId(text, id)}
         class={[header_classes, resolveStyle(content_style)]}
     >
         {@html resolveMarks(tMarks, text)}
     </h2>
 {:else if element_style === "Header2" && hasText}
     <h3
-        id={headerIdResolver(text, id)}
+        id={resolveHeaderId(text, id)}
         class={[header_classes, resolveStyle(content_style)]}
     >
         {@html resolveMarks(tMarks, text)}
     </h3>
 {:else if element_style === "Header3" && hasText}
     <h4
-        id={headerIdResolver(text, id)}
+        id={resolveHeaderId(text, id)}
         class={[header_classes, resolveStyle(content_style)]}
     >
         {@html resolveMarks(tMarks, text)}
     </h4>
 {:else if element_style === "Header4" && hasText}
     <h5
-        id={headerIdResolver(text, id)}
+        id={resolveHeaderId(text, id)}
         class={[header_classes, resolveStyle(content_style)]}
     >
         {@html resolveMarks(tMarks, text)}
@@ -152,10 +154,7 @@
         </AccordionItem>
     </Accordion>
 {:else if element_style === undefined && hasText}
-    <p
-        id={headerIdResolver(element_style, id)}
-        class={resolveStyle(content_style)}
-    >
+    <p id={headerIdResolver("p", id)} class={resolveStyle(content_style)}>
         <!-- {@debug element_style} -->
         {@html resolveMarks(tMarks, text)}
     </p>

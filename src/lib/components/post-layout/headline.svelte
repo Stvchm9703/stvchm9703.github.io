@@ -1,11 +1,11 @@
 <script>
-    import { CalendarIcon } from "lucide-svelte";
+    import CalendarIcon from "lucide-svelte/icons/calendar";
     import Separator from "$lib/components/ui/separator/separator.svelte";
     import Image from "$lib/components/Image.svelte";
     import Tag from "$lib/components/post-content-layout/tag/tag.svelte";
     import { cn, displayDate } from "$lib/utils";
     const { post, content_slot } = $props();
-
+import { buttonVariants } from "$lib/components/ui/button";
 </script>
 
 <section class="py-4">
@@ -18,21 +18,28 @@
             <CalendarIcon class="h-4 w-4" />
             <span class="text-sm">{displayDate(post.publish_date)}</span>
             <span class="mx-2">•</span>
-            <span class="text-sm">{"steve"}</span>
+            <span class="text-sm">{"steven"}</span>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="md:col-span-2">
-                {@render content_slot?.()}
-                {#if !content_slot}
-                <p class="text-lg font-serif leading-relaxed">
-                    {post.snippet}
-                </p>
-                <div class="flex gap-4 mt-3">
-                    {#each post.tags as tag}
-                       <Tag id={tag.id} name={tag.name} />
-                    {/each}
+            <div class="md:col-span-2 flex flex-col justify-between">
+                <div class="flex flex-col gap-4">
+                    {@render content_slot?.()}
+                    {#if !content_slot}
+                    <p class="text-lg font-serif leading-relaxed">
+                        {post.snippet}
+                    </p>
+                    <div class="flex gap-4 mt-3">
+                        {#each post.tags as tag}
+                        <Tag id={tag.id} name={tag.name} />
+                        {/each}
+                    </div>
+                    {/if}
                 </div>
-                {/if}
+                <div class="flex flex-col gap-4 items-end">
+                    <a class={cn([buttonVariants({variant:'link', size:'sm'})])} href={post.url} target="_blank" rel="noopener noreferrer">
+                        Read More
+                    </a>
+                </div>
             </div>
             <Image
                 class="lg:min-h-72 h-64 md:h-full"

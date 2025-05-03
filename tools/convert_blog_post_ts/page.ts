@@ -15,7 +15,13 @@ import { ExternalBookmarkLink } from "./external_link";
 import type { TagList, TagMap, Tag, TagOptionLabel } from "./tag";
 import type { UserId } from "./user";
 import type { WorkspaceId } from "./workspace";
-import { FileObject } from "./file_object";
+import {
+  FileObject,
+  exportForMetaData,
+  OpenGraphImage,
+  OpenGraphVideos,
+  OpenGraphAudio,
+} from "./file_object";
 
 export type PageId = string;
 export type PageMap = Map<string, Page>;
@@ -43,6 +49,11 @@ export interface Page {
   tableOfContents: PageLink[];
   relatedChapters: PageLink[];
   relatedPosts: PageLink[];
+  meta: {
+    images?: OpenGraphImage[];
+    videos?: OpenGraphVideos[];
+    audio?: OpenGraphAudio[];
+  };
 }
 
 export interface PageLink {
@@ -213,7 +224,7 @@ function resolveChildrenIds(self: Page, id: string): string[] {
 let _seriesRel: Tag | null = null;
 
 export function resolveSeries(self: Page): Page {
-  if (self.serie === null || self.serie.length === 0) return self;
+  if (self.serie === null || self.serie.length === 0) return null;
 
   if (_seriesRel == null) {
     _seriesRel = GLOBAL_RELATION_IDMAP.values().find(
@@ -313,7 +324,7 @@ export function resolveTextNumberComponent(self: Page): Page {
     }
   }
 
-  console.log(mapped);
+  // console.log(mapped);
 
   let to_remove_id = to_remove.map((elm) => elm.id);
 
@@ -502,6 +513,7 @@ export function resolveRelationCustomComponent(
 }
 
 export function resolveFileComponent(self: Page, extFileList: FileObject[]) {
+  let included: FileObject[] = [];
   for (const block of self.reformedContents) {
     if (block.componentType === "File") {
       const targetFile = extFileList.find(
@@ -512,9 +524,10 @@ export function resolveFileComponent(self: Page, extFileList: FileObject[]) {
           ...block.componentAttr,
           fileUrl: targetFile.fileUrl,
         };
+        included.push(targetFile);
       }
     }
   }
-
+  self.meta = exportForMetaData(included);
   return self;
 }

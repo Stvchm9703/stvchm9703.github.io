@@ -1,8 +1,9 @@
 <script lang="ts">
     import type { ContentBlock } from "$generateor/content_block";
     import { cn } from "$lib/utils";
-    import { resolveStyle } from "./common";
+    import { headerIdResolver, resolveStyle } from "./common";
     const {
+        postTitle,
         id,
         fields,
         componentAttr,
@@ -12,24 +13,38 @@
 
     const { type: fileType, style, name: fileName, fileUrl } = componentAttr;
     const baseClass = ["w-full", "my-2", "max-h-240"];
+    const mediaClass = [
+        "rounded-md",
+        "bg-slate-100",
+        "w-full",
+        "aspect-16/9",
+        "object-contain",
+    ];
+
+    const elemId = headerIdResolver(fileType, id);
 </script>
 
 {#if fileType === "Image"}
-    <figure class={cn([baseClass, resolveStyle(style)])}>
+    <figure id={elemId} class={cn([baseClass, resolveStyle(style)])}>
         <figcaption></figcaption>
         <picture>
             <img
+                class={cn(mediaClass)}
                 src={`/blog/assets/${fileUrl}`}
-                alt="image"
+                alt="{fileName} - {postTitle}"
                 aria-label={fileName}
             />
         </picture>
     </figure>
 {:else if fileType === "Video"}
-    <figure class={cn([baseClass, "aspect-16/9", resolveStyle(style)])}>
+    <figure id={elemId} class={cn([baseClass, resolveStyle(style)])}>
         <figcaption></figcaption>
-        <video src={`/blog/assets/${fileUrl}`}>
+        <video class={cn(mediaClass)} src={`/blog/assets/${fileUrl}`}>
             <track kind="captions" />
         </video>
     </figure>
+{:else if fileType === "File"}
+    <a href={`/blog/assets/${fileUrl}`} download>
+        {fileName}
+    </a>
 {/if}

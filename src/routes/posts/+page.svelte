@@ -7,13 +7,17 @@
     import { cn, displayDate } from "$lib/utils";
 
     import { page } from "$app/state";
-    const { series: rawSeries } = page.data;
+    import { MetaTags } from "svelte-meta-tags";
+    const { series: rawSeries, meta } = page.data;
     const series = rawSeries.filter(
         (elm) => elm.resultList.length > 0 && elm.id !== "latestUpdated",
     );
 
     const latest_update = rawSeries.find((elm) => elm.id !== "latestUpdated");
+    // console.log(meta);
 </script>
+
+<MetaTags {...meta} />
 
 <Headline post={latest_update.resultList[0]} />
 
@@ -21,9 +25,6 @@
 
 <section class="w-full justify-between lg:grid grid-cols-3 flex flex-col">
     {#each series as serie, serie_key}
-        <!-- {#if serie_key !== 0}
-            <Separator orientation="vertical" />
-        {/if} -->
         <PostContainer
             key={serie.id}
             serie={serie.id}

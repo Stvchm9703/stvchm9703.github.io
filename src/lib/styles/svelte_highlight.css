@@ -1,6 +1,6 @@
 @layer component_overwrite {
     :global .hljs code {
-        font-size: 0.8em;
+        /* font-size: 0.8em; */
         line-height: 1;
     }
     :global .hljs td {

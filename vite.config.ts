@@ -19,7 +19,7 @@ console.log("schould be here");
 
 export default defineConfig(async ({ mode }) => {
   process.env = { ...process.env, ...loadEnv(mode, process.cwd()) };
-  console.log(process.env);
+  // console.log(process.env);
   return {
     plugins: [
       imagetools({
@@ -58,8 +58,10 @@ export default defineConfig(async ({ mode }) => {
           // { glob: "src/lib/**/*.{ts,js}" },
           "@lucide/svelte",
           "bits-ui",
-          { glob: "src/lib/**/*" },
-          { glob: "src/routes/**/*" },
+          "lodash-es",
+          // "d3"
+          // { glob: "src/lib/**/*" },
+          // { glob: "src/routes/**/*" },
           // { glob: "src/lib/components/**/*" },
         ],
         extensions: ["svelte", "js", "ts"],
