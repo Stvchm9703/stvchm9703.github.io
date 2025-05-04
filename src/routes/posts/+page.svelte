@@ -9,12 +9,12 @@
     import { page } from "$app/state";
     import { MetaTags } from "svelte-meta-tags";
     const { series: rawSeries, meta } = page.data;
-    // const series = rawSeries.filter(
-    //     (elm) => elm.resultList.length > 0 && elm.id !== "latestUpdated",
-    // );
-    const series = rawSeries;
+    const series = rawSeries.filter(
+        (elm) => elm.resultList.length > 0 && elm.id !== "latestUpdated",
+    );
 
-    const latest_update = rawSeries.find((elm) => elm.id !== "latestUpdated");
+    const latest_update = series.find((elm) => elm.id !== "latestUpdated");
+
     // console.log(meta);
 </script>
 
@@ -44,6 +44,7 @@
         >
             {#each serie.resultList as post}
                 <PostCard
+                    id={post.id}
                     key={post.id}
                     title={post.title}
                     content={post.snippet}
@@ -61,7 +62,6 @@
             buttonVariants.variants.variant.link,
             buttonVariants.variants.size.lg,
             "leading-12",
-            // "border-1",
         ])}
         href="/posts/series"
     >

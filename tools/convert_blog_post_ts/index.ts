@@ -9,7 +9,7 @@ import * as Page from "./page";
 import * as Tag from "./tag";
 import * as Jupyter from "./jupyter";
 
-import { intersectionBy, intersection, isEmpty } from "lodash-es";
+import { intersectionBy, intersection, isEmpty, chunk } from "lodash-es";
 
 import {
   GLOBAL_RELATION_NAMEMAP,
@@ -95,9 +95,7 @@ const resolveCollection = async (
   }
   Collection.insertArticles(article_coll, rawPages);
 
-  // let debug = "";
   const defaultTag = taglist.find((tag) => tag.name === "Tag");
-  // console.log(GLOBAL_RELATION_IDMAP);
   for (const pageId in article_coll.articles) {
     let page = article_coll.articles[pageId];
     if (defaultTag) {
@@ -108,11 +106,6 @@ const resolveCollection = async (
     Page.resolveLinkComponent(page, rawBookmarks);
     Page.resolveJupyterComponent(page, jupytorFile);
     Page.resolveFileComponent(page, rawFile);
-    // Page.resolveRelationCustomComponent(page, rawFile);
-
-    // // page.raw_tag_list = undefined;
-    // delete page.raw_tag_list;
-    // delete page.contents;
   }
 
   for (const pageId in article_coll.articles) {
@@ -174,7 +167,15 @@ const resolveCollection = async (
   );
 
   // series index to articles
+  await exportSeriesIndex(article_coll);
 
+  // tags index to articles
+  await exportTagsIndex(article_coll, defaultTag);
+
+  // testIdResult();
+};
+
+async function exportSeriesIndex(article_coll: Collection.Collection) {
   const seriesSet = GLOBAL_RELATION_IDMAP.values().find(
     (elm) => elm.name === "Series",
   );
@@ -187,7 +188,7 @@ const resolveCollection = async (
       _sid: page._sid,
       title: page.title,
       componentId: "",
-      url: `posts/${page._sid}_${pathResolver(page.title)}`,
+      url: `/posts/${page._sid}_${pathResolver(page.title)}`,
       level: 0,
       coverImage: page.coverImage,
       publish_date: page.publish_date,
@@ -196,31 +197,71 @@ const resolveCollection = async (
       tags: page.tags,
     } as Page.PageLink);
   }
+  const seriesIndexList: any[] = [];
 
-  const seriesIndexList = seriesSet?.options.map((serieOption) => {
-    const resultList: Page.PageLink[] = allPageLink.filter(
+  for (const serieOption of seriesSet?.options || []) {
+    let resultList: Page.PageLink[] = allPageLink.filter(
       (page) => page.serie?.id === serieOption.id,
     );
 
-    return {
+    resultList = resultList.sort((a, b) => a.publish_date - b.publish_date);
+
+    seriesIndexList.push({
       id: serieOption.id,
       _sid: serieOption._sid,
       name: serieOption.name,
       description: serieOption.description,
-      resultList,
-    };
-  });
+      totalCount: resultList.length,
+      resultList: resultList.slice(0, 3),
+    });
+
+    const pagedResult = chunk(resultList, 150);
+    for (const idx in pagedResult) {
+      const pageSet = {
+        id: serieOption.id,
+        _sid: serieOption._sid,
+        name: serieOption.name,
+        description: serieOption.description,
+        totalCount: resultList.length,
+        totalPageNumber: pagedResult.length,
+        pageIndex: Number.parseInt(idx),
+        resultList: pagedResult[idx],
+      };
+      await Bun.write(
+        `blog_post_resolved/series/${serieOption.id}/p${idx}.json`,
+        JSON.stringify(pageSet, null, 2),
+      );
+    }
+  }
 
   const untaggedSerie: Page.PageLink[] = allPageLink.filter((page) =>
     isEmpty(page.serie),
   );
+  const untaggedSeriePageset = chunk(untaggedSerie, 150);
+  for (const idx in untaggedSeriePageset) {
+    const pageSet = {
+      id: "-",
+      _sid: "others",
+      name: "Others",
+      description: "uncategorized, but still valuable",
+      totalCount: untaggedSerie.length,
+      totalPageNumber: untaggedSeriePageset.length,
+      pageIndex: Number.parseInt(idx),
+      resultList: untaggedSeriePageset[idx],
+    };
+    await Bun.write(
+      `blog_post_resolved/series/others/p${idx}.json`,
+      JSON.stringify(pageSet, null, 2),
+    );
+  }
 
   seriesIndexList.push({
     id: "-",
     _sid: "others",
     name: "Others",
     description: "",
-    resultList: untaggedSerie,
+    totalCount: untaggedSerie.length,
+    resultList: untaggedSerie.slice(0, 3),
   });
 
   const latestUpdated = allPageLink
@@ -232,17 +273,23 @@ const resolveCollection = async (
     _sid: "latest",
     name: "Latest Updated",
     description: "",
+    totalCount: allPageLink.length,
     resultList: latestUpdated,
   });
 
   await Bun.write(
-    "blog_post_resolved/series.json",
+    "blog_post_resolved/series/index.json",
     JSON.stringify(seriesIndexList, null, 2),
   );
+}
 
-  // tags index to articles
-  const tagIndexList = defaultTag?.options.map((tagOption) => {
-    const resultList: Page.PageLink[] = [];
+async function exportTagsIndex(
+  article_coll: Collection.Collection,
+  defaultTag?: Tag.Tag,
+) {
+  let tagIndexList: any[] = [];
+  for (const tagOption of defaultTag?.options || []) {
+    let resultList: Page.PageLink[] = [];
     for (const pageId in article_coll.articles) {
       const page: Page.Page = article_coll.articles[pageId];
       if (page.tags.findIndex((p) => p.id === tagOption.id) !== -1) {
@@ -250,7 +297,7 @@ const resolveCollection = async (
           id: page.id,
           title: page.title,
           componentId: "",
-          url: `posts/${page._sid}_${pathResolver(page.title)}`,
+          url: `/posts/${page._sid}_${pathResolver(page.title)}`,
           level: 0,
           coverImage: page.coverImage,
           publish_date: page.publish_date,
@@ -260,22 +307,39 @@ const resolveCollection = async (
         } as Page.PageLink);
       }
     }
-
-    return {
+    resultList = resultList.sort((a, b) => a.publish_date - b.publish_date);
+    tagIndexList.push({
       id: tagOption.id,
       _sid: tagOption._sid,
       name: tagOption.name,
       description: tagOption.description,
-      resultList,
-    };
-  });
+      totalCount: resultList.length,
+      resultList: resultList.slice(0, 3),
+    });
+
+    const pagedResult = chunk(resultList, 200);
+    for (const idx in pagedResult) {
+      Bun.write(
+        `blog_post_resolved/tags/${tagOption.id}/p${idx}.json`,
+        JSON.stringify({
+          id: tagOption.id,
+          _sid: tagOption._sid,
+          name: tagOption.name,
+          description: tagOption.description,
+          totalCount: resultList.length,
+          totalPageNumber: pagedResult.length,
+          pageIndex: Number.parseInt(idx),
+          resultList: pagedResult[idx],
+          // resultList: resultList.slice(0, 3),
+        }),
+      );
+    }
+  }
 
   await Bun.write(
-    "blog_post_resolved/tags.json",
+    "blog_post_resolved/tags/index.json",
     JSON.stringify(tagIndexList, null, 2),
   );
-
-  // testIdResult();
-};
+}
 
 main();

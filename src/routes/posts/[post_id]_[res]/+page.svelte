@@ -44,36 +44,38 @@
 
 <MetaTags {...meta} />
 
-<Breadcrumb class="py-4">
-    <BreadcrumbList>
-        <BreadcrumbItem>
-            <BreadcrumbLink href="/">Home</BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbSeparator>
-            <Slash tabindex="-1" />
-        </BreadcrumbSeparator>
-        <BreadcrumbItem>
-            <BreadcrumbLink href="/posts">Blog Post</BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbSeparator>
-            <Slash tabindex="-1" />
-        </BreadcrumbSeparator>
-        {#if isEmpty(post.serie) == false}
+<section class="pt-2 pb-4 lg:pb-6">
+    <Breadcrumb>
+        <BreadcrumbList>
             <BreadcrumbItem>
-                <BreadcrumbLink href={post.serie?.url}>
-                    {post.serie?.name}
-                </BreadcrumbLink>
+                <BreadcrumbLink href="/">Home</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator>
                 <Slash tabindex="-1" />
             </BreadcrumbSeparator>
-        {/if}
+            <BreadcrumbItem>
+                <BreadcrumbLink href="/posts">Blog Post</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator>
+                <Slash tabindex="-1" />
+            </BreadcrumbSeparator>
+            {#if isEmpty(post.serie) == false}
+                <BreadcrumbItem>
+                    <BreadcrumbLink href={post.serie?.url}>
+                        {post.serie?.name}
+                    </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator>
+                    <Slash tabindex="-1" />
+                </BreadcrumbSeparator>
+            {/if}
 
-        <BreadcrumbItem>
-            <BreadcrumbPage>{post.title}</BreadcrumbPage>
-        </BreadcrumbItem>
-    </BreadcrumbList>
-</Breadcrumb>
+            <BreadcrumbItem>
+                <BreadcrumbPage>{post.title}</BreadcrumbPage>
+            </BreadcrumbItem>
+        </BreadcrumbList>
+    </Breadcrumb>
+</section>
 
 <section class="flex flex-col lg:flex-row gap-4 lg:gap-8">
     <!-- {/* Sidebar with TOC and Related Chapters */} -->

@@ -3,31 +3,24 @@ import { resolveMetaTags } from "$lib/metas/index";
 import type { MetaTagsProps, Twitter, OpenGraph } from "svelte-meta-tags";
 
 import { BASE } from "$env/static/private";
-import { error } from "@sveltejs/kit";
 
 export const prerender = true;
 export const csr = false;
 export const load: PageLoad = async ({ fetch, params }) => {
   const index_req = await fetch("http://localhost:3000/series/index.json");
-  if (!index_req.ok) {
-    error(404, {
-      message: "Series Index Not found",
-    });
-  }
-
   const series = await index_req.json();
-  const seriesName = series
+  const tagsName = series
     .filter((s) => s.resultList.length > 0)
     .map((s) => s.name);
   return {
     series,
-    meta: resolvePostIndexPageMetaTags(seriesName),
+    meta: resolveTagsIndexPageMetaTags(tagsName),
   };
 };
 
-function resolvePostIndexPageMetaTags(series: string[]) {
-  const title = "Blog Posts Index";
-  const description = "A collection of blog posts by Steven Dev's";
+function resolveTagsIndexPageMetaTags(series: string[]) {
+  const title = "Blog Posts Series Index";
+  const description = "Series Articles posted by Steven Dev's";
 
   const twitter = {
     title,
@@ -37,11 +30,13 @@ function resolvePostIndexPageMetaTags(series: string[]) {
   const openGraph = {
     title,
     description,
-    url: `${BASE}/posts`,
+    url: `${BASE}/posts/series`,
   } satisfies OpenGraph;
 
   const tmpBase: MetaTagsProps = {
     title,
+    titleTemplate: `%s | Steven Dev's Blog`,
+
     description,
     twitter,
     openGraph,
@@ -63,9 +58,3 @@ function resolvePostIndexPageMetaTags(series: string[]) {
 
   return resolveMetaTags(tmpBase);
 }
-
-// export const entries: EntryGenerator = async () => {
-//   const index_req = await fetch("http://localhost:3000/index.json");
-//   const index = await index_req.json();
-//   return index;
-// };

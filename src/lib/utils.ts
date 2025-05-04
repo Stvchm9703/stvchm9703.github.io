@@ -302,3 +302,17 @@ export function getPackageManagerInstallCmd(pm: PackageManager): string {
 export function isPackageManager(value: any): value is PackageManager {
   return packageManagers.includes(value);
 }
+
+export function once(fn) {
+  return function (event) {
+    if (fn) fn.call(this, event);
+    fn = null;
+  };
+}
+
+export function preventDefault(fn) {
+  return function (event) {
+    event.preventDefault();
+    fn.call(this, event);
+  };
+}

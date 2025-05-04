@@ -1,7 +1,7 @@
 <script>
     import { cn } from "$lib/utils";
     import { badgeVariants } from "$lib/components/ui/badge";
-    const { id, name, url } = $props();
+    const { id, name, url, ...rest } = $props();
 </script>
 
 <a
@@ -13,6 +13,7 @@
         "border-1 border-solid border-coolgray-200",
     ])}
     target="_self"
+    {...rest}
 >
     {name}
 </a>

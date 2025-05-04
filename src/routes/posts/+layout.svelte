@@ -19,8 +19,6 @@
 <MetaTags
     title="Steven Dev;s Log"
     description="Developer blog, Steven Dev;s Log"
-
-
 />
 
 <div class="container mx-auto px-4  max-w-7xl">
