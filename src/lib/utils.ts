@@ -7,6 +7,7 @@ import { twMerge } from "tailwind-merge";
 import { error } from "@sveltejs/kit";
 import { persisted } from "svelte-persisted-store";
 import type { DocResolver } from "$lib/types/docs.js";
+import { isEmpty } from "lodash-es";
 
 // export const cn = (inputs) => {
 //   return twMerge(clsx(inputs));
@@ -14,7 +15,16 @@ import type { DocResolver } from "$lib/types/docs.js";
 //
 //
 
-export const displayDate = (publish_date) =>
+export const pathResolver = (path: string) => {
+  return path
+    .replace(/\s+/g, "_")
+    .replace(/\W/g, "")
+    .toLowerCase()
+    .split("_")
+    .filter((e) => !isEmpty(e))
+    .join("-");
+};
+export const displayDate = (publish_date: number) =>
   new Date(publish_date * 1000).toLocaleDateString();
 
 export function cn(...inputs: ClassValue[]) {

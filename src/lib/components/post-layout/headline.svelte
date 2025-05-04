@@ -36,7 +36,10 @@ import { buttonVariants } from "$lib/components/ui/button";
                     {/if}
                 </div>
                 <div class="flex flex-col gap-4 items-end">
-                    <a class={cn([buttonVariants({variant:'link', size:'sm'})])} href={post.url} target="_blank" rel="noopener noreferrer">
+                    <a class={cn([buttonVariants({variant:'link', size:'sm'})])}
+                        href={post.url}
+                        target="_self"
+                        rel="noopener noreferrer">
                         Read More
                     </a>
                 </div>

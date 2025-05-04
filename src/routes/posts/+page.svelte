@@ -1,17 +1,18 @@
 <script>
     import "uno.css";
+    import { buttonVariants } from "$lib/components/ui/button";
     import { Separator } from "$lib/components/ui/separator";
     import Headline from "$lib/components/post-layout/headline.svelte";
     import PostContainer from "$lib/components/post-layout/post-list-container.svelte";
     import PostCard from "$lib/components/post-layout/card";
-    import { cn, displayDate } from "$lib/utils";
-
+    import { cn, displayDate, pathResolver } from "$lib/utils";
     import { page } from "$app/state";
     import { MetaTags } from "svelte-meta-tags";
     const { series: rawSeries, meta } = page.data;
-    const series = rawSeries.filter(
-        (elm) => elm.resultList.length > 0 && elm.id !== "latestUpdated",
-    );
+    // const series = rawSeries.filter(
+    //     (elm) => elm.resultList.length > 0 && elm.id !== "latestUpdated",
+    // );
+    const series = rawSeries;
 
     const latest_update = rawSeries.find((elm) => elm.id !== "latestUpdated");
     // console.log(meta);
@@ -23,12 +24,19 @@
 
 <Separator class="w-full" />
 
-<section class="w-full justify-between lg:grid grid-cols-3 flex flex-col">
+<section
+    class={cn([
+        "w-full ",
+        "lg:grid grid-cols-3 grid-flow-dense ",
+        "flex flex-col justify-between",
+    ])}
+>
     {#each series as serie, serie_key}
         <PostContainer
             key={serie.id}
-            serie={serie.id}
             title={serie.name}
+            subtitle={serie.description}
+            url={`/posts/series/${pathResolver(serie.name)}_${serie._sid}`}
             class={cn([
                 "px-6 py-4",
                 serie_key % 3 == 2 ? "" : "border-r-solid b-r-1 b-solid",
@@ -46,4 +54,17 @@
             {/each}
         </PostContainer>
     {/each}
+</section>
+<section class="w-full flex justify-center">
+    <a
+        class={cn([
+            buttonVariants.variants.variant.link,
+            buttonVariants.variants.size.lg,
+            "leading-12",
+            // "border-1",
+        ])}
+        href="/posts/series"
+    >
+        Load More
+    </a>
 </section>

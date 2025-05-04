@@ -1,5 +1,5 @@
-import { isArrayLike } from "lodash-es";
-
+import { isArrayLike, isEmpty } from "lodash-es";
+// import { pathResolver as pr } from "$lib/utils";
 import type { TextMark, TextMarkType } from "$generateor/common";
 export const resolveMarks = (marks: TextMark[], text: string): string => {
   let result = text + "";
@@ -101,7 +101,13 @@ export const headerIdResolver = (text: string, id: string) =>
   `${pathResolver(text || "")}-${id.slice(-6)}`;
 
 export const pathResolver = (path: string) =>
-  path.replace(/\s+/g, "_").replace(/\W/g, "").toLowerCase();
+  path
+    .replace(/\s+/g, "_")
+    .replace(/\W/g, "")
+    .toLowerCase()
+    .split("_")
+    .filter((e) => !isEmpty(e))
+    .join("-");
 
 export const resolveStyle = (style) => {
   if (!style) return [];

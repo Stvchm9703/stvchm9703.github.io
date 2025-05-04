@@ -13,13 +13,15 @@
     } = $props();
 </script>
 
-<article class={cn(["block border-b pb-6", rest?.class])} {...rest}>
-    <a href={link} target="_blank" class="group">
-        <h3
+<article {title} class={cn(["block border-b pb-6", rest?.class])} {...rest}>
+    <div class="group">
+        <a
             class="block font-serif text-xl font-bold mb-2 group-hover:underline capitalize"
+            href={link}
+            target="_self"
         >
             {title}
-        </h3>
+        </a>
 
         <div class="flex items-center gap-2 text-muted-foreground my-3">
             <i class="h-3 w-3 i-carbon-calendar"></i>
@@ -35,5 +37,5 @@
                 <Tag {...tag} />
             {/each}
         </div>
-    </a>
+    </div>
 </article>

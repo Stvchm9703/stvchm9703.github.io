@@ -11,9 +11,9 @@
         {#each relatedChapters as chapter}
             <div key={chapter.id} class="text-sm">
                 <a
-                    href={`/posts/${chapter.id}_1`}
+                    href={chapter.url}
                     class="font-medium hover:underline"
-                    target="_blank"
+                    target="_self"
                 >
                     {chapter.title}
                 </a>

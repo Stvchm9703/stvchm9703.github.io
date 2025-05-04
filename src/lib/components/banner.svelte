@@ -13,7 +13,7 @@
     export let isFullScreen = false;
     export let containerClass = "";
 
-    export let onIntersect = () => {}
+    export let onIntersect = () => {};
 
     let isIntersecting = false;
     const onInnerIntersect = (event) => {
@@ -42,11 +42,11 @@
         <div class="max-w-screen-2xl mx-auto w-full {containerClass}">
             <slot>
                 <div class="block px-6 py-4 rounded-2">
-                    <h1 class="text-light-50">Welcome to SvelteKit</h1>
+                    <!-- <h1 class="text-light-50">Welcome to SvelteKit</h1>
                     <p class="text-light-200">
                         Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a
                         > to read the documentation
-                    </p>
+                    </p> -->
                 </div>
             </slot>
         </div>

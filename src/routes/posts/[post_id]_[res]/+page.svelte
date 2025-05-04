@@ -42,11 +42,6 @@
     const { meta } = page.data;
 </script>
 
-<!-- <svelte:head>
-    <title>{post.title} - Steven Dev;s Log</title>
-    <meta name="description" content={post.snippet} />
-</svelte:head> -->
-
 <MetaTags {...meta} />
 
 <Breadcrumb class="py-4">
@@ -65,7 +60,7 @@
         </BreadcrumbSeparator>
         {#if isEmpty(post.serie) == false}
             <BreadcrumbItem>
-                <BreadcrumbLink href="/posts/series/{post.serie?.id}">
+                <BreadcrumbLink href={post.serie?.url}>
                     {post.serie?.name}
                 </BreadcrumbLink>
             </BreadcrumbItem>
@@ -188,8 +183,10 @@
                             key={relatedPost.id}
                             href={relatedPost.url}
                             class="group"
+                            target="_self"
                         >
                             <article
+                                title={relatedPost.title}
                                 class="border p-4 h-full hover:bg-muted/50 transition-colors"
                             >
                                 <h5

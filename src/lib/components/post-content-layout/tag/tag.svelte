@@ -2,7 +2,6 @@
     import { cn } from "$lib/utils";
     import { badgeVariants } from "$lib/components/ui/badge";
     const { id, name, url } = $props();
-    console.log(url);
 </script>
 
 <a
@@ -13,7 +12,7 @@
         "hover:bg-slate-100 hover:shadow-sm",
         "border-1 border-solid border-coolgray-200",
     ])}
-    target="_blank"
+    target="_self"
 >
     {name}
 </a>
