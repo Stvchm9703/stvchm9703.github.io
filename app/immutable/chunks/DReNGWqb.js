@@ -1,0 +1,1 @@
+import{h as l,d as o}from"./BW5koCBL.js";function s(s,a,i,r,d){var n;l&&o();var t=null==(n=a.$$slots)?void 0:n[i],u=!1;!0===t&&(t=a["default"===i?"children":i],u=!0),void 0===t?null!==d&&d(s):t(s,u?()=>r:r)}export{s};

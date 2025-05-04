@@ -1,1 +1,0 @@
-import{c as o,_ as s}from"../chunks/ClhTh1gD.js";export{o as component,s as universal};

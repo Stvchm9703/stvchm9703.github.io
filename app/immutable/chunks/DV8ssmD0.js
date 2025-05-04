@@ -1,0 +1,21 @@
+import{n as s,a as e,d as t,t as a}from"./B5aJA00E.js";import{p as r,t as o,a as i,s as l,c as n,F as c,r as d,f as m,E as v,D as p}from"./BW5koCBL.js";import{s as f}from"./GDEy0cF6.js";import{l as h,p as u,s as g,i as $,r as b}from"./DQ5ptN24.js";import{e as k,b as x,i as j,a as w}from"./93JtA4XB.js";import{c as y}from"./CzTFW3UV.js";import{e as _,T as N}from"./3ghyiSoS.js";import{h as W}from"./B2mJQc0K.js";import{i as z}from"./qTBZObi2.js";import{s as B}from"./DReNGWqb.js";
+/**
+* @license lucide-svelte v0.503.0 - ISC
+*
+* ISC License
+* 
+* Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2022 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2022.
+* 
+* Permission to use, copy, modify, and/or distribute this software for any
+* purpose with or without fee is hereby granted, provided that the above
+* copyright notice and this permission notice appear in all copies.
+* 
+* THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+* WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+* MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+* ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+* 
+*/const C={xmlns:"http://www.w3.org/2000/svg",width:24,height:24,viewBox:"0 0 24 24",fill:"none",stroke:"currentColor","stroke-width":2,"stroke-linecap":"round","stroke-linejoin":"round"};var M=s("<svg><!><!></svg>");function S(s,a){const p=h(a,["children","$$slots","$$events","$$legacy"]),f=h(p,["name","color","size","strokeWidth","absoluteStrokeWidth","iconNode"]);r(a,!1);let g=u(a,"name",8,void 0),$=u(a,"color",8,"currentColor"),b=u(a,"size",8,24),w=u(a,"strokeWidth",8,2),y=u(a,"absoluteStrokeWidth",8,!1),N=u(a,"iconNode",24,(()=>[]));z();var W=M();let S;var q=n(W);k(q,1,N,j,((s,a)=>{var r=t(),i=m(r);_(i,(()=>v(a)[0]),!0,((s,e)=>{let t;o((()=>t=x(s,t,{...v(a)[1]})))})),e(s,r)}));var A=l(q);B(A,a,"default",{},null),d(W),o(((s,e)=>S=x(W,S,{...C,...f,width:b(),height:b(),stroke:$(),"stroke-width":s,class:e})),[()=>y()?24*Number(w())/Number(b()):w(),()=>((...s)=>s.filter(((s,e,t)=>Boolean(s)&&t.indexOf(s)===e)).join(" "))("lucide-icon","lucide",g()?`lucide-${g()}`:"",p.class)],c),e(s,W),i()}function q(s,a){const r=h(a,["children","$$slots","$$events","$$legacy"]);S(s,g({name:"calendar"},(()=>r),{iconNode:[["path",{d:"M8 2v4"}],["path",{d:"M16 2v4"}],["rect",{width:"18",height:"18",x:"3",y:"4",rx:"2"}],["path",{d:"M3 10h18"}]],children:(s,r)=>{var o=t(),i=m(o);B(i,a,"default",{},null),e(s,o)},$$slots:{default:!0}}))}var A=a('<a class="block text-sm text-slate-800 hover:text-slate-500 hover:underline" target="_self"> </a> <i class="h-4 border-r-1 border-r-solid -mb-1"></i>',1),D=a('<article><div class="group"><a class="block font-serif text-xl font-bold mb-2 group-hover:underline capitalize" target="_self"> </a> <div class="flex items-center gap-2 text-muted-foreground my-3"><!> <div class="flex items-center gap-1"><!> <span class="text-sm"> </span></div></div> <p class="font-serif block line-clamp-3 my-3"> </p> <div class="flex gap-2"></div></div></article>');function E(s,t){r(t,!0);const a=b(t,["$$slots","$$events","$$legacy","id","title","title_slot","content","content_slot","post_date","link","tags","serie"]);var c=D();let h;var u=n(c),_=n(u),z=n(_,!0);d(_);var B=l(_,2),C=n(B),M=s=>{var a=A(),r=m(a),i=n(r,!0);d(r),p(2),o((()=>{w(r,"href",t.serie.url),f(i,t.serie.name)})),e(s,a)};$(C,(s=>{t.serie&&s(M)}));var S=l(C,2),E=n(S);q(E,{class:"h-3 w-3"});var F=l(E,2),O=n(F,!0);d(F),d(S),d(B);var T=l(B,2),G=n(T,!0);d(T);var H=l(T,2);k(H,21,(()=>t.tags),j,((s,e)=>{N(s,g((()=>v(e))))})),d(H),d(u),d(c),o(((s,e)=>{h=x(c,h,{id:s,title:t.title,class:e,...a}),w(_,"href",t.link),f(z,t.title),f(O,t.post_date),f(G,t.content)}),[()=>W("post-card",t.id),()=>y(["block border-b pb-6",null==t?void 0:t.class])]),e(s,c),i()}export{E as B,q as C};
