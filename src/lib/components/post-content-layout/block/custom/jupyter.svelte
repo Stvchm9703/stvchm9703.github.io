@@ -6,13 +6,14 @@
     import Markdown from "svelte-exmarkdown";
     import { gfmPlugin } from "svelte-exmarkdown/gfm";
     import "svelte-highlight/styles/gruvbox-dark-soft.css";
+    import { headerIdResolver } from "../common";
     // import "$lib/styles/svelte_highlight.css";
     const exmdPlugins = [gfmPlugin()];
 
     const { id, componentAttr } = $props();
     const { cell, fileName, cellNumber } = componentAttr;
     const { source, outputs, cell_type } = cell;
-    const elemId = `jupyter-${id}`;
+    const elemId = headerIdResolver("jupyter", id);
 
     async function initHighlight() {
         if (cell_type === "code") {

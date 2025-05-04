@@ -30,7 +30,7 @@ import { buttonVariants } from "$lib/components/ui/button";
                     </p>
                     <div class="flex gap-4 mt-3">
                         {#each post.tags as tag}
-                        <Tag id={tag.id} name={tag.name} />
+                        <Tag {...tag} />
                         {/each}
                     </div>
                     {/if}

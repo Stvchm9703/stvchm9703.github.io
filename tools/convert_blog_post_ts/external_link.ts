@@ -1,8 +1,10 @@
-import { SnapshotWithType } from "../../protos/anytype/snapshot";
+import type { SnapshotWithType } from "../../protos/anytype/snapshot";
+import { getShortenId } from "./common";
 import { ObjectTypes } from "./enum_token";
 
 export interface ExternalBookmarkLink {
   id: string;
+  _sid: string;
   href: string;
   title: string;
   level?: number;
@@ -24,6 +26,7 @@ function fromAnytype(snapshot: SnapshotWithType): ExternalBookmarkLink {
   const data = snapshot.snapshot?.data?.details;
   return {
     id: data?.id || "",
+    _sid: getShortenId(snapshot),
     href: data?.name || "",
     title: data?.title || "",
     // level: data?.level || 0,

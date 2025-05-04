@@ -2,7 +2,7 @@ import { SmartBlockType } from "../../protos/anytype/models";
 import type { SnapshotWithType } from "../../protos/anytype/snapshot";
 import type { AttributeMap } from "./attribute";
 import type { CollectionMap } from "./collection";
-import { getFieldValue } from "./common";
+import { getFieldValue, getShortenId } from "./common";
 import type { PageMap } from "./page";
 import type { Tag } from "./tag";
 import type { User, UserMap } from "./user";
@@ -12,6 +12,7 @@ export type WorkspaceMap = Map<WorkspaceId, Workspace>;
 
 export interface Workspace {
   id: WorkspaceId;
+  _sid: string;
   name: string;
   description: string;
   projects: PageMap;
@@ -34,6 +35,7 @@ export const getWorkspaces = (
 export function fromAnytype(raw: SnapshotWithType): Workspace {
   const tmp: Workspace = {
     id: "",
+    _sid: "",
     name: "",
     description: "",
     projects: new Map(),
@@ -49,6 +51,7 @@ export function fromAnytype(raw: SnapshotWithType): Workspace {
   }
   // tmp.id = get_field_value(data_map, "id");
   tmp.id = getFieldValue(dataMap, "id");
+  tmp._sid = getShortenId(raw);
   tmp.name = getFieldValue(dataMap, "name");
   // tmp.description = get_field_value(data_map, "description")?;
   // tmp.attributes = getFieldValue(dataMap, "attributes");

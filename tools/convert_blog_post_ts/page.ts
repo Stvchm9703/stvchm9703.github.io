@@ -6,7 +6,12 @@ import type { Block as PbBlock } from "../../protos/anytype/models";
 import type { SnapshotWithType } from "../../protos/anytype/snapshot";
 import { castToAttributeMap, type AttributeMap } from "./attribute";
 import type { Collection, CollectionId } from "./collection";
-import { getFieldValue, GLOBAL_RELATION_IDMAP } from "./common";
+import {
+  getFieldValue,
+  getShortenId,
+  GLOBAL_RELATION_IDMAP,
+  pathResolver,
+} from "./common";
 import type { DataMap } from "./common";
 import type { ContentBlockList, ContentBlockMap } from "./content_block";
 import * as ContentBlock from "./content_block";
@@ -28,6 +33,7 @@ export type PageMap = Map<string, Page>;
 
 export interface Page {
   id: PageId;
+  _sid: PageId;
   title: string;
   description: string;
   snippet: string;
@@ -40,7 +46,7 @@ export interface Page {
   tags: TagOptionLabel[];
   raw_tag_list: string[];
   styles: DataMap;
-  serie: TagOptionLabel | null;
+  serie?: TagOptionLabel | null;
   contents: ContentBlockMap;
   reformedContents: ContentBlockList;
   coverImage: string | null;
@@ -81,6 +87,7 @@ export const getPages = (snapshot_list: SnapshotWithType[]): Page[] => {
 export function fromAnytype(raw: SnapshotWithType): Page {
   const tmp: Page = {
     id: "",
+    _sid: "",
     title: "",
     description: "",
     snippet: "",
@@ -106,6 +113,7 @@ export function fromAnytype(raw: SnapshotWithType): Page {
   const detailMap = data?.details;
 
   tmp.id = getFieldValue(detailMap, "id") ?? "";
+  tmp._sid = getShortenId(raw);
   tmp.title = getFieldValue(detailMap, "name") ?? "";
   tmp.attributes = detailMap ?? {};
   tmp.collectionId =
@@ -116,7 +124,8 @@ export function fromAnytype(raw: SnapshotWithType): Page {
   tmp.raw_tag_list = getFieldValue(detailMap, "tag") ?? [];
   tmp.publish_date = getFieldValue<number>(detailMap, "publish date");
 
-  tmp.serie = getFieldValue(detailMap, "Series");
+  let serie = getFieldValue<string[]>(detailMap, "Series");
+  if (serie !== null && serie.length > 0) tmp.serie = serie;
 
   resolveContent(tmp, data?.blocks ?? []);
 
@@ -147,7 +156,9 @@ export function resolveTags(self: Page, rawTags: Tag): Page {
       return tagObj
         ? ({
             id: tagObj.id,
+            _sid: tagObj._sid,
             name: tagObj.name,
+            url: `/posts/tags/${pathResolver(tagObj.name)}_${tagObj._sid}`,
           } as TagOptionLabel)
         : null;
     })
@@ -240,12 +251,20 @@ export function resolveSeries(self: Page): Page {
         ? ({
             id: tagObj.id,
             name: tagObj.name,
+            _sid: tagObj._sid,
+            url: `/posts/series/${pathResolver(tagObj.name)}_${tagObj._sid}`,
           } as TagOptionLabel)
         : elm;
     })
     .filter((elm) => elm !== null);
 
-  self.serie = { ...resolved[0] };
+  // self.serie = { ...resolved[0] };
+  if (resolved.length > 0) {
+    self.serie = resolved[0];
+  } else {
+    self.serie = null;
+  }
+  // self.serie = { ...resolved[0] };
   return self;
 }
 

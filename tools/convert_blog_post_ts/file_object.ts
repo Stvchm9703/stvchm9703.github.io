@@ -5,7 +5,7 @@ import { SmartBlockType } from "../../protos/anytype/models";
 import { SnapshotWithType } from "../../protos/anytype/snapshot";
 import { castToAttributeMap, type AttributeMap } from "./attribute";
 // import type { Collection, CollectionId } from "./collection";
-import { getFieldValue, GLOBAL_RELATION_IDMAP } from "./common";
+import { getFieldValue, getShortenId, GLOBAL_RELATION_IDMAP } from "./common";
 import type { DataMap } from "./common";
 // import type { ContentBlockList, ContentBlockMap } from "./content_block";
 // import * as ContentBlock from "./content_block";
@@ -19,6 +19,7 @@ import { ObjectTypes } from "./enum_token";
 
 export interface FileObject {
   id: string;
+  _sid: string;
   title: string;
   fileUrl: string;
   fileExt: string;
@@ -46,6 +47,7 @@ function fromAnytype(raw: SnapshotWithType): FileObject {
 
   const tmp: FileObject = {
     id: getFieldValue(detailMap, "id") ?? "",
+    _sid: getShortenId(raw),
     title: getFieldValue(detailMap, "name") ?? "",
     attributes: detailMap ?? {},
     fileUrl: getFieldValue(detailMap, "source") ?? "",

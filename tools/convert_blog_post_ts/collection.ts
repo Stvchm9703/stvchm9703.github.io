@@ -4,7 +4,7 @@ import { castToAttributeMap, type AttributeMap } from "./attribute";
 import type { SnapshotWithType } from "../../protos/anytype/snapshot";
 import type { WorkspaceId } from "./workspace";
 import type { Page, PageMap } from "./page";
-import { getFieldValue } from "./common";
+import { fileIdShorten, getFieldValue, getShortenId } from "./common";
 import { ObjectTypes } from "./enum_token";
 export type CollectionId = string;
 export type CollectionMap = Map<CollectionId, Collection>;
@@ -12,6 +12,7 @@ export type CollectionMap = Map<CollectionId, Collection>;
 // object interface
 export interface Collection {
   id: CollectionId;
+  _sid: CollectionId;
   name: string;
   description: string;
   cover: string;
@@ -28,7 +29,8 @@ export function fromAnytype(raw: SnapshotWithType): Collection {
   const dataMap = raw.snapshot?.data?.details;
 
   const collection: Collection = {
-    id: getFieldValue<string>(dataMap, "id"),
+    id: getFieldValue<string>(dataMap, "id") || "",
+    _sid: getShortenId(raw),
     name: getFieldValue<string>(dataMap, "name"),
     // attributes: getFieldValue<AttributeMap>(dataMap, "attributes"),
     attributes: castToAttributeMap(dataMap),

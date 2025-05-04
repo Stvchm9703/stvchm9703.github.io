@@ -45,6 +45,40 @@ export enum ObjectTypes {
   SpaceView = "ot-spaceView",
 }
 
+export const getShortCode = (input: ObjectTypes): string => {
+  switch (input) {
+    case ObjectTypes.Relation:
+      return "rl";
+    case ObjectTypes.RelationOption:
+      return "ro";
+    case ObjectTypes.Template:
+      return "tp";
+    case ObjectTypes.Task:
+      return "tk";
+    case ObjectTypes.Project:
+      return "pj";
+    case ObjectTypes.ObjectType:
+      return "ot";
+    case ObjectTypes.File:
+      return "fl";
+    case ObjectTypes.Audio:
+      return "ad";
+    case ObjectTypes.Note:
+      return "nt";
+    case ObjectTypes.ChatDerived:
+      return "cd";
+    case ObjectTypes.Video:
+      return "vd";
+    case ObjectTypes.Profile:
+      return "pf";
+    case ObjectTypes.Date:
+      return "dt";
+    case ObjectTypes.SpaceView:
+      return "sv";
+  }
+  return "ud";
+};
+
 // import { SmartBlockType } from "../../protos/anytype/models";
 
 // console.log(SmartBlockType[SmartBlockType.Page]);

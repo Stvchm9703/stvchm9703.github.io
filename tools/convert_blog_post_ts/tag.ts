@@ -3,7 +3,7 @@
 import { SmartBlockType } from "../../protos/anytype/models";
 import type { SnapshotWithType } from "../../protos/anytype/snapshot";
 import { castToAttributeMap, type AttributeMap } from "./attribute";
-import { getFieldValue } from "./common";
+import { getFieldValue, getShortenId } from "./common";
 
 export type TagId = string;
 export type TagList = Tag[];
@@ -11,6 +11,7 @@ export type TagMap = Map<TagId, Tag>;
 
 export interface Tag {
   id: TagId;
+  _sid: TagId;
   name: string;
   description: string;
   relationKey: string; // st-relationshipKey
@@ -20,6 +21,7 @@ export interface Tag {
 }
 export interface TagOption {
   id: TagId;
+  _sid: TagId;
   name: string;
   description: string;
   relationKey: string;
@@ -49,6 +51,7 @@ export const getTags = (snapshot_list: SnapshotWithType[]): Tag[] => {
 export function fromAnytype(raw: SnapshotWithType): Tag {
   const tmp: Tag = {
     id: "",
+    _sid: "",
     name: "",
     description: "",
     relationKey: "", // relation-ship
@@ -65,6 +68,7 @@ export function fromAnytype(raw: SnapshotWithType): Tag {
   }
 
   tmp.id = getFieldValue(dataMap, "id") ?? "";
+  tmp._sid = getShortenId(raw);
   tmp.name = getFieldValue(dataMap, "name") ?? "";
   tmp.description = getFieldValue(dataMap, "description") ?? "";
   tmp.relationKey = getFieldValue(dataMap, "relationKey") ?? "";
@@ -76,6 +80,7 @@ export function fromAnytype(raw: SnapshotWithType): Tag {
 export function fromAnytypeOption(raw: SnapshotWithType): TagOption {
   const tmp: TagOption = {
     id: "",
+    _sid: "",
     name: "",
     description: "",
     relationKey: "", // relation-ship
@@ -89,8 +94,9 @@ export function fromAnytypeOption(raw: SnapshotWithType): TagOption {
   }
 
   tmp.id = getFieldValue(dataMap, "id") ?? "";
+  tmp._sid = getShortenId(raw);
   tmp.name = getFieldValue(dataMap, "name") ?? "";
-  // tmp.description = getFieldValue(dataMap, "description") ?? "";
+  tmp.description = getFieldValue(dataMap, "description") ?? "";
   tmp.relationKey = getFieldValue(dataMap, "relationKey") ?? "";
   tmp.attributes = castToAttributeMap(dataMap);
 

@@ -8,14 +8,15 @@ import * as Collection from "./collection";
 import * as Page from "./page";
 import * as Tag from "./tag";
 import * as Jupyter from "./jupyter";
-import { isEmpty } from "lodash-es";
 
-import { intersectionBy, intersection } from "lodash-es";
+import { intersectionBy, intersection, isEmpty } from "lodash-es";
 
 import {
   GLOBAL_RELATION_NAMEMAP,
   GLOBAL_RELATION_IDMAP,
   setRelationNameMap,
+  testIdResult,
+  pathResolver,
 } from "./common";
 import { getBookmarkLinks } from "./external_link";
 import { parseArgs } from "util";
@@ -123,9 +124,10 @@ const resolveCollection = async (
       if (elm.serie?.id === page.serie?.id && elm.id !== page.id) {
         relatedChapters.push({
           id: elm.id,
+          _sid: elm._sid,
           componentId: elm.id,
           title: elm.title,
-          url: `/posts/${elm.id}_${pathResolver(elm.title)}`,
+          url: `/posts/${elm._sid}_${pathResolver(elm.title)}`,
         }) as Page.PageLink;
       }
       // console.log(elm.raw_tag_list, page.raw_tag_list);
@@ -138,7 +140,7 @@ const resolveCollection = async (
           id: elm.id,
           componentId: elm.id,
           title: elm.title,
-          url: `/posts/${elm.id}_${pathResolver(elm.title)}`,
+          url: `/posts/${elm._sid}_${pathResolver(elm.title)}`,
         }) as Page.PageLink;
       }
     }
@@ -154,7 +156,9 @@ const resolveCollection = async (
     let page_content_path = `blog_post_resolved/${pathResolver(article_coll.name)}_${article_coll.id.slice(-6)}/${pageId}.json`;
 
     output_file_list.push({
-      post_id: page.id,
+      post_id: page._sid,
+      id: page.id,
+      _sid: page._sid,
       res: pathResolver(page.title),
       page_content_path,
       publish_date: page.publish_date,
@@ -180,9 +184,10 @@ const resolveCollection = async (
     const page: Page.Page = article_coll.articles[pageId];
     allPageLink.push({
       id: page.id,
+      _sid: page._sid,
       title: page.title,
       componentId: "",
-      url: `posts/${page.id}_1`,
+      url: `posts/${page._sid}_${pathResolver(page.title)}`,
       level: 0,
       coverImage: page.coverImage,
       publish_date: page.publish_date,
@@ -199,6 +204,7 @@ const resolveCollection = async (
 
     return {
       id: serieOption.id,
+      _sid: serieOption._sid,
       name: serieOption.name,
       description: serieOption.description,
       resultList,
@@ -211,6 +217,7 @@ const resolveCollection = async (
 
   seriesIndexList.push({
     id: "-",
+    _sid: "others",
     name: "Others",
     description: "",
     resultList: untaggedSerie,
@@ -222,6 +229,7 @@ const resolveCollection = async (
 
   seriesIndexList.push({
     id: "latestUpdated",
+    _sid: "latest",
     name: "Latest Updated",
     description: "",
     resultList: latestUpdated,
@@ -242,7 +250,7 @@ const resolveCollection = async (
           id: page.id,
           title: page.title,
           componentId: "",
-          url: `posts/${page.id}_1`,
+          url: `posts/${page._sid}_${pathResolver(page.title)}`,
           level: 0,
           coverImage: page.coverImage,
           publish_date: page.publish_date,
@@ -255,6 +263,7 @@ const resolveCollection = async (
 
     return {
       id: tagOption.id,
+      _sid: tagOption._sid,
       name: tagOption.name,
       description: tagOption.description,
       resultList,
@@ -265,9 +274,8 @@ const resolveCollection = async (
     "blog_post_resolved/tags.json",
     JSON.stringify(tagIndexList, null, 2),
   );
-};
 
-const pathResolver = (path: string) =>
-  path.replace(/\s+/g, "_").replace(/\W/g, "").toLowerCase();
+  // testIdResult();
+};
 
 main();
