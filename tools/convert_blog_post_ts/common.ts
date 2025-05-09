@@ -11,9 +11,9 @@ import { isEmpty } from "lodash-es";
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 export type DataMap = { [key: string]: any };
-export let GLOBAL_RELATION_IDMAP: TagMap = new Map();
-export let GLOBAL_RELATION_NAMEMAP: TagMap = new Map();
-export let GLOBAL_RELATION_NAMEMAP_STR: Map<string, string> = new Map();
+export const GLOBAL_RELATION_IDMAP: TagMap = new Map();
+export const GLOBAL_RELATION_NAMEMAP: TagMap = new Map();
+export const GLOBAL_RELATION_NAMEMAP_STR: Map<string, string> = new Map();
 
 // export type OutputAttributes = {
 //   [key: string]: any;
@@ -133,3 +133,6 @@ export const pathResolver = (path: string) =>
     .split("_")
     .filter((e) => !isEmpty(e))
     .join("-");
+
+export const headerIdResolver = (text: string, id: string) =>
+  `${pathResolver(text || "")}-${id.slice(-6)}`;

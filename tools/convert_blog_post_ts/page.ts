@@ -1,9 +1,10 @@
 // import { BTreeMap } from 'immutable'; // Assuming you are using Immutable.js for BTreeMap
 // import { SnapshotWithType, Error, Tag, PbBlock, ContentBlock } from './your-types'; // Adjust the import according to your types
 
-import { stack } from "d3";
+import Bun from "bun";
+
 import type { Block as PbBlock } from "../../protos/anytype/models";
-import type { SnapshotWithType } from "../../protos/anytype/snapshot";
+import { SnapshotWithType } from "../../protos/anytype/snapshot";
 import { castToAttributeMap, type AttributeMap } from "./attribute";
 import type { Collection, CollectionId } from "./collection";
 import {
@@ -16,20 +17,23 @@ import type { DataMap } from "./common";
 import type { ContentBlockList, ContentBlockMap } from "./content_block";
 import * as ContentBlock from "./content_block";
 import { ObjectTypes } from "./enum_token";
-import { ExternalBookmarkLink } from "./external_link";
+import type { ExternalBookmarkLink } from "./external_link";
 import type { TagList, TagMap, Tag, TagOptionLabel } from "./tag";
 import type { UserId } from "./user";
 import type { WorkspaceId } from "./workspace";
 import {
-  FileObject,
+  type FileObject,
   exportForMetaData,
-  OpenGraphImage,
-  OpenGraphVideos,
-  OpenGraphAudio,
+  type OpenGraphImage,
+  type OpenGraphVideos,
+  type OpenGraphAudio,
 } from "./file_object";
 
 export type PageId = string;
 export type PageMap = Map<string, Page>;
+
+export type FuncPageAttrbuteResolver = (page: Page) => Page;
+export type FuncPageExternalResolver = (page: Page, ...args: any[]) => Page;
 
 export interface Page {
   id: PageId;
@@ -136,6 +140,8 @@ export function fromAnytype(raw: SnapshotWithType): Page {
   resolveTextNumberComponent(tmp);
   resolveTextToggleComponent(tmp);
   // console.log("resolved :", tmp);
+  snapshotAsJson(tmp._sid, raw);
+
   return tmp;
 }
 
@@ -148,7 +154,10 @@ function resolveContent(self: Page, rawContent: PbBlock[]): Page {
   return self;
 }
 
-export function resolveTags(self: Page, rawTags: Tag): Page {
+export const resolveTags: FuncPageExternalResolver = (
+  self: Page,
+  rawTags: Tag,
+): Page => {
   // console.log(rawTags);
   const resolved = self.raw_tag_list
     .map((elm) => {
@@ -165,7 +174,7 @@ export function resolveTags(self: Page, rawTags: Tag): Page {
     .filter((elm) => elm !== null);
   self.tags = resolved;
   return self;
-}
+};
 
 function resolveReformedContents(self: Page): Page {
   const rootBlock = self.contents.get(self.id);
@@ -181,9 +190,9 @@ function resolveReformedContents(self: Page): Page {
       if (!block) return null;
       if (
         block.componentType === "Smartblock" ||
-        block.componentType === "FeaturedRelations" ||
+        block.componentType === "FeaturedRelations"
         // block.componentType === "Relation" ||
-        block.componentType === "Div"
+        // block.componentType === "Div"
 
         // || block.componentType === "TableOfContents"
       )
@@ -197,6 +206,8 @@ function resolveReformedContents(self: Page): Page {
     .map((elm) => {
       if (elm.componentType === "Table")
         return ContentBlock.resolveTableComponent(elm, self.contents);
+      if (elm.componentType === "Layout")
+        return ContentBlock.resolveLayoutRowComponent(elm, self.contents);
       return elm;
     });
 
@@ -234,7 +245,7 @@ function resolveChildrenIds(self: Page, id: string): string[] {
 
 let _seriesRel: Tag | null = null;
 
-export function resolveSeries(self: Page): Page {
+export const resolveSeries: FuncPageAttrbuteResolver = (self: Page): Page => {
   if (self.serie === null || self.serie.length === 0) return null;
 
   if (_seriesRel == null) {
@@ -266,9 +277,11 @@ export function resolveSeries(self: Page): Page {
   }
   // self.serie = { ...resolved[0] };
   return self;
-}
+};
 
-export function resolveTOCComponent(self: Page): Page {
+export const resolveTOCComponent: FuncPageAttrbuteResolver = (
+  self: Page,
+): Page => {
   const resolved = self.reformedContents
     .filter(
       (elm) =>
@@ -300,12 +313,12 @@ export function resolveTOCComponent(self: Page): Page {
 
   self.tableOfContents = resolved;
   return self;
-}
+};
 
-export function resolveLinkComponent(
+export const resolveLinkComponent: FuncPageExternalResolver = (
   self: Page,
   ref: ExternalBookmarkLink[],
-): Page {
+): Page => {
   for (const elm of self.reformedContents) {
     if (elm.componentType === "Link") {
       const target = ref.find(
@@ -319,8 +332,9 @@ export function resolveLinkComponent(
     }
   }
   return self;
-}
+};
 
+/// !deprecated ,move to content_block.ts
 export function resolveTextNumberComponent(self: Page): Page {
   // let number_set: ContentBlock.ContentBlock[][] = [[]];
   let mapped = new Map<string, ContentBlock.ContentBlock[]>();
@@ -369,6 +383,7 @@ export function resolveTextNumberComponent(self: Page): Page {
   return self;
 }
 
+/// !deprecated ,move to content_block.ts
 export function resolveTextToggleComponent(self: Page): Page {
   // let number_set: ContentBlock.ContentBlock[][] = [[]];
   let mapped = new Map<string, ContentBlock.ContentBlock[]>();
@@ -402,6 +417,7 @@ import * as Jupyter from "./jupyter";
 const _jupyter_component_regex =
   /^\/custom_component\:jupyter\:\((?<fileName>[\w\-\.]+)\:(?<cellNumber>\d+)\)\/$/;
 
+/// !deprecated, move to content_block
 export function resolveJupyterComponent(
   self: Page,
   jupyters: Jupyter.JupyterNotebookRoot[],
@@ -472,66 +488,69 @@ export function resolveJupyterComponent(
   return self;
 }
 
-export function resolveRelationCustomComponent(
+// export function resolveRelationCustomComponent(
+//   self: Page,
+//   extFileList: FileObject[],
+// ): Page {
+//   let toDelete: string[] = [];
+//   let list_buffer = self.reformedContents
+//     .map((elm, idx) => {
+//       if (elm.componentType !== "Relation") return elm;
+//       const fieldKey = elm.componentAttr["key"];
+//       const tag = GLOBAL_RELATION_IDMAP.values().find(
+//         (p) => p.relationKey === fieldKey,
+//       );
+//       if (tag === undefined) return null;
+
+//       if (tag.name !== "custom-component") return null;
+//       let next_item = self.reformedContents[idx + 1];
+//       if (next_item.componentType !== "File") return null;
+
+//       const targetFileObject = extFileList.find(
+//         (f) => f.id === next_item.componentAttr["targetObjectId"],
+//       );
+
+//       const customComponentFieldValue = self.attributes[fieldKey];
+//       const commandList: string[] = customComponentFieldValue
+//         .split(";")
+//         .filter((p) => p !== "");
+
+//       const targetCommand = commandList.find((f) =>
+//         f.includes(targetFileObject?.title),
+//       );
+
+//       elm.componentType = "CustomComponent";
+//       // elm.componentAttr["fileId"] = next_item.componentAttr["targetObjectId"];
+//       elm.componentAttr["targetCommand"] = targetCommand;
+//       elm.componentAttr["origanalCommand"] = commandList;
+//       // elm.componentAttr["fileAttr"] = next_item.componentAttr;
+//       // targetFileObject?.attributes = undefined;
+//       elm.componentAttr["fileObject"] = {
+//         id: targetFileObject?.id,
+//         title: targetFileObject?.title,
+//         fileUrl: targetFileObject?.fileUrl,
+//         fileExt: targetFileObject?.fileExt,
+//       };
+
+//       toDelete.push(next_item.id);
+//       return elm;
+//     })
+//     .filter((elm) => elm !== null);
+
+//   // console.log({ toDelete });
+//   // console.log(list_buffer.filter(elm => elm.))
+
+//   self.reformedContents = list_buffer.filter(
+//     (p) => toDelete.includes(p.id) === false,
+//   );
+
+//   return self;
+// }
+
+export const resolveFileComponent: FuncPageExternalResolver = (
   self: Page,
   extFileList: FileObject[],
-): Page {
-  let toDelete: string[] = [];
-  let list_buffer = self.reformedContents
-    .map((elm, idx) => {
-      if (elm.componentType !== "Relation") return elm;
-      const fieldKey = elm.componentAttr["key"];
-      const tag = GLOBAL_RELATION_IDMAP.values().find(
-        (p) => p.relationKey === fieldKey,
-      );
-      if (tag === undefined) return null;
-
-      if (tag.name !== "custom-component") return null;
-      let next_item = self.reformedContents[idx + 1];
-      if (next_item.componentType !== "File") return null;
-
-      const targetFileObject = extFileList.find(
-        (f) => f.id === next_item.componentAttr["targetObjectId"],
-      );
-
-      const customComponentFieldValue = self.attributes[fieldKey];
-      const commandList: string[] = customComponentFieldValue
-        .split(";")
-        .filter((p) => p !== "");
-
-      const targetCommand = commandList.find((f) =>
-        f.includes(targetFileObject?.title),
-      );
-
-      elm.componentType = "CustomComponent";
-      // elm.componentAttr["fileId"] = next_item.componentAttr["targetObjectId"];
-      elm.componentAttr["targetCommand"] = targetCommand;
-      elm.componentAttr["origanalCommand"] = commandList;
-      // elm.componentAttr["fileAttr"] = next_item.componentAttr;
-      // targetFileObject?.attributes = undefined;
-      elm.componentAttr["fileObject"] = {
-        id: targetFileObject?.id,
-        title: targetFileObject?.title,
-        fileUrl: targetFileObject?.fileUrl,
-        fileExt: targetFileObject?.fileExt,
-      };
-
-      toDelete.push(next_item.id);
-      return elm;
-    })
-    .filter((elm) => elm !== null);
-
-  // console.log({ toDelete });
-  // console.log(list_buffer.filter(elm => elm.))
-
-  self.reformedContents = list_buffer.filter(
-    (p) => toDelete.includes(p.id) === false,
-  );
-
-  return self;
-}
-
-export function resolveFileComponent(self: Page, extFileList: FileObject[]) {
+) => {
   let included: FileObject[] = [];
   for (const block of self.reformedContents) {
     if (block.componentType === "File") {
@@ -549,4 +568,11 @@ export function resolveFileComponent(self: Page, extFileList: FileObject[]) {
   }
   self.meta = exportForMetaData(included);
   return self;
+};
+
+function snapshotAsJson(title: string, raw: SnapshotWithType) {
+  Bun.write(
+    `blog_post_resolved/tmp/${title}.json`,
+    JSON.stringify(SnapshotWithType.toJSON(raw), null, 2),
+  );
 }

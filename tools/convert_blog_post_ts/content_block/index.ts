@@ -1,4 +1,4 @@
-import { castToAttributeMap, type AttributeMap } from "./attribute";
+import { castToAttributeMap, type AttributeMap } from "../attribute";
 import type {
   Block_Content_Smartblock,
   Block_Content_Text,
@@ -18,12 +18,29 @@ import type {
   Block_Content_TableRow,
   Block_Content_Widget,
   Block_Content_Chat,
-} from "../../protos/anytype/models";
+} from "../../../protos/anytype/models";
 
-import { Block } from "../../protos/anytype/models";
+import { Block } from "../../../protos/anytype/models";
 
-import { Block_Align, Block_VerticalAlign } from "../../protos/anytype/models";
-import type { DataMap, TextMark } from "./common";
+import {
+  Block_Align,
+  Block_VerticalAlign,
+} from "../../../protos/anytype/models";
+import type { DataMap, TextMark } from "../common";
+
+import { resolveFileComponent } from "./file";
+import { resolveLayoutRowComponent } from "./flexbox";
+import { resolveTableComponent } from "./table";
+import { resolveTextNumberComponent } from "./text_number";
+import { resolveTextToggleComponent } from "./text_toggle";
+
+export {
+  resolveFileComponent,
+  resolveLayoutRowComponent,
+  resolveTableComponent,
+  resolveTextNumberComponent,
+  resolveTextToggleComponent,
+};
 
 export type ContentBlockMap = Map<string, ContentBlock>;
 
@@ -134,142 +151,7 @@ function getComponentMap(rawBlock: Block): DataMap {
   return ctx[typeKey] as DataMap;
 }
 
-export function resolveTableComponent(
-  self: ContentBlock,
-  refs: ContentBlockMap,
-): ContentBlock {
-  // const tColumnSetting =
-  //   refs
-  //     .get(self.childrenIds[0])
-  //     ?.childrenIds?.map((id) => refs.get(id))
-  //     .filter((e) => e !== null && e !== undefined) ?? [];
-
-  // const tColumn = tColumnSetting.map((column) => {
-  //   return {
-  //     id: column.id,
-  //     ...column.fields,
-  //   };
-  // });
-
-  const tData =
-    refs
-      .get(self.childrenIds[1])
-      ?.childrenIds?.map((id) => refs.get(id))
-      .filter((e) => e !== null && e !== undefined) ?? [];
-  const rowData = tData
-    ?.map((r, i) => (r ? resolveTableRowComponent(r, refs, i) : null))
-    .filter((r) => r !== null);
-
-  const tableData = {
-    rowData,
-  };
-  self.componentAttr = {
-    ...self.componentAttr,
-    tableData,
-  };
-
-  return self;
-}
-
-interface TableRowData {
-  id: string;
-  rowIdx: number;
-  cells: TableCellData[];
-  isHeader: boolean;
-  [key: string]: any;
-}
-interface TableCellData {
-  id: string;
-  cellIdx: number;
-  content: string;
-  marks: TextMark[];
-  [key: string]: any;
-}
-
-function resolveTableRowComponent(
-  self: ContentBlock,
-  refs: ContentBlockMap,
-  idx: number,
-): TableRowData {
-  if (self.componentType !== "TableRow") return null;
-  const rowDt: TableRowData = {
-    id: self.id,
-    rowIdx: idx,
-    cells: [],
-    isHeader: self.componentAttr?.isHeader ?? false,
-    style: self?.style,
-    ...self.fields,
-    ...self.componentAttr,
-  };
-
-  for (const [cellIdx, id] of self.childrenIds.entries()) {
-    const child = refs.get(id);
-    // if (child === undefined) return;
-    // if (child.componentType !== "Text") return;
-    const cellDt: TableCellData = {
-      id,
-      cellIdx,
-      content: child?.componentAttr["text"] ?? "",
-      marks: child?.componentAttr["marks"]["marks"] ?? [],
-      style: child?.style,
-      ...child?.fields,
-      ...child?.componentAttr,
-    };
-    rowDt.cells.push(cellDt);
-  }
-
-  return rowDt;
-}
-
-interface FlexItem {
-  id: string;
-  style: ContentBlockBasicStyle;
-  order: number;
-  children?: Array<FlexItem | ContentBlock>;
-  componentType: string;
-  [key: string]: any;
-}
-
-export function resolveLayoutRowComponent(
-  self: ContentBlock,
-  refs: ContentBlockMap,
-): ContentBlock {
-  // should
-  if (self.id.startsWith("r-")) {
-    // const result = self;
-    const columns = self.childrenIds
-      .map((id) => refs.get(id))
-      .filter((p) => p !== undefined)
-      .map((col, colIndex) => {
-        const colChildren = col.childrenIds
-          .map((id) => refs.get(id))
-          .filter((p) => p !== undefined)
-          .map((child, childIdx) => ({
-            ...child,
-            order: childIdx,
-          }));
-        return {
-          id: col.id,
-          style: col.style,
-          order: colIndex,
-          children: colChildren,
-          componentType: "LayoutColumn",
-        } as FlexItem;
-      });
-
-    return {
-      id: self.id,
-      style: self.style,
-      order: self.order,
-      children: columns,
-      componentType: "LayoutRow",
-    } as FlexItem;
-  }
-
-  return self;
-}
-
-// export function resovleLayoutColumnComponent(
-//   self: ContentBlock,
-//   refs: ContentBlockMap,
-// ): ContentBlock {}
+export type FuncContentBlockResolver = (
+  blockMap: ContentBlockMap,
+  ...args: any[]
+) => ContentBlockMap;

@@ -6,7 +6,7 @@ import { ObjectTypes } from "./enum_token";
 import * as Workspace from "./workspace";
 import * as Collection from "./collection";
 // import * as Page from "./page.ts";
-import * as Page from "./page/index";
+import * as Page from "./page";
 import * as Tag from "./tag";
 import * as Jupyter from "./jupyter";
 

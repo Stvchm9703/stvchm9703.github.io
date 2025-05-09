@@ -8,28 +8,33 @@ glob = "0.3.2"
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = "1.0.140"
 serde_variant = "0.1.3"
-prost = { version = "0.13.5", features = ["derive"] }
-prost-types = { version = "0.13.5" }
+# prost = { version = "0.13.5", features = ["derive"] }
+# prost-types = { version = "0.13.5" }
 enum-repr = "0.2.6"
 anyhow = "1.0.98"
-prost-reflect = { version = "0.15.1", features = [
-    "derive",
-    "miette",
-    "serde",
-    "text-format",
-] }
-
-prost-wkt = "*"
-prost-wkt-types = "*"
+# prost-reflect = { version = "0.15.1", features = [
+#     "derive",
+#     "miette",
+#     "serde",
+#     "text-format",
+# ] }
+# prost-wkt = "*"
+# prost-wkt-types = "*"
 lazy_static = "*"
+quick-protobuf = "0.8.0"
+once_cell = "*"
+rust_string_utils = "0.1.20"
+
+convert_blog_post_marco = { path = "./convert_blog_post_marco" }
 
 
 # Only necessary if using Protobuf well-known types:
 [build-dependencies]
-prost-reflect-build = "0.15.0"
-
-prost-build = "0.13"
+# prost-reflect-build = "0.15.0"
+# prost-build = "0.13"
 glob = "0.3.2"
 regex = "*"
 lazy_static = "*"
-prost-wkt-build = "*"
+# prost-wkt-build = "*"
+# pb-rs = "0.9.1"
+# walkdir = "2"
