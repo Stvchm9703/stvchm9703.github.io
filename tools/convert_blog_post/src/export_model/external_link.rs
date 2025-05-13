@@ -1,6 +1,6 @@
 use super::{
     common::{
-        AttributeMap, ObjectTypes, get_field_value, get_shorten_id, get_snapshot_shorthanded,
+        ObjectTypes, get_field_value, get_shorten_id, get_snapshot_shorthanded,
     },
     trait_impl::{FromRaw, FromSnapshotList},
 };
@@ -8,8 +8,6 @@ use crate::proto::anytype::SnapshotWithType;
 use anyhow::anyhow;
 use convert_blog_post_marco::set_field_value;
 use serde::{Deserialize, Serialize};
-use serde_json::json;
-use std::collections::BTreeMap;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

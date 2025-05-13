@@ -1,7 +1,10 @@
 use serde::{Deserialize, Serialize};
 
 use super::{
-    common::{AttributeMap, get_field_value, get_shorten_id, get_snapshot_shorthanded},
+    common::{
+        AttributeMap, get_field_value, get_shorten_id, get_snapshot_shorthanded, header_id_resolver,
+    },
+    page_ext::{PageExternalLink, ToPageExternalLink},
     trait_impl::{FromRaw, FromSnapshotList},
 };
 use crate::proto::anytype::SnapshotWithType;
@@ -18,6 +21,7 @@ pub struct TagOption {
     pub description: String,
     pub relation_key: String, // st-relationshipKey
     // styles: string[];
+    #[serde(skip)]
     pub attributes: AttributeMap, // Define AttributeMap according to your needs
 }
 
@@ -57,5 +61,25 @@ impl<'a> FromRaw<SnapshotWithType<'a>, TagOption> for TagOption {
         set_field_value!(tmp.relation_key, &field_map, "relationKey");
         tmp.attributes = field_map.to_owned();
         return Ok(tmp);
+    }
+}
+
+impl ToPageExternalLink for TagOption {
+    fn to_page_external_link(&self) -> PageExternalLink {
+        return PageExternalLink {
+            id: self.id.to_string(),
+            sid: get_shorten_id(self.id.as_str()),
+            label: self.name.to_string(),
+            url: format!(
+                "/posts/tags/{}",
+                header_id_resolver(self.name.as_str(), self.id.as_str())
+            ),
+            ..Default::default()
+        };
+    }
+
+    /// alias to to_page_external_link
+    fn to_page_ext_link(&self) -> PageExternalLink {
+        self.to_page_external_link()
     }
 }

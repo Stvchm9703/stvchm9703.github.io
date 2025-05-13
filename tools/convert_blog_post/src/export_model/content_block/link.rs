@@ -25,16 +25,16 @@ pub type LinkDescription = mod_Link::Description;
 
 impl<'life> FromBlockContent<RawLink<'life>, LinkComponentAttr> for LinkComponentAttr {
     fn from_block_content(raw: &RawLink<'life>) -> Result<LinkComponentAttr, anyhow::Error> {
-        let raw_clone = raw.clone();
-        println!("raw link : {:?}", raw_clone);
+        // let raw_clone = raw.clone();
+        // println!("raw link : {:?}", raw_clone);
 
         let tmp = LinkComponentAttr {
             // title: raw_clone.
             // description: raw_clone.description
             // url : raw_clone.
-            target_block_id: raw_clone.targetBlockId.to_string(),
-            icon_size: raw_clone.iconSize.to_owned(),
-            card_style: raw_clone.cardStyle.to_owned(),
+            target_block_id: raw.targetBlockId.to_string(),
+            icon_size: raw.iconSize.to_owned(),
+            card_style: raw.cardStyle.to_owned(),
             ..LinkComponentAttr::default()
         };
         return Ok(tmp);

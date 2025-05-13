@@ -1,5 +1,5 @@
 use crate::{
-    export_model::trait_impl::FromBlockContent,
+    export_model::trait_impl::{AddFromExternalFile, FromBlockContent},
     proto::anytype::model::mod_Block::mod_Content::{File as RawFile, mod_File},
 };
 use serde::{Deserialize, Serialize};
@@ -23,17 +23,22 @@ pub struct FileComponentAttr {
 
 impl<'life> FromBlockContent<RawFile<'life>, FileComponentAttr> for FileComponentAttr {
     fn from_block_content(raw: &RawFile<'life>) -> Result<FileComponentAttr, anyhow::Error> {
-        let raw_clone = raw.clone();
+        // let raw_clone = raw.clone();
         let tmp = FileComponentAttr {
-            name: raw_clone.name.into_owned(),
-            file_type: raw_clone.type_pb.to_owned(),
-            mime: raw_clone.mime.into_owned(),
-            size: raw_clone.size.to_owned(),
-            target_object_id: raw_clone.targetObjectId.into_owned(),
-            style: raw_clone.style.to_owned(),
-
+            name: raw.name.to_string(),
+            file_type: raw.type_pb.to_owned(),
+            mime: raw.mime.to_string(),
+            size: raw.size.to_owned(),
+            target_object_id: raw.targetObjectId.to_string(),
+            style: raw.style.to_owned(),
             ..FileComponentAttr::default()
         };
         return Ok(tmp);
+    }
+}
+
+impl AddFromExternalFile<FileComponentAttr> for FileComponentAttr {
+    fn add_from_external_file(&self, raw_obj: &FileComponentAttr) -> Result<(), anyhow::Error> {
+        todo!()
     }
 }

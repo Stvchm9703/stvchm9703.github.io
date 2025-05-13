@@ -1,18 +1,30 @@
 use super::{
     common::{
-        get_field_value, get_shorten_id, get_snapshot_data, get_snapshot_detail_field,
-        get_snapshot_shorthanded,
+        AttributeMap, DEFAULT_TAG, get_field_value, get_shorten_id, get_snapshot_shorthanded,
+        is_release, path_resolver,
     },
-    content_block::ContentBlock,
-    trait_impl::{FromRaw, FromSnapshotList},
+    content_block::{
+        ComponentAttrType, ContentBlock,
+        layout::{LayoutComponentAttr, LayoutItem},
+        text::TextStyle,
+    },
+    external_link, file_object,
+    page_attr::*,
+    page_ext::*,
+    trait_impl::{FromBlock, FromRaw, FromSnapshotList},
 };
-use crate::proto::anytype::mod_Change::Snapshot;
-use crate::proto::anytype::{SnapshotWithType, model::SmartBlockSnapshotBase};
+use crate::{
+    export_model::common::{GLOBAL_RELATION_NAMEMAP, GLOBAL_RELATION_NAMEMAP_STR},
+    proto::anytype::SnapshotWithType,
+};
 
-use std::collections::BTreeMap;
+use std::{borrow::BorrowMut, collections::BTreeMap};
 
-use anyhow::{Error, anyhow};
+use anyhow::anyhow;
+use convert_blog_post_marco::set_field_value;
 use serde::{Deserialize, Serialize};
+
+use lo_::intersection;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -25,23 +37,29 @@ pub struct Page {
     pub snippet: String,
     pub collection_id: String,
     pub workspace_id: String,
-    pub attributes: PageAttributes,
+    // pub attributes: PageAttributes,
+    #[serde(skip_serializing_if = "is_release")]
+    pub raw_attributes: AttributeMap,
     pub creator: String,
     pub publish_date: i64,
     pub tags: Vec<PageExternalLink>,
-    #[serde(skip)]
+    #[serde(skip_serializing_if = "is_release")]
     pub raw_tag_list: Vec<String>,
     pub styles: Option<serde_json::Value>,
+    #[serde(skip_serializing_if = "is_release")]
+    pub raw_series: Option<Vec<String>>,
     pub serie: Option<PageExternalLink>,
     // page other relation / attr
     pub meta: PageMeta,
     pub table_of_contents: Vec<PageExternalLink>,
     pub related_chapters: Vec<PageExternalLink>,
-    pub related_posts: Vec<PageExternalLink>,
     pub related_articles: Vec<PageExternalLink>,
     // content-block
     #[serde(skip)]
     pub cache_contents: BTreeMap<String, ContentBlock>,
+    #[serde(skip_serializing_if = "is_release")]
+    pub check_block_order: Vec<String>,
+
     pub contents: Vec<ContentBlock>,
 }
 
@@ -53,6 +71,7 @@ impl<'a> FromRaw<SnapshotWithType<'a>, Page> for Page {
             return Err(anyhow!("fail field map : {:?}", e));
         }
         let (data_wrap, field_map) = instance.unwrap();
+        tmp.raw_attributes = field_map.clone();
         // let field_map_ref = field_map;
         let field_try_map = get_page_details(&data_wrap);
         if let Err(e) = field_try_map {
@@ -68,7 +87,7 @@ impl<'a> FromRaw<SnapshotWithType<'a>, Page> for Page {
         // if let Ok(title) = get_field_value::<String>(field_map_ref, "name") {
         tmp.title = field_attr.name.to_owned();
         // }
-        tmp.attributes = field_attr.to_owned();
+        // tmp.attributes = field_attr.to_owned();
         // if let Ok(backlink) =  get_field_value::<Vec<String>>>(field_map_ref, "backlinks"){
         if field_attr.backlinks.len() > 0 {
             tmp.collection_id = field_attr.backlinks.into_iter().last().unwrap().to_owned();
@@ -88,6 +107,15 @@ impl<'a> FromRaw<SnapshotWithType<'a>, Page> for Page {
         // tmp.publish_date = getFieldValue<number>(detailMap, "publish date");
         if let Ok(publish_date) = get_field_value::<i64>(&field_map, "publish date") {
             tmp.publish_date = publish_date.to_owned();
+        }
+
+        for (idx, block) in data_wrap.blocks.iter().enumerate() {
+            let block_tmp = ContentBlock::from_block_with_idx(block, idx);
+            if let Ok(blk) = block_tmp {
+                tmp.cache_contents.insert(blk.id.to_owned(), blk.clone());
+            } else {
+                println!("error in page-> content-block : {:?}", block_tmp.err());
+            }
         }
 
         return Ok(tmp);
@@ -111,149 +139,299 @@ impl FromSnapshotList<Page> for Page {
     }
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct PageAttributes {
-    pub featured_relations: Option<Vec<serde_json::Value>>,
-    pub id: String,
-    pub snippet: String,
-    pub resolved_layout: i64,
-    pub space_id: String,
-    // #[serde(rename = "67fd2398e212b5271c38aad2")]
-    // pub the_67_fd2398_e212_b5271_c38_aad2: Vec<Option<serde_json::Value>>,
-    pub last_modified_by: String,
-    pub mentions: Vec<String>,
-    pub name: String,
-    pub sync_date: i64,
-    // #[serde(rename = "67ff5cd5e212b569d0ab04d2")]
-    // pub the_67_ff5_cd5_e212_b569_d0_ab04_d2: i64,
-    pub sync_error: i64,
-    pub created_date: i64,
-    pub sync_status: i64,
-    pub links: Vec<String>,
-    pub backlinks: Vec<String>,
-    #[serde(rename = "type")]
-    pub attributes_type: String,
-    pub last_modified_date: i64,
-    pub last_opened_date: i64,
-    pub creator: String,
-    pub tag: Option<Vec<String>>,
-    pub description: Option<String>,
-    pub source_object: String,
-    pub layout: i64,
-}
-
-impl PageAttributes {
-    fn from_cast(input: &PageAttributesFromCast) -> Self {
-        let tmp = PageAttributes {
-            featured_relations: input.featured_relations.clone(),
-            id: input.id.clone(),
-            snippet: input.snippet.clone(),
-            resolved_layout: input.resolved_layout.clone() as i64,
-            space_id: input.space_id.clone(),
-            last_modified_by: input.last_modified_by.clone(),
-            mentions: input.mentions.clone(),
-            name: input.name.clone(),
-            sync_date: input.sync_date.clone() as i64,
-            sync_error: input.sync_error.clone() as i64,
-            created_date: input.created_date.clone() as i64,
-            sync_status: input.sync_status.clone() as i64,
-            links: input.links.clone(),
-            backlinks: input.backlinks.clone(),
-            attributes_type: input.attributes_type.clone(),
-            last_modified_date: input.last_modified_date.clone() as i64,
-            last_opened_date: input.last_opened_date.clone() as i64,
-            creator: input.creator.clone(),
-            tag: input.tag.clone(),
-            description: input.description.clone(),
-            source_object: input.source_object.clone(),
-            layout: input.layout.clone() as i64,
+impl ToPageExternalLink for Page {
+    fn to_page_ext_link(&self) -> PageExternalLink {
+        return PageExternalLink {
+            id: self.id.to_string(),
+            sid: get_shorten_id(self.id.as_str()),
+            label: self.title.to_string(),
+            url: format!(
+                "/posts/{}_{}",
+                get_shorten_id(self.id.as_str()),
+                path_resolver(self.title.as_str())
+            ),
+            ..Default::default()
         };
+    }
+    fn to_page_external_link(&self) -> PageExternalLink {
+        self.to_page_ext_link()
+    }
+}
+impl Page {
+    pub fn recheck_fields(&mut self) {
+        let mut publish_date: f64 = 0.0;
+        set_field_value!(publish_date, self.raw_attributes, "publish date");
+        self.publish_date = publish_date as i64;
+        let mut series: Vec<String> = Vec::<String>::new();
+        set_field_value!(series, self.raw_attributes, "Series");
+        self.raw_series = Some(series.to_owned());
+        if let Some(rel_key) = GLOBAL_RELATION_NAMEMAP_STR.lock().unwrap().get("Series") {
+            if let Some(serie_id) = series.first() {
+                if let Some(tag) = GLOBAL_RELATION_NAMEMAP.lock().unwrap().get(rel_key) {
+                    self.serie = tag.get_option_page_link(serie_id);
+                }
+            }
+        }
+
+        // GLOBAL_RELATION_NAMEMAP.
+
+        // println!("GLOBAL_RELATION_IDMAP {:?}", GLOBAL_RELATION_IDMAP);
+        // println!("GLOBAL_RELATION_NAMEMAP {:?}", GLOBAL_RELATION_NAMEMAP);
+        // println!( "GLOBAL_RELATION_NAMEMAP_STR {:?}", GLOBAL_RELATION_NAMEMAP_STR );
+    }
+
+    pub fn resolve_content_block(&mut self) {
+        let root_block = self.cache_contents.get(&self.id);
+        if root_block.is_none() {
+            return;
+        }
+        let check_id = self.id.to_owned();
+        let mut order_list_ptr = vec![];
+        self.resolve_children_ids_order(&check_id, &mut order_list_ptr);
+        self.resolve_nest_children(&order_list_ptr);
+        return;
+    }
+    // #[deprecated]
+    fn resolve_children_ids_order(&mut self, check_id: &str, order_list_ptr: &mut Vec<String>) {
+        let root_block = self.cache_contents.get(check_id);
+        if root_block.is_none() {
+            return;
+        }
+
+        let root_blk = root_block.unwrap().to_owned();
+
+        if root_blk.id == "header" || root_blk.id == "title" || root_blk.id == "featuredrelations" {
+            return;
+        }
+
+        let mut layout_comp_is_div: bool = false;
+        let mut layout_comp_is_layered: bool = false;
+        if let ComponentAttrType::Layout(l) = root_blk.component_attr {
+            layout_comp_is_div = (l.layout_style == "Div");
+            layout_comp_is_layered = (l.layout_style != "Div");
+        }
+        // let default_skip_component
+
+        if root_blk.debug_type != "div"
+            && root_blk.debug_type != "relation"
+            && root_blk.debug_type != "table_of_contents"
+            && root_blk.debug_type != "smartblock"
+            && (root_blk.debug_type == "layout" && layout_comp_is_div == true) == false
+        {
+            order_list_ptr.push(check_id.to_string());
+        }
+
+        // skip the children
+        if root_blk.debug_type == "table"
+            || (root_blk.debug_type == "layout" && layout_comp_is_layered)
+        {
+            return;
+        }
+
+        let chil_ids = root_blk.children_ids.to_owned().unwrap_or_default();
+        for elm in chil_ids {
+            self.resolve_children_ids_order(&elm, order_list_ptr);
+        }
+
+        // if (root_blk.debug_type == "layout" && layout_comp_is_div) || root_blk.debug_type == "div" {
+        //     // order_list.push(check_id.to_owned());
+        //     order_list_ptr.push(check_id.to_string());
+        // }
+
+        // drop(root_blk);
+
+        return;
+    }
+
+    fn resolve_nest_children(&mut self, order_list: &Vec<String>) {
+        let mut tmp_cache_contents = self.cache_contents.to_owned();
+        for id in order_list {
+            let ct_blk = tmp_cache_contents.get_mut(id);
+
+            if let Some(blk) = ct_blk {
+                self.resolve_layout_nest_children(blk);
+                self.contents.push(blk.to_owned());
+            }
+        }
+    }
+
+    fn resolve_layout_nest_children(&mut self, current_block: &mut ContentBlock) {
+        let attr: &mut LayoutComponentAttr;
+        match &mut current_block.component_attr {
+            ComponentAttrType::Layout(e) | ComponentAttrType::Table(e) => attr = e,
+            _ => {
+                // println!("skip resolve_layout_nest_children");
+                return;
+            }
+        }
+
+        let lk_children_ids = current_block.children_ids.as_ref().unwrap();
+        let mut cached = self.cache_contents.to_owned();
+
+        for child_id in lk_children_ids.into_iter() {
+            let child_blk_result = cached.get_mut(child_id);
+            if let Some(child_blk) = child_blk_result {
+                if let Some(_) = child_blk.children_ids.as_ref() {
+                    self.resolve_layout_nest_children(child_blk);
+                }
+
+                let layout_item = LayoutItem::from_content_block(child_blk);
+
+                if let Err(e) = attr.push_item(layout_item) {
+                    println!("error throw in {:?}", e);
+                }
+            }
+        }
+    }
+
+    pub(crate) fn resolve_external_link(
+        &mut self,
+        external_link: &Vec<external_link::ExternalBookmarkLink>,
+    ) {
+        let list = self.cache_contents.values_mut();
+        for item in list {
+            if let ComponentAttrType::Link(inside) = item.component_attr.borrow_mut() {
+                let target_link = external_link
+                    .iter()
+                    .find(|p| p.id == inside.target_block_id);
+                if let Some(tar) = target_link {
+                    if tar.title.is_empty() == false {
+                        inside.title = tar.title.to_string();
+                    }
+                    inside.url = tar.url.to_string();
+                }
+            }
+        }
+    }
+
+    pub(crate) fn resolve_file_link(&mut self, file_link: &Vec<file_object::FileObject>) {
+        let list = self.cache_contents.values_mut();
+        let mut file_list = vec![];
+        for item in list {
+            if let ComponentAttrType::File(inside) = item.component_attr.borrow_mut() {
+                let target_link = file_link.iter().find(|p| p.id == inside.target_object_id);
+                if let Some(tar) = target_link {
+                    inside.file_url = tar.file_url.to_string();
+                    file_list.push(tar);
+                }
+            }
+        }
+        self.add_meta_data(&file_list);
+    }
+
+    fn add_meta_data(&mut self, file_list: &Vec<&file_object::FileObject>) {
+        let images = file_list
+            .into_iter()
+            .filter(|p| p.file_type == "images")
+            .map(|p| p.to_page_meta_og())
+            .collect::<Vec<PageMetaOpenGraphObj>>();
+
+        let videos = file_list
+            .into_iter()
+            .filter(|p| p.file_type == "videos")
+            .map(|p| p.to_page_meta_og())
+            .collect::<Vec<PageMetaOpenGraphObj>>();
+
+        let audio = file_list
+            .into_iter()
+            .filter(|p| p.file_type == "audios")
+            .map(|p| p.to_page_meta_og())
+            .collect::<Vec<PageMetaOpenGraphObj>>();
+
+        if images.len() > 0 {
+            self.meta.images = Some(images);
+        }
+        if videos.len() > 0 {
+            self.meta.videos = Some(videos);
+        }
+        if audio.len() > 0 {
+            self.meta.audio = Some(audio);
+        }
+    }
+
+    pub(crate) fn resolve_toc_component(&mut self) {
+        let toc_list = self
+            .cache_contents
+            .values()
+            .into_iter()
+            .filter(|p| {
+                if let ComponentAttrType::Text(attr) = &p.component_attr {
+                    return attr.style == TextStyle::Header1
+                        || attr.style == TextStyle::Header2
+                        || attr.style == TextStyle::Header3
+                        || attr.style == TextStyle::Header4;
+                }
+                // p.debug_type == "text"
+                return false;
+            })
+            .map(|p| p.to_toc_link().unwrap())
+            .collect::<Vec<_>>();
+        self.table_of_contents = toc_list;
+    }
+
+    pub(crate) fn resolve_tag_link(&mut self) {
+        // println!("tag-list :{:?}", tag_list);
+        // self.raw_tag_list.iter().map(f)
+        let included_tag = DEFAULT_TAG
+            .lock()
+            .unwrap()
+            .options
+            .iter()
+            .filter(|p| self.raw_tag_list.contains(&p.id))
+            .map(|f| f.to_page_ext_link())
+            .collect::<Vec<_>>();
+
+        self.tags = included_tag;
+    }
+
+    pub(crate) fn resolve_related_chapters(&mut self, page_list: &Vec<Page>) {
+        if self.serie.is_none() {
+            return;
+        }
+        let serie_tag = self.serie.as_ref().unwrap();
+        let mut d = page_list
+            .iter()
+            .filter(|p| {
+                if p.serie.is_none() {
+                    return false;
+                }
+                return p.serie.as_ref().unwrap().id == serie_tag.id;
+            })
+            .collect::<Vec<_>>();
+        d.sort_by(|a, b| b.publish_date.cmp(&a.publish_date));
+
+        self.related_chapters = d
+            .iter()
+            .take(5)
+            .map(|p| p.to_page_ext_link())
+            .collect::<Vec<_>>();
+    }
+
+    pub(crate) fn resolve_related_articles(&mut self, page_list: &Vec<Page>) {
+        if self.raw_tag_list.len() == 0 {
+            return;
+        }
+        let mut d = page_list
+            .iter()
+            .filter(|p| {
+                let ttt = intersection(&self.raw_tag_list, &p.raw_tag_list);
+                return ttt.len() > 0;
+            })
+            .collect::<Vec<_>>();
+        d.sort_by(|a, b| b.publish_date.cmp(&a.publish_date));
+
+        self.related_articles = d
+            .iter()
+            .take(5)
+            .map(|p| p.to_page_ext_link())
+            .collect::<Vec<_>>();
+    }
+
+    pub(crate) fn to_post_card_link(&self) -> PageExternalLink {
+        let mut tmp = self.to_page_ext_link();
+        tmp.snippet = Some(self.snippet.to_string());
+        tmp.tags = Some(self.tags.to_owned());
 
         return tmp;
     }
-}
-
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct PageAttributesFromCast {
-    pub featured_relations: Option<Vec<serde_json::Value>>,
-    pub id: String,
-    pub snippet: String,
-    pub resolved_layout: f64,
-    pub space_id: String,
-    // #[serde(rename = "67fd2398e212b5271c38aad2")]
-    // pub the_67_fd2398_e212_b5271_c38_aad2: Vec<Option<serde_json::Value>>,
-    pub last_modified_by: String,
-    pub mentions: Vec<String>,
-    pub name: String,
-    pub sync_date: f64,
-    // #[serde(rename = "67ff5cd5e212b569d0ab04d2")]
-    // pub the_67_ff5_cd5_e212_b569_d0_ab04_d2: f64,
-    pub sync_error: f64,
-    pub created_date: f64,
-    pub sync_status: f64,
-    pub links: Vec<String>,
-    pub backlinks: Vec<String>,
-    #[serde(rename = "type")]
-    pub attributes_type: String,
-    pub last_modified_date: f64,
-    pub last_opened_date: f64,
-    pub creator: String,
-    pub tag: Option<Vec<String>>,
-    pub description: Option<String>,
-
-    pub source_object: String,
-    pub layout: f64,
-}
-pub(crate) fn get_page_details<'a>(
-    input: &SmartBlockSnapshotBase<'a>,
-) -> Result<PageAttributes, Error> {
-    if input.details.is_none() {
-        return Err(anyhow!("details is none"));
-    }
-    let detail = input.details.as_ref().unwrap();
-    let tmp = serde_json::to_value(detail);
-    if tmp.is_err() {
-        return Err(anyhow!("parsing error ; to-value"));
-    }
-    // println!("{:#?}", tmp);
-    let result = serde_json::from_value::<PageAttributesFromCast>(tmp.unwrap());
-    if result.is_err() {
-        // println!("{:#?}", result);
-        return Err(anyhow!("parsing error ; from-value"));
-    }
-
-    return Ok(PageAttributes::from_cast(result.as_ref().unwrap()));
-}
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct PageExternalLink {
-    pub id: String,
-    #[serde(rename = "_sid")]
-    pub sid: String,
-    pub component_id: Option<String>,
-    pub label: String,
-    pub url: String,
-    pub level: Option<usize>,
-}
-
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct PageMeta {
-    pub images: Option<Vec<PageMetaOpenGraphObj>>,
-    pub videos: Option<Vec<PageMetaOpenGraphObj>>,
-    pub audio: Option<Vec<PageMetaOpenGraphObj>>,
-}
-
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct PageMetaOpenGraphObj {
-    pub url: String,
-    pub secure_url: Option<String>,
-    #[serde(rename = "type")]
-    pub file_type: Option<String>,
-    pub width: Option<i64>,
-    pub height: Option<i64>,
-    pub alt: Option<String>,
 }

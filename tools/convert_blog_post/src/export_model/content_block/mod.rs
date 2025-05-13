@@ -1,59 +1,75 @@
 pub mod bookmark;
 pub mod file;
 pub mod jupyter;
+pub mod latex;
 pub mod layout;
 pub mod link;
 pub mod mark;
 pub mod text;
 
+use std::{borrow::Borrow, fmt::format};
+
 use bookmark::BookmarkComponentAttr;
 use file::FileComponentAttr;
 use jupyter::JupyterComponentAttr;
+use latex::LatexComponentAttr;
 use layout::LayoutComponentAttr;
 use link::LinkComponentAttr;
 use serde::{Deserialize, Serialize};
-use text::TextComponentAttr;
+use serde_json::json;
+use text::{TextComponentAttr, TextStyle};
 
-use anyhow::Error;
+use anyhow::{Error, anyhow};
 
-use super::trait_impl::{FromBlock, FromBlockContent};
-use crate::proto::anytype::model;
+use super::{
+    common::{AttributeMap, header_id_resolver, is_release},
+    page_ext::PageExternalLink,
+    trait_impl::{FromBlock, FromBlockContent},
+};
+use crate::proto::anytype::{
+    mod_Change::mod_Content,
+    model::{self, mod_Block},
+};
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ContentBlock {
     pub id: String,
     pub order: usize,
-    pub fields: serde_json::Value,
-    #[serde(skip)]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub fields: Option<AttributeMap>,
+    // #[serde(skip)]
     pub children_ids: Option<Vec<String>>,
     pub style: ComponentStyle,
     pub component_attr: ComponentAttrType,
+    #[serde(skip_serializing_if = "is_release")]
+    pub debug_type: String,
+    // pub raw_block: AttributeMap,
+    // pub items: Vec<ContentBlock>,
 }
 
 impl FromBlock<ContentBlock> for ContentBlock {
-    fn from_block(raw: &model::Block) -> Result<ContentBlock, anyhow::Error> {
-        let raw_clone = raw.clone();
-        let mut fields = serde_json::Value::Null;
-        if let Some(f) = raw_clone.fields.as_ref() {
-            if let Ok(y) = serde_json::to_value(f) {
-                fields = y;
-            }
-        }
-
-        let children_ids: Vec<String> = raw_clone
-            .childrenIds
-            .into_iter()
-            .map(String::from)
-            .collect();
-
-        let tmp = ContentBlock {
-            id: raw_clone.id.into_owned(),
-            fields,
+    fn from_block(raw_blk: &model::Block) -> Result<ContentBlock, anyhow::Error> {
+        let children_ids = raw_blk.childrenIds.iter();
+        let children_ids = children_ids.map(|x| x.to_string()).collect();
+        let mut tmp = ContentBlock {
+            id: raw_blk.id.to_string(),
             children_ids: Some(children_ids),
-            style: ComponentStyle::from_block(raw)?,
+            style: ComponentStyle::from_block(raw_blk)?,
+            // raw_block: json!(raw).as_object().unwrap().to_owned(),
+            debug_type: raw_blk.content.to_string(),
             ..ContentBlock::default()
         };
+        let attr = ComponentAttrType::from_block_content(&raw_blk.content);
+        if let Ok(component_attr) = attr {
+            tmp.component_attr = component_attr;
+        }
+
+        if let Some(f) = raw_blk.fields.as_ref() {
+            if let Ok(y) = serde_json::to_value(f) {
+                tmp.fields = Some(y.as_object().unwrap().to_owned());
+            }
+        }
 
         Ok(tmp)
     }
@@ -65,10 +81,72 @@ impl FromBlock<ContentBlock> for ContentBlock {
     }
 }
 
+impl<'a> ToString for mod_Block::OneOfcontent<'a> {
+    fn to_string(&self) -> String {
+        return match self {
+            mod_Block::OneOfcontent::smartblock(smartblock) => "smartblock",
+            mod_Block::OneOfcontent::text(text) => "text",
+            mod_Block::OneOfcontent::file(file) => "file",
+            mod_Block::OneOfcontent::layout(layout) => "layout",
+            mod_Block::OneOfcontent::div(div) => "div",
+            mod_Block::OneOfcontent::bookmark(bookmark) => "bookmark",
+            mod_Block::OneOfcontent::icon(icon) => "icon",
+            mod_Block::OneOfcontent::link(link) => "link",
+            mod_Block::OneOfcontent::dataview(dataview) => "dataview",
+            mod_Block::OneOfcontent::relation(relation) => "relation",
+            mod_Block::OneOfcontent::featuredRelations(featured_relations) => "featured_relations",
+            mod_Block::OneOfcontent::latex(latex) => "latex",
+            mod_Block::OneOfcontent::tableOfContents(table_of_contents) => "table_of_contents",
+            mod_Block::OneOfcontent::table(table) => "table",
+            mod_Block::OneOfcontent::tableColumn(table_column) => "table_column",
+            mod_Block::OneOfcontent::tableRow(table_row) => "table_row",
+            mod_Block::OneOfcontent::widget(widget) => "widget",
+            mod_Block::OneOfcontent::chat(chat) => "chat",
+            mod_Block::OneOfcontent::None => "none",
+        }
+        .to_string();
+    }
+}
+
+impl ContentBlock {
+    pub(crate) fn to_toc_link(&self) -> Option<PageExternalLink> {
+        if let ComponentAttrType::Text(attr) = self.component_attr.borrow() {
+            let mut level: usize = 0;
+            if attr.style == TextStyle::Header1 {
+                level = 1;
+            } else if attr.style == TextStyle::Header2 {
+                level = 2;
+            } else if attr.style == TextStyle::Header3 {
+                level = 3;
+            } else if attr.style == TextStyle::Header4 {
+                level = 4;
+            }
+
+            let id = header_id_resolver(attr.text.as_str(), &self.id);
+            let mut tmp = PageExternalLink {
+                id: id.to_string(),
+                component_id: Some(self.id.to_string()),
+                label: attr.text.to_string(),
+                url: format!("#{}", id.as_str()),
+                ..Default::default()
+            };
+
+            if level > 0 {
+                tmp.level = Some(level);
+            }
+
+            return Some(tmp);
+        }
+
+        return None;
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "componentType")]
 pub enum ComponentAttrType {
-    Unknown,
+    None,
+    Unknown(AttributeMap),
     Bookmark(BookmarkComponentAttr),
     // Div,
     File(FileComponentAttr),
@@ -79,12 +157,149 @@ pub enum ComponentAttrType {
     // LayoutColumn(LayoutComponentAttr),
     Link(LinkComponentAttr),
     // Relation,
+    Latex(LatexComponentAttr),
     Table(LayoutComponentAttr),
     Text(TextComponentAttr),
 }
 impl Default for ComponentAttrType {
     fn default() -> Self {
-        Self::Unknown
+        Self::Unknown(json!({}).as_object().unwrap().to_owned())
+    }
+}
+impl ComponentAttrType {
+    fn from_input(input: serde_json::Value) -> Self {
+        Self::Unknown(input.as_object().unwrap().to_owned())
+    }
+}
+
+impl<'a> FromBlockContent<mod_Block::OneOfcontent<'a>, ComponentAttrType> for ComponentAttrType {
+    fn from_block_content(
+        raw_obj: &mod_Block::OneOfcontent<'a>,
+    ) -> Result<ComponentAttrType, Error> {
+        match raw_obj {
+            mod_Block::OneOfcontent::smartblock(smartblock) => {
+                Ok(ComponentAttrType::from_input(json!({})))
+            }
+            mod_Block::OneOfcontent::text(text) => {
+                let y = TextComponentAttr::from_block_content(text);
+                if let Ok(result) = y {
+                    Ok(ComponentAttrType::Text(result))
+                } else {
+                    Err(anyhow!("init error :{:?}", y.err()))
+                }
+            }
+            mod_Block::OneOfcontent::file(file) => {
+                let y = FileComponentAttr::from_block_content(file);
+                if let Ok(result) = y {
+                    Ok(ComponentAttrType::File(result))
+                } else {
+                    Err(anyhow!("init error :{:?}", y.err()))
+                }
+            }
+            mod_Block::OneOfcontent::layout(layout) => {
+                let y = LayoutComponentAttr::from_block_content(layout);
+                if let Ok(result) = y {
+                    Ok(ComponentAttrType::Layout(result))
+                } else {
+                    Err(anyhow!("init error :{:?}", y.err()))
+                }
+            }
+            mod_Block::OneOfcontent::div(div) => Ok(ComponentAttrType::from_input(json!({
+                "style": div.style.to_string(),
+                "orginal_type": "div",
+            }))),
+            mod_Block::OneOfcontent::bookmark(bookmark) => {
+                let y = BookmarkComponentAttr::from_block_content(bookmark);
+                if let Ok(result) = y {
+                    Ok(ComponentAttrType::Bookmark(result))
+                } else {
+                    Err(anyhow!("init error :{:?}", y.err()))
+                }
+            }
+            mod_Block::OneOfcontent::icon(icon) => todo!(),
+            mod_Block::OneOfcontent::link(link) => {
+                let y = LinkComponentAttr::from_block_content(link);
+                if let Ok(result) = y {
+                    Ok(ComponentAttrType::Link(result))
+                } else {
+                    Err(anyhow!("init error :{:?}", y.err()))
+                }
+            }
+            mod_Block::OneOfcontent::dataview(dataview) => {
+                Ok(ComponentAttrType::from_input(json!({
+                    // "style": dataview.style.to_string(),
+                    "orginal_type": "dataview",
+                })))
+            }
+            mod_Block::OneOfcontent::relation(relation) => {
+                Ok(ComponentAttrType::from_input(json!({
+                    // "style": dataview.style.to_string(),
+                    "orginal_type": "relation",
+                })))
+            }
+            mod_Block::OneOfcontent::featuredRelations(featured_relations) => {
+                Ok(ComponentAttrType::from_input(json!({
+                    // "style": dataview.style.to_string(),
+                    "orginal_type": "featuredRelations",
+                })))
+            }
+            mod_Block::OneOfcontent::latex(latex) => {
+                let y = LatexComponentAttr::from_block_content(latex);
+                if let Ok(result) = y {
+                    Ok(ComponentAttrType::Latex(result))
+                } else {
+                    Err(anyhow!("init error :{:?}", y.err()))
+                }
+            }
+            mod_Block::OneOfcontent::tableOfContents(table_of_contents) => {
+                Ok(ComponentAttrType::from_input(json!({
+                    // "style": dataview.style.to_string(),
+                    "orginal_type": "tableOfContents",
+                })))
+            }
+            mod_Block::OneOfcontent::table(table) => {
+                let y = LayoutComponentAttr::from_block_content(table);
+                if let Ok(result) = y {
+                    Ok(ComponentAttrType::Table(result))
+                } else {
+                    Err(anyhow!("init error :{:?}", y.err()))
+                }
+            }
+            mod_Block::OneOfcontent::tableColumn(table_column) => {
+                let y = LayoutComponentAttr::from_block_content(table_column);
+                if let Ok(result) = y {
+                    Ok(ComponentAttrType::Table(result))
+                } else {
+                    Err(anyhow!("init error :{:?}", y.err()))
+                }
+            }
+            mod_Block::OneOfcontent::tableRow(table_row) => {
+                let y = LayoutComponentAttr::from_block_content(table_row);
+                if let Ok(result) = y {
+                    Ok(ComponentAttrType::Table(result))
+                } else {
+                    Err(anyhow!("init error :{:?}", y.err()))
+                }
+            }
+            mod_Block::OneOfcontent::widget(widget) => {
+                Ok(ComponentAttrType::from_input(json!({
+                    // "style": dataview.style.to_string(),
+                    "orginal_type": "widget",
+                })))
+            }
+            mod_Block::OneOfcontent::chat(chat) => {
+                Ok(ComponentAttrType::from_input(json!({
+                    // "style": dataview.style.to_string(),
+                    "orginal_type": "chat",
+                })))
+            }
+            mod_Block::OneOfcontent::None => {
+                Ok(ComponentAttrType::from_input(json!({
+                    // "style": dataview.style.to_string(),
+                    "orginal_type": "none",
+                })))
+            }
+        }
     }
 }
 

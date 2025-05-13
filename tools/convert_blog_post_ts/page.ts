@@ -184,17 +184,17 @@ function resolveReformedContents(self: Page): Page {
 
   // console.log({ orderlist });
   let outerLoopCount = 0;
+  const rm_list: string[] = [];
   const blockList = orderlist
     .map((elm, ord) => {
       const block = self.contents.get(elm);
       if (!block) return null;
       if (
         block.componentType === "Smartblock" ||
-        block.componentType === "FeaturedRelations"
-        // block.componentType === "Relation" ||
+        block.componentType === "FeaturedRelations" ||
+        block.componentType === "Relation" ||
+        block.componentType === "TableOfContents"
         // block.componentType === "Div"
-
-        // || block.componentType === "TableOfContents"
       )
         return null;
       if (block.id === "header" || block.id === "title") return null;
@@ -206,12 +206,18 @@ function resolveReformedContents(self: Page): Page {
     .map((elm) => {
       if (elm.componentType === "Table")
         return ContentBlock.resolveTableComponent(elm, self.contents);
-      if (elm.componentType === "Layout")
-        return ContentBlock.resolveLayoutRowComponent(elm, self.contents);
+      if (elm.componentType === "Layout") {
+        let [elm1, rmList] = ContentBlock.resolveLayoutRowComponent(
+          elm,
+          self.contents,
+        );
+        rm_list.push(...rmList);
+        return elm1;
+      }
       return elm;
     });
-
-  self.reformedContents = blockList;
+  console.log(rm_list);
+  self.reformedContents = blockList.filter((el) => !rm_list.includes(el.id));
 
   return self;
 }
@@ -227,7 +233,13 @@ function resolveChildrenIds(self: Page, id: string): string[] {
   }
 
   // skip table
-  if (rootBlock.componentType === "Table") {
+  if (
+    rootBlock.componentType === "Table"
+    // ||
+    // (rootBlock.componentType === "Layout" &&
+    //   rootBlock.componentAttr.style !== "Div")
+  ) {
+    console.log({ rootBlock });
     return orderlist;
   }
 

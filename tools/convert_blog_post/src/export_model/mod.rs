@@ -7,4 +7,10 @@ pub mod page;
 pub mod tag;
 pub mod tag_option;
 
+pub mod collection;
 pub mod external_link;
+
+pub mod page_attr;
+pub mod page_ext;
+pub mod page_util;
+pub mod tag_util;

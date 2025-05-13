@@ -23,15 +23,15 @@ impl<'life> FromBlockContent<RawBookmark<'life>, BookmarkComponentAttr> for Book
     fn from_block_content(
         raw: &RawBookmark<'life>,
     ) -> Result<BookmarkComponentAttr, anyhow::Error> {
-        let raw_clone = raw.clone();
+        // let raw_clone = raw.clone();
         let tmp = BookmarkComponentAttr {
-            url: raw_clone.url.into_owned(),
-            title: raw_clone.title.into_owned(),
-            description: raw_clone.description.into_owned(),
-            image_hash: raw_clone.imageHash.into_owned(),
-            favicon_hash: raw_clone.faviconHash.into_owned(),
-            target_object_id: raw_clone.targetObjectId.into_owned(),
-            bookmark_type: raw_clone.type_pb.clone(),
+            url: raw.url.to_string(),
+            title: raw.title.to_string(),
+            description: raw.description.to_string(),
+            image_hash: raw.imageHash.to_string(),
+            favicon_hash: raw.faviconHash.to_string(),
+            target_object_id: raw.targetObjectId.to_string(),
+            bookmark_type: raw.type_pb.clone(),
             ..BookmarkComponentAttr::default()
         };
         return Ok(tmp);

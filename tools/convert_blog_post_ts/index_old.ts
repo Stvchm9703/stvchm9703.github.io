@@ -96,6 +96,7 @@ const resolveCollection = async (
   const defaultTag = taglist.find((tag) => tag.name === "Tag");
   for (const pageId in article_coll.articles) {
     let page = article_coll.articles[pageId];
+    // resolve tag emmit
     if (defaultTag) {
       Page.resolveTags(page, defaultTag);
       Page.resolveSeries(page);
@@ -104,6 +105,8 @@ const resolveCollection = async (
     Page.resolveLinkComponent(page, rawBookmarks);
     Page.resolveJupyterComponent(page, jupytorFile);
     Page.resolveFileComponent(page, rawFile);
+
+    // resolve page -structure
   }
 
   for (const pageId in article_coll.articles) {

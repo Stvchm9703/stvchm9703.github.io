@@ -233,8 +233,9 @@ interface FlexItem {
 export function resolveLayoutRowComponent(
   self: ContentBlock,
   refs: ContentBlockMap,
-): ContentBlock {
+): [ContentBlock, string[]] {
   // should
+  const shouldRmList: string[] = [];
   if (self.id.startsWith("r-")) {
     // const result = self;
     const columns = self.childrenIds
@@ -248,6 +249,8 @@ export function resolveLayoutRowComponent(
             ...child,
             order: childIdx,
           }));
+        shouldRmList.push(...colChildren.map((e) => e.id));
+        shouldRmList.push(col.id);
         return {
           id: col.id,
           style: col.style,
@@ -256,17 +259,20 @@ export function resolveLayoutRowComponent(
           componentType: "LayoutColumn",
         } as FlexItem;
       });
-
-    return {
-      id: self.id,
-      style: self.style,
-      order: self.order,
-      children: columns,
-      componentType: "LayoutRow",
-    } as FlexItem;
+    // console.log({ shouldRmList });
+    return [
+      {
+        id: self.id,
+        style: self.style,
+        order: self.order,
+        children: columns,
+        componentType: "LayoutRow",
+      } as FlexItem,
+      shouldRmList,
+    ];
   }
 
-  return self;
+  return [self, []];
 }
 
 // export function resovleLayoutColumnComponent(

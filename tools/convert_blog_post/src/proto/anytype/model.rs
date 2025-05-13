@@ -12,6 +12,7 @@
 use std::borrow::Cow;
 use quick_protobuf::{MessageInfo, MessageRead, MessageWrite, BytesReader, Writer, WriterBackend, Result};
 use quick_protobuf::sizeofs::*;
+use serde::Serialize;
 use super::*;
 use crate::proto::google;
 use crate::proto::anytype;
@@ -820,7 +821,7 @@ impl<'a> MessageWrite for Meta<'a> {
 }
 
 #[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Debug, Default, PartialEq, Clone)]
+#[derive(Debug, Default, PartialEq, Clone )]
 pub struct Block<'a> {
     pub id: Cow<'a, str>,
     pub fields: Option<google::protobuf::Struct<'a>>,
@@ -1100,6 +1101,18 @@ impl<'a> From<&'a str> for Style {
         }
     }
 }
+impl ToString for Style {
+    fn to_string(&self) -> String {
+        match self {
+             Style::Row => "Row",
+             Style::Column => "Column",
+             Style::Div => "Div",
+             Style::Header => "Header",
+             Style::TableRows => "TableRows",
+             Style::TableColumns => "TableColumns",
+        }.to_string()
+    }
+}
 
 }
 
@@ -1375,7 +1388,14 @@ impl<'a> From<&'a str> for Style {
         }
     }
 }
-
+impl ToString for Style {
+    fn to_string(&self) -> String {
+        match self {
+            Style::Line =>"Line" ,
+            Style::Dots =>"Dots" ,
+        }.to_string()
+    }
+}
 }
 
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -3206,9 +3226,11 @@ impl<'a> MessageWrite for Latex<'a> {
 }
 
 pub mod mod_Latex {
+    use serde::{Deserialize, Serialize};
 
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize,Deserialize)]
 pub enum Processor {
     Latex = 0,
     Mermaid = 1,

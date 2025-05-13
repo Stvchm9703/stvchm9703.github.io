@@ -1,13 +1,16 @@
 use super::{
-    common::{AttributeMap, get_field_value, get_shorten_id, get_snapshot_shorthanded},
+    common::{
+        AttributeMap, get_field_value, get_shorten_id, get_snapshot_shorthanded,
+        header_id_resolver, path_resolver,
+    },
+    page_ext::{PageExternalLink, ToPageExternalLink},
+    tag_option::TagOption,
     trait_impl::{FromRaw, FromSnapshotList},
 };
 use crate::proto::anytype::SnapshotWithType;
 use anyhow::anyhow;
 use convert_blog_post_marco::set_field_value;
 use serde::{Deserialize, Serialize};
-use serde_json::json;
-use std::collections::BTreeMap;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -19,8 +22,9 @@ pub struct Tag {
     pub description: String,
     pub relation_key: String, // st-relationshipKey
     // styles: string[];
+    #[serde(skip)]
     pub attributes: AttributeMap, // Define AttributeMap according to your needs
-    pub options: Vec<String>,
+    pub options: Vec<TagOption>,
 }
 
 impl FromSnapshotList<Tag> for Tag {
@@ -60,35 +64,13 @@ impl<'a> FromRaw<SnapshotWithType<'a>, Tag> for Tag {
     }
 }
 
-#[test]
-fn test_set_field_value() {
-    let a = json!({
-        "x": 1,
-        "y" : "z",
-        "z" :{
-            "s" : 5
-        },
-    });
-
-    let atake = a.as_object().unwrap();
-
-    println!("a ;: {:#?}", a);
-
-    #[derive(Debug, Serialize, Deserialize)]
-    struct azas {
-        s: usize,
+impl Tag {
+    pub fn get_option_page_link(&self, opt_id: &str) -> Option<PageExternalLink> {
+        let opt = self.options.iter().find(|o| o.id.as_str() == opt_id);
+        if opt.is_none() {
+            return None;
+        }
+        let opt_t = opt.unwrap();
+        Some(opt_t.to_page_ext_link())
     }
-
-    let mut ax: i32 = 0;
-    let mut ay: String = String::from("");
-    let mut az: azas = azas { s: 3 };
-
-    set_field_value!(ax, atake, "x");
-    println!("ax  : {:?}", ax);
-
-    set_field_value!(az, atake, "z");
-    println!("az  : {:#?}", az);
-
-    set_field_value!(az.s, atake, "x");
-    println!("az  : {:#?}", az);
 }

@@ -23,23 +23,28 @@
     // import PostCard from "$lib/components/post-layout/card/base-card.svelte";
 
     // CMS - content block render Component
-    import BlockText from "$lib/components/post-content-layout/block/text.svelte";
-    import BlockCode from "$lib/components/post-content-layout/block/code.svelte";
-    import BlockLatex from "$lib/components/post-content-layout/block/latex.svelte";
-    import BlockTable from "$lib/components/post-content-layout/block/table.svelte";
-    import BlockBookmark from "$lib/components/post-content-layout/block/bookmark.svelte";
-    import BlockLink from "$lib/components/post-content-layout/block/link.svelte";
-    import BlockFile from "$lib/components/post-content-layout/block/file.svelte";
-    import BlockJupyter from "$lib/components/post-content-layout/block/custom/jupyter.svelte";
+    // import BlockText from "$lib/components/post-content-layout/block/text.svelte";
+    // import BlockCode from "$lib/components/post-content-layout/block/code.svelte";
+    // import BlockLatex from "$lib/components/post-content-layout/block/latex.svelte";
+    // import BlockTable from "$lib/components/post-content-layout/block/table.svelte";
+    // import BlockBookmark from "$lib/components/post-content-layout/block/bookmark.svelte";
+    // import BlockLink from "$lib/components/post-content-layout/block/link.svelte";
+    // import BlockFile from "$lib/components/post-content-layout/block/file.svelte";
+    // import BlockJupyter from "$lib/components/post-content-layout/block/custom/jupyter.svelte";
+    import BlockLayout from "$lib/components/post-content-layout/block/layout.svelte";
 
     import { isEmpty } from "lodash-es";
 
     import type { Page as IPage } from "$generateor/page";
     import { displayDate } from "$lib/utils";
     import { MetaTags } from "svelte-meta-tags";
+    import { onMount } from "svelte";
 
     const post: IPage = page.data.content;
     const { meta } = page.data;
+    onMount(() => {
+        console.log(post);
+    });
 </script>
 
 <MetaTags {...meta} />
@@ -137,36 +142,8 @@
 
             <!-- {/* Article Content */} -->
             <div class="font-serif leading-relaxed mb-12">
-                {#each post.reformedContents as block, index}
-                    <!-- {@html block} -->
-                    <!-- <svelte:component
-                        this={resolveComponent(block.type)}
-                        key={index}
-                        {block}
-                    /> -->
-                    {#if block.componentType === "Text" && block.componentAttr["style"] === "Code"}
-                        <BlockCode {...block} />
-                    {:else if block.componentType === "JupyterComponent"}
-                        <BlockJupyter {...block} />
-                    {:else if block.componentType === "Text"}
-                        <BlockText {...block} />
-                    {:else if block.componentType === "Table"}
-                        <BlockTable {...block} />
-                    {:else if block.componentType === "Bookmark"}
-                        <BlockBookmark {...block} />
-                    {:else if block.componentType === "File"}
-                        <BlockFile {...block} />
-                    {:else if block.componentType === "Link"}
-                        <BlockLink {...block} />
-                    {:else if block.componentType === "Latex"}
-                        <BlockLatex {...block} />
-                    {:else if block.componentType === "Layout" || block.componentType === "TableOfContents" || block.componentType === "Relation"}
-                        <!-- <span> not yet implement : {block.componentType} </span> -->
-                    {:else if block.componentType === "CustomComponent"}
-                        <!-- <span> not yet implement : {block.componentType} </span> -->
-                    {:else}
-                        <!-- <span> not yet implement : {block.componentType} </span> -->
-                    {/if}
+                {#each post.reformedContents as block}
+                    <BlockLayout {...block} />
                 {/each}
             </div>
         </article>

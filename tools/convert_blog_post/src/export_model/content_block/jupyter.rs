@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-use crate::export_model::trait_impl::AddFromExternalFile;
 
 use super::mark::Mark;
 use super::text::TextStyle;

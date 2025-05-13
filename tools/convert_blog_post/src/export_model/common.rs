@@ -1,17 +1,15 @@
 use anyhow::{Error, anyhow};
+use convert_blog_post_marco::set_field_value;
+// use core::unicode::conversions::to_lower;
 use once_cell::sync::Lazy;
-use std::{
-    any::type_name,
-    collections::BTreeMap,
-    iter::Map,
-    sync::{Arc, Mutex, MutexGuard},
-};
+use serde_json::to_string;
+use std::{borrow::BorrowMut, collections::BTreeMap, ptr::replace, sync::Mutex};
 // use super::{super::common::is_release, ComponentStyle};
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 
 use crate::proto::anytype::{SnapshotWithType, model::SmartBlockSnapshotBase};
 
-use super::page::PageAttributes;
+use super::tag::Tag;
 
 pub(crate) fn is_release<T>(_field: T) -> bool
 where
@@ -146,9 +144,43 @@ impl ObjectTypes {
 
 pub(crate) static GLOBAL_RELATION_NAMEMAP_STR: Lazy<Mutex<BTreeMap<String, String>>> =
     Lazy::new(|| {
-        let mut map = BTreeMap::new();
+        let map = BTreeMap::new();
         Mutex::new(map)
     });
+
+pub(crate) static GLOBAL_RELATION_NAMEMAP: Lazy<Mutex<BTreeMap<String, Tag>>> = Lazy::new(|| {
+    let map = BTreeMap::new();
+    Mutex::new(map)
+});
+
+pub(crate) static GLOBAL_RELATION_IDMAP: Lazy<Mutex<BTreeMap<String, Tag>>> = Lazy::new(|| {
+    let map = BTreeMap::new();
+    Mutex::new(map)
+});
+use lazy_static::lazy_static;
+// pub static mut DEFAULT_TAG: Option<Tag> = None;
+lazy_static! {
+    pub static ref DEFAULT_TAG: Mutex<Tag> = Mutex::new(Tag::default());
+}
+pub fn set_relation_name_map(tag: &Tag) {
+    GLOBAL_RELATION_IDMAP
+        .lock()
+        .unwrap()
+        .insert(tag.id.clone(), tag.clone());
+    GLOBAL_RELATION_NAMEMAP
+        .lock()
+        .unwrap()
+        .insert(tag.relation_key.clone(), tag.clone());
+    GLOBAL_RELATION_NAMEMAP_STR
+        .lock()
+        .unwrap()
+        .insert(tag.name.clone(), tag.relation_key.clone());
+}
+
+pub fn set_tag_default_set(tag: &Tag) {
+    let mut t = DEFAULT_TAG.lock().unwrap();
+    *t = tag.to_owned();
+}
 
 pub(crate) fn get_snapshot_data<'a>(
     input: &SnapshotWithType<'a>,
@@ -215,7 +247,9 @@ where
     }
     let name_map = GLOBAL_RELATION_NAMEMAP_STR.lock().unwrap();
     if let Some(tmp_key) = name_map.get(input_key) {
+        // println!("getta :{:?}", tmp_key);
         if let Some(tmp) = detail_map.get(tmp_key) {
+            // println!("getta-2 :{:?}", tmp);
             let result_wrap = serde_json::from_value(tmp.clone());
             if let Err(e) = result_wrap {
                 return Err(anyhow!("parse error :{:?}", e));
@@ -237,8 +271,67 @@ pub(crate) fn get_shorten_id(input: &str) -> String {
     let s_pos = input
         .to_string()
         .char_indices()
-        .nth_back(8)
+        .nth_back(7)
         .map(|x| x.0)
         .unwrap_or(0);
     input[s_pos..].to_string()
+}
+
+// export const pathResolver = (path: string) =>
+//   path
+//     .replace(/\s+/g, "_")
+//     .replace(/\W/g, "")
+//     .toLowerCase()
+//     .split("_")
+//     .filter((e) => !isEmpty(e))
+//     .join("-");
+//
+use stringcase::kebab_case;
+
+pub(crate) fn path_resolver(path: &str) -> String {
+    return kebab_case(path);
+}
+
+// export const headerIdResolver = (text: string, id: string) => `${pathResolver(text || "")}-${id.slice(-6)}`;
+pub(crate) fn header_id_resolver(text: &str, id: &str) -> String {
+    format!("{}_{}", path_resolver(text), get_shorten_id(id))
+}
+
+#[test]
+fn test_set_field_value() {
+    let a = serde_json::json!({
+        "x": 1,
+        "y" : "z",
+        "z" :{
+            "s" : 5
+        },
+    });
+
+    let atake = a.as_object().unwrap();
+
+    println!("a ;: {:#?}", a);
+
+    #[derive(Debug, Serialize, Deserialize)]
+    struct azas {
+        s: usize,
+    }
+
+    let mut ax: i32 = 0;
+    let ay: String = String::from("");
+    let mut az: azas = azas { s: 3 };
+
+    set_field_value!(ax, atake, "x");
+    println!("ax  : {:?}", ax);
+
+    set_field_value!(az, atake, "z");
+    println!("az  : {:#?}", az);
+
+    set_field_value!(az.s, atake, "x");
+    println!("az  : {:#?}", az);
+}
+
+#[test]
+fn test_header_id_resolver() {
+    let strin = header_id_resolver("Overall   progress   ", "67fd254de212b5271c38aade");
+    println!("{strin}");
 }
