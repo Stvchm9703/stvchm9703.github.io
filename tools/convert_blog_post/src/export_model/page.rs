@@ -6,7 +6,7 @@ use super::{
     content_block::{
         ComponentAttrType, ContentBlock,
         layout::{LayoutComponentAttr, LayoutItem},
-        text::TextStyle,
+        text::{TextComponentAttr, TextStyle},
     },
     external_link, file_object,
     page_attr::*,
@@ -14,17 +14,24 @@ use super::{
     trait_impl::{FromBlock, FromRaw, FromSnapshotList},
 };
 use crate::{
-    export_model::common::{GLOBAL_RELATION_NAMEMAP, GLOBAL_RELATION_NAMEMAP_STR},
+    export_model::{
+        common::{GLOBAL_RELATION_NAMEMAP, GLOBAL_RELATION_NAMEMAP_STR},
+        content_block::text::TextItem,
+        // content_block::text::TextItemComponentAttr,
+    },
     proto::anytype::SnapshotWithType,
 };
 
-use std::{borrow::BorrowMut, collections::BTreeMap};
+use std::{
+    borrow::{Borrow, BorrowMut},
+    collections::BTreeMap,
+};
 
-use anyhow::anyhow;
+use anyhow::{Error, anyhow};
 use convert_blog_post_marco::set_field_value;
-use serde::{Deserialize, Serialize};
-
 use lo_::intersection;
+use serde::{Deserialize, Serialize};
+use smallvec::{SmallVec, smallvec};
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -157,6 +164,37 @@ impl ToPageExternalLink for Page {
         self.to_page_ext_link()
     }
 }
+
+#[derive(Debug, Default)]
+struct PageTextListSet {
+    pub style: TextStyle,
+    pub start: usize,
+    pub end: usize,
+    pub start_id: String,
+    pub sebering_id_list: Vec<String>,
+    pub start_child: Vec<String>,
+    pub layer: usize,
+}
+
+impl PageTextListSet {
+    pub fn is_sebering(&self, style: &TextStyle, order: &usize, layer: &usize) -> bool {
+        return &self.style == style && order > &self.end && &self.layer == layer;
+    }
+
+    pub fn push_next(&mut self, blk: &ContentBlock) -> Result<(), Error> {
+        if blk.order - self.start < self.sebering_id_list.len() + 1 {
+            return Err(anyhow!("unresovled"));
+        }
+
+        self.end = blk.order.to_owned();
+        self.sebering_id_list.push(blk.id.to_owned());
+        // self.4 = layer;
+        //
+        return Ok(());
+    }
+}
+
+type PageTextListMainSet = SmallVec<[PageTextListSet; 128]>;
 impl Page {
     pub fn recheck_fields(&mut self) {
         let mut publish_date: f64 = 0.0;
@@ -186,9 +224,13 @@ impl Page {
             return;
         }
         let check_id = self.id.to_owned();
+        println!("page-id: {:?}", check_id);
         let mut order_list_ptr = vec![];
         self.resolve_children_ids_order(&check_id, &mut order_list_ptr);
+
         self.resolve_nest_children(&order_list_ptr);
+        // self.transform_text_list(current_block, text_sebering, &current_layer);
+
         return;
     }
     // #[deprecated]
@@ -204,11 +246,23 @@ impl Page {
             return;
         }
 
+        // layer check and filter children
         let mut layout_comp_is_div: bool = false;
         let mut layout_comp_is_layered: bool = false;
-        if let ComponentAttrType::Layout(l) = root_blk.component_attr {
+        let mut is_layout_comp: bool = false;
+        if let ComponentAttrType::Layout(l) = &root_blk.component_attr {
+            is_layout_comp == true;
             layout_comp_is_div = (l.layout_style == "Div");
             layout_comp_is_layered = (l.layout_style != "Div");
+        }
+        let mut text_comp_is_toggle: bool = false;
+        let mut text_comp_is_layer_child: bool = false;
+        if let ComponentAttrType::Text(t) = &root_blk.component_attr {
+            text_comp_is_toggle = t.style == TextStyle::Toggle;
+            if t.style == TextStyle::Marked || t.style == TextStyle::Numbered {
+                text_comp_is_layer_child =
+                    root_blk.children_ids.as_ref().is_some_and(|f| f.len() > 0);
+            }
         }
         // let default_skip_component
 
@@ -224,6 +278,8 @@ impl Page {
         // skip the children
         if root_blk.debug_type == "table"
             || (root_blk.debug_type == "layout" && layout_comp_is_layered)
+            || text_comp_is_toggle
+            || text_comp_is_layer_child
         {
             return;
         }
@@ -233,29 +289,170 @@ impl Page {
             self.resolve_children_ids_order(&elm, order_list_ptr);
         }
 
-        // if (root_blk.debug_type == "layout" && layout_comp_is_div) || root_blk.debug_type == "div" {
-        //     // order_list.push(check_id.to_owned());
-        //     order_list_ptr.push(check_id.to_string());
-        // }
+        if (root_blk.debug_type == "layout" && layout_comp_is_div) || root_blk.debug_type == "div" {
+            //     // order_list.push(check_id.to_owned());
+            order_list_ptr.push(check_id.to_string());
+        }
 
         // drop(root_blk);
 
         return;
     }
 
+    // type TmpTextListSizer = ;
+
     fn resolve_nest_children(&mut self, order_list: &Vec<String>) {
         let mut tmp_cache_contents = self.cache_contents.to_owned();
+        let mut tmp_text_mark_and_number: PageTextListMainSet = smallvec![];
+
+        if let Some(root_blk) = self.cache_contents.get(&self.id) {
+            tmp_text_mark_and_number.push(PageTextListSet {
+                style: TextStyle::Title,
+                start_id: root_blk.id.to_owned(),
+                start_child: root_blk.children_ids.to_owned().unwrap_or_default(),
+                ..PageTextListSet::default()
+            });
+        }
+
         for id in order_list {
             let ct_blk = tmp_cache_contents.get_mut(id);
 
             if let Some(blk) = ct_blk {
-                self.resolve_layout_nest_children(blk);
+                self.resolve_internal_children_pipeline(blk, &mut tmp_text_mark_and_number, 1);
                 self.contents.push(blk.to_owned());
             }
         }
+        self.transform_text_list(&mut tmp_text_mark_and_number);
     }
 
-    fn resolve_layout_nest_children(&mut self, current_block: &mut ContentBlock) {
+    fn resolve_internal_children_pipeline(
+        &mut self,
+        current_block: &mut ContentBlock,
+        text_sebering: &mut PageTextListMainSet,
+        current_layer: usize,
+    ) {
+        self.resolve_layout_nest_children(current_block, text_sebering, current_layer);
+        self.resolve_text_nest_children(current_block, text_sebering, current_layer);
+    }
+
+    fn resolve_text_nest_children(
+        &mut self,
+        current_block: &mut ContentBlock,
+        text_sebering: &mut PageTextListMainSet,
+        current_layer: usize,
+    ) {
+        let attr: &mut TextComponentAttr;
+        match &mut current_block.component_attr {
+            ComponentAttrType::Text(e) => attr = e,
+            _ => return,
+        }
+        if [TextStyle::Marked, TextStyle::Numbered, TextStyle::Toggle].contains(&attr.style)
+            == false
+        {
+            return;
+        }
+        // println!(in );
+
+        let lk_children_ids = current_block.children_ids.as_ref().unwrap();
+        let mut cached = self.cache_contents.to_owned();
+        // println!("attr : {:#?}", attr);
+
+        // if attr.style == TextStyle::Toggle {
+        for child_id in lk_children_ids.iter() {
+            if let Some(child_blk) = cached.get_mut(child_id) {
+                if child_blk.children_ids.is_some() {
+                    self.resolve_internal_children_pipeline(
+                        child_blk,
+                        text_sebering,
+                        current_layer + 1,
+                    );
+                }
+            }
+        }
+        // self.transform_text_list(current_block, text_sebering);
+
+        // return;
+        // }
+
+        if attr.style == TextStyle::Numbered || attr.style == TextStyle::Marked {
+            if text_sebering.len() == 0 {
+                // text_sebering.insert(key, vec![attr.style as ])
+                text_sebering.push(PageTextListSet {
+                    style: attr.style,
+                    start: current_block.order,
+                    start_id: current_block.id.to_owned(),
+                    start_child: lk_children_ids.to_vec(),
+                    end: current_block.order,
+                    sebering_id_list: vec![current_block.id.to_owned()],
+                    layer: current_layer,
+                });
+            } else {
+                let mut sebering = text_sebering
+                    .iter_mut()
+                    .find(|p| p.is_sebering(&attr.style, &current_block.order, &current_layer));
+                if let Some(last_item) = sebering {
+                    // if last_item.is_sebering(&attr.style, &current_block.order, &current_layer) {
+                    // find next?
+
+                    last_item.push_next(&current_block);
+                } else {
+                    // text_sebering.push(PageTextListSet(
+                    //     attr.style,
+                    //     current_block.order,
+                    //     current_block.order,
+                    //     smallvec![current_block.id.to_owned()],
+                    //     current_layer,
+                    // ));
+                    text_sebering.push(PageTextListSet {
+                        style: attr.style,
+                        start: current_block.order,
+                        start_id: current_block.id.to_owned(),
+                        start_child: lk_children_ids.to_vec(),
+                        end: current_block.order,
+                        sebering_id_list: vec![current_block.id.to_owned()],
+                        layer: current_layer,
+                    });
+                }
+            }
+        }
+        // println!("text_sebering - snapshot: {:?}", text_sebering);
+    }
+    fn transform_text_list(&mut self, text_sebering: &mut PageTextListMainSet) {
+        if text_sebering.len() == 0 {
+            return;
+        }
+        // println!("text_sebering : {:#?}", text_sebering);
+        // do the insertion
+        if self.id != "bafyreialni2kwfzmrbytsbg3xl4zwug4mp4vbxxri5tcpdddtrfraexhha" {
+            return;
+        }
+
+        println!("page_set : ");
+        text_sebering.sort_by(|a, b| b.layer.cmp(&a.layer));
+        // println!("layer : {}", current_layer);
+        // println!("{}", current_layer);
+        for page_set in text_sebering.iter() {
+            // let id_list = page_set.3;
+
+            // if let Some(original_text_item) = self.cache_contents.get(&page_set.start_id) {
+            //     // create parent
+            //     let mut tmp = TextItem::from_content_block(&original_text_item);
+
+            //     // for subitem in page_set.start_child.iter() {
+            //     //     if let Some(original__item) = self.cache_contents.get(&subitem) {}
+            //     // }
+            // }
+            println!(" {:?}", page_set);
+        }
+
+        // text_sebering.clear();
+    }
+    fn resolve_layout_nest_children(
+        &mut self,
+        current_block: &mut ContentBlock,
+        text_sebering: &mut PageTextListMainSet,
+        current_layer: usize,
+    ) {
         let attr: &mut LayoutComponentAttr;
         match &mut current_block.component_attr {
             ComponentAttrType::Layout(e) | ComponentAttrType::Table(e) => attr = e,
@@ -271,8 +468,12 @@ impl Page {
         for child_id in lk_children_ids.into_iter() {
             let child_blk_result = cached.get_mut(child_id);
             if let Some(child_blk) = child_blk_result {
-                if let Some(_) = child_blk.children_ids.as_ref() {
-                    self.resolve_layout_nest_children(child_blk);
+                if child_blk.children_ids.is_some() {
+                    self.resolve_internal_children_pipeline(
+                        child_blk,
+                        text_sebering,
+                        current_layer + 1,
+                    );
                 }
 
                 let layout_item = LayoutItem::from_content_block(child_blk);
@@ -284,6 +485,7 @@ impl Page {
         }
     }
 
+    /// external layer
     pub(crate) fn resolve_external_link(
         &mut self,
         external_link: &Vec<external_link::ExternalBookmarkLink>,

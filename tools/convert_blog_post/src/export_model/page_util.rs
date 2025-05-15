@@ -1,3 +1,5 @@
+use crate::jupyter_notbook::model::JupyterNotebookRoot;
+
 use super::{
     common::DEFAULT_TAG, external_link::ExternalBookmarkLink, file_object::FileObject, page::Page,
     tag::Tag,
@@ -8,7 +10,7 @@ pub fn resolve_page_external<'a>(
     file_list: &'a Vec<FileObject>,
     bookmark_list: &'a Vec<ExternalBookmarkLink>,
     tag_list: &'a Vec<Tag>,
-    // page_list: &'a Vec<Page>,
+    nb_list: &'a Vec<JupyterNotebookRoot>,
 ) {
     //
     page.recheck_fields();
@@ -27,8 +29,7 @@ pub fn resolve_page_external<'a>(
 
     page.resolve_tag_link();
     page.resolve_toc_component();
-    // page.resolve_related_articles(page_list);
-    // page.resolve_related_chapters(page_list);
+
     // restruct
     page.resolve_content_block();
 }

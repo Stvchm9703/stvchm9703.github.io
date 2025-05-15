@@ -7,7 +7,7 @@ pub mod link;
 pub mod mark;
 pub mod text;
 
-use std::{borrow::Borrow, fmt::format};
+use std::borrow::Borrow;
 
 use bookmark::BookmarkComponentAttr;
 use file::FileComponentAttr;
@@ -26,10 +26,7 @@ use super::{
     page_ext::PageExternalLink,
     trait_impl::{FromBlock, FromBlockContent},
 };
-use crate::proto::anytype::{
-    mod_Change::mod_Content,
-    model::{self, mod_Block},
-};
+use crate::proto::anytype::model::{self, mod_Block};
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

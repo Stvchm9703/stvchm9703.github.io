@@ -29,6 +29,7 @@ regex_static = "*"
 convert_blog_post_marco = { path = "./convert_blog_post_marco" }
 stringcase = "*"
 lo_ = "0.1.10"
+smallvec = "*"
 # Only necessary if using Protobuf well-known types:
 [build-dependencies]
 # prost-reflect-build = "0.15.0"
