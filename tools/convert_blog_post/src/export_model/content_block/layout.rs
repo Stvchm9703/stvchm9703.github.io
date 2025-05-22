@@ -33,7 +33,7 @@ pub struct LayoutComponentAttr {
     pub items: Option<Vec<LayoutItem>>,
 }
 
-impl FromBlock<LayoutComponentAttr> for LayoutComponentAttr {
+impl FromBlock for LayoutComponentAttr {
     fn from_block(raw: &RawBlock) -> Result<LayoutComponentAttr, anyhow::Error> {
         let tmp = LayoutComponentAttr {
             id: raw.id.to_string(),
@@ -59,7 +59,7 @@ impl FromBlock<LayoutComponentAttr> for LayoutComponentAttr {
     }
 }
 
-impl FromBlockContent<RawLayout, LayoutComponentAttr> for LayoutComponentAttr {
+impl FromBlockContent<RawLayout> for LayoutComponentAttr {
     fn from_block_content(raw_obj: &RawLayout) -> Result<LayoutComponentAttr, anyhow::Error> {
         // let raw_clone = raw.clone();
         let tmp = LayoutComponentAttr {
@@ -70,7 +70,7 @@ impl FromBlockContent<RawLayout, LayoutComponentAttr> for LayoutComponentAttr {
     }
 }
 
-impl FromBlockContent<RawTable, LayoutComponentAttr> for LayoutComponentAttr {
+impl FromBlockContent<RawTable> for LayoutComponentAttr {
     fn from_block_content(raw_obj: &RawTable) -> Result<LayoutComponentAttr, anyhow::Error> {
         let tmp = LayoutComponentAttr {
             layout_style: "Table".to_string(),
@@ -80,7 +80,7 @@ impl FromBlockContent<RawTable, LayoutComponentAttr> for LayoutComponentAttr {
     }
 }
 
-impl FromBlockContent<RawTableRow, LayoutComponentAttr> for LayoutComponentAttr {
+impl FromBlockContent<RawTableRow> for LayoutComponentAttr {
     fn from_block_content(raw_obj: &RawTableRow) -> Result<LayoutComponentAttr, anyhow::Error> {
         let tmp = LayoutComponentAttr {
             layout_style: "TableRow".to_string(),
@@ -91,7 +91,7 @@ impl FromBlockContent<RawTableRow, LayoutComponentAttr> for LayoutComponentAttr 
     }
 }
 
-impl FromBlockContent<RawTableCol, LayoutComponentAttr> for LayoutComponentAttr {
+impl FromBlockContent<RawTableCol> for LayoutComponentAttr {
     fn from_block_content(raw_obj: &RawTableCol) -> Result<LayoutComponentAttr, anyhow::Error> {
         let tmp = LayoutComponentAttr {
             layout_style: "TableCol".to_string(),

@@ -19,7 +19,6 @@ use crate::export_model::{
     file_util::save_to_file,
     page::Page,
     tag::Tag,
-    tag_option::TagOption,
 };
 use crate::proto::anytype::SnapshotWithType;
 // use crate::anytype_proto::SnapshotWithType;
@@ -28,9 +27,8 @@ use export_model::{
     collection::Collection,
     common::{DEFAULT_TAG, header_id_resolver},
     external_link::ExternalBookmarkLink,
-    // file_util::copy_file,
-    page_util,
-    tag_util,
+    page,
+    tag::{self, option::TagOption},
     trait_impl::FromRaw,
 };
 use glob;
@@ -139,7 +137,7 @@ fn test_prost() {
         drop(file_bytes);
     }
 
-    tag_util::resolve_tag_option(&mut tag_list, &tag_opt_list);
+    tag::util::resolve_tag_option(&mut tag_list, &tag_opt_list);
 
     let file_assets_path = format!("{}/files/*", ANYTYPE_PB_PATH);
     let file_tar_path = "rust-ver/";
@@ -163,7 +161,7 @@ fn test_prost() {
     }
 
     for page in page_list.iter_mut() {
-        page_util::resolve_page_external(
+        page::util::resolve_page_external(
             page,
             &file_obj_list,
             &bookmark_list,
@@ -174,7 +172,7 @@ fn test_prost() {
 
     let page_ref_list = &page_list.to_owned();
     for page in page_list.iter_mut() {
-        page_util::resolve_page_related_posts(page, page_ref_list);
+        page::util::resolve_page_related_posts(page, page_ref_list);
     }
 
     for page in page_list.into_iter() {
@@ -188,7 +186,7 @@ fn test_prost() {
 
 fn export_tags_related(page_ref_list: &Vec<Page>) {
     if let Ok(tag_set) = DEFAULT_TAG.lock() {
-        let tag_page_list = tag_util::generate_tag_index(&tag_set, page_ref_list);
+        let tag_page_list = tag::util::generate_tag_index(&tag_set, page_ref_list);
         let mut post_index_page = vec![];
         tag_page_list.iter().for_each(|f| {
             save_to_file(
@@ -214,7 +212,7 @@ fn export_tags_related(page_ref_list: &Vec<Page>) {
 
 fn export_series_related(tag_list: Vec<Tag>, page_ref_list: &Vec<Page>) {
     if let Some(serie_tag) = tag_list.iter().find(|f| f.name == "Series") {
-        let serie_page_list = tag_util::generate_serie_index(serie_tag, page_ref_list);
+        let serie_page_list = tag::util::generate_serie_index(serie_tag, page_ref_list);
 
         let mut post_index_page = vec![];
 

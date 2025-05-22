@@ -1,7 +1,5 @@
 use super::{
-    common::{
-        ObjectTypes, get_field_value, get_shorten_id, get_snapshot_shorthanded,
-    },
+    common::{ObjectTypes, get_field_value, get_shorten_id, get_snapshot_shorthanded},
     trait_impl::{FromRaw, FromSnapshotList},
 };
 use crate::proto::anytype::SnapshotWithType;
@@ -22,7 +20,7 @@ pub struct ExternalBookmarkLink {
 
 pub const EXTERNAL_BOOKMARK_LINK_OBJECT_TYPES: ObjectTypes = ObjectTypes::Bookmark;
 
-impl FromSnapshotList<ExternalBookmarkLink> for ExternalBookmarkLink {
+impl FromSnapshotList for ExternalBookmarkLink {
     // const FilterKeyword: ObjectTypes = ObjectTypes::Bookmark;
     fn from_snapshot_list(
         list_raw: Vec<SnapshotWithType>,
@@ -40,7 +38,7 @@ impl FromSnapshotList<ExternalBookmarkLink> for ExternalBookmarkLink {
     }
 }
 
-impl<'a> FromRaw<SnapshotWithType<'a>, ExternalBookmarkLink> for ExternalBookmarkLink {
+impl<'a> FromRaw<SnapshotWithType<'a>> for ExternalBookmarkLink {
     fn from_raw(input: &SnapshotWithType) -> Result<ExternalBookmarkLink, anyhow::Error> {
         let mut tmp = ExternalBookmarkLink::default();
         let instance = get_snapshot_shorthanded(input);

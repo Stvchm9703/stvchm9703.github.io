@@ -1,35 +1,45 @@
+pub mod attr;
+pub mod ext;
+pub mod meta;
+pub mod util;
 use super::{
     common::{
-        AttributeMap, DEFAULT_TAG, get_field_value, get_shorten_id, get_snapshot_shorthanded,
-        is_release, path_resolver,
+        AttributeMap,
+        // DEFAULT_TAG,
+        get_field_value,
+        get_shorten_id,
+        get_snapshot_shorthanded,
+        is_release,
+        path_resolver,
     },
     content_block::{
         ComponentAttrType, ContentBlock,
         layout::{LayoutComponentAttr, LayoutItem},
         text::{TextComponentAttr, TextStyle},
     },
-    external_link, file_object,
-    page_attr::*,
-    page_ext::*,
+    // external_link, file_object,
     trait_impl::{FromBlock, FromRaw, FromSnapshotList},
 };
 use crate::{
     export_model::{
         common::{GLOBAL_RELATION_NAMEMAP, GLOBAL_RELATION_NAMEMAP_STR},
-        content_block::text::TextItem,
+        // content_block::text::TextItem,
         // content_block::text::TextItemComponentAttr,
     },
     proto::anytype::SnapshotWithType,
 };
 
 use std::{
-    borrow::{Borrow, BorrowMut},
+    // borrow::{Borrow, BorrowMut},
     collections::BTreeMap,
 };
 
 use anyhow::{Error, anyhow};
+use attr::get_page_details;
 use convert_blog_post_marco::set_field_value;
-use lo_::intersection;
+use ext::PageExternalLink;
+// use lo_::intersection;
+use meta::PageMeta;
 use serde::{Deserialize, Serialize};
 use smallvec::{SmallVec, smallvec};
 
@@ -70,7 +80,7 @@ pub struct Page {
     pub contents: Vec<ContentBlock>,
 }
 
-impl<'a> FromRaw<SnapshotWithType<'a>, Page> for Page {
+impl<'a> FromRaw<SnapshotWithType<'a>> for Page {
     fn from_raw(input: &SnapshotWithType) -> Result<Page, anyhow::Error> {
         let mut tmp = Page::default();
         let instance = get_snapshot_shorthanded(input);
@@ -129,12 +139,11 @@ impl<'a> FromRaw<SnapshotWithType<'a>, Page> for Page {
     }
 }
 
-impl FromSnapshotList<Page> for Page {
+impl FromSnapshotList for Page {
     fn from_snapshot_list(raw: Vec<SnapshotWithType>) -> Result<Vec<Page>, anyhow::Error> {
         let mut tmp_ls: Vec<Page> = vec![];
 
         for y in raw.into_iter() {
-            // return Page::from_raw(&raw).unwrap();
             let tmp = Page::from_raw(&y);
             if let Err(e) = tmp {
                 return Err(anyhow!("list init error : {:?} , {:?}", e, &y));
@@ -146,30 +155,12 @@ impl FromSnapshotList<Page> for Page {
     }
 }
 
-impl ToPageExternalLink for Page {
-    fn to_page_ext_link(&self) -> PageExternalLink {
-        return PageExternalLink {
-            id: self.id.to_string(),
-            sid: get_shorten_id(self.id.as_str()),
-            label: self.title.to_string(),
-            url: format!(
-                "/posts/{}_{}",
-                get_shorten_id(self.id.as_str()),
-                path_resolver(self.title.as_str())
-            ),
-            ..Default::default()
-        };
-    }
-    fn to_page_external_link(&self) -> PageExternalLink {
-        self.to_page_ext_link()
-    }
-}
-
 #[derive(Debug, Default)]
 struct PageTextListSet {
     pub style: TextStyle,
     pub start: usize,
     pub end: usize,
+    pub is_header: bool,
     pub start_id: String,
     pub sebering_id_list: Vec<String>,
     pub start_child: Vec<String>,
@@ -306,8 +297,10 @@ impl Page {
         let mut tmp_text_mark_and_number: PageTextListMainSet = smallvec![];
 
         if let Some(root_blk) = self.cache_contents.get(&self.id) {
+            // add default layer
             tmp_text_mark_and_number.push(PageTextListSet {
                 style: TextStyle::Title,
+                is_header: true,
                 start_id: root_blk.id.to_owned(),
                 start_child: root_blk.children_ids.to_owned().unwrap_or_default(),
                 ..PageTextListSet::default()
@@ -375,10 +368,18 @@ impl Page {
         // }
 
         if attr.style == TextStyle::Numbered || attr.style == TextStyle::Marked {
-            if text_sebering.len() == 0 {
-                // text_sebering.insert(key, vec![attr.style as ])
+            let mut sebering = text_sebering
+                .iter_mut()
+                .find(|p| p.is_sebering(&attr.style, &current_block.order, &current_layer));
+            if let Some(last_item) = sebering {
+                // if last_item.is_sebering(&attr.style, &current_block.order, &current_layer) {
+                // find next?
+
+                last_item.push_next(&current_block);
+            } else {
                 text_sebering.push(PageTextListSet {
                     style: attr.style,
+                    is_header: false,
                     start: current_block.order,
                     start_id: current_block.id.to_owned(),
                     start_child: lk_children_ids.to_vec(),
@@ -386,34 +387,8 @@ impl Page {
                     sebering_id_list: vec![current_block.id.to_owned()],
                     layer: current_layer,
                 });
-            } else {
-                let mut sebering = text_sebering
-                    .iter_mut()
-                    .find(|p| p.is_sebering(&attr.style, &current_block.order, &current_layer));
-                if let Some(last_item) = sebering {
-                    // if last_item.is_sebering(&attr.style, &current_block.order, &current_layer) {
-                    // find next?
-
-                    last_item.push_next(&current_block);
-                } else {
-                    // text_sebering.push(PageTextListSet(
-                    //     attr.style,
-                    //     current_block.order,
-                    //     current_block.order,
-                    //     smallvec![current_block.id.to_owned()],
-                    //     current_layer,
-                    // ));
-                    text_sebering.push(PageTextListSet {
-                        style: attr.style,
-                        start: current_block.order,
-                        start_id: current_block.id.to_owned(),
-                        start_child: lk_children_ids.to_vec(),
-                        end: current_block.order,
-                        sebering_id_list: vec![current_block.id.to_owned()],
-                        layer: current_layer,
-                    });
-                }
             }
+            // }
         }
         // println!("text_sebering - snapshot: {:?}", text_sebering);
     }
@@ -442,7 +417,7 @@ impl Page {
             //     //     if let Some(original__item) = self.cache_contents.get(&subitem) {}
             //     // }
             // }
-            println!(" {:?}", page_set);
+            println!(" {:#?}", page_set);
         }
 
         // text_sebering.clear();
@@ -483,157 +458,5 @@ impl Page {
                 }
             }
         }
-    }
-
-    /// external layer
-    pub(crate) fn resolve_external_link(
-        &mut self,
-        external_link: &Vec<external_link::ExternalBookmarkLink>,
-    ) {
-        let list = self.cache_contents.values_mut();
-        for item in list {
-            if let ComponentAttrType::Link(inside) = item.component_attr.borrow_mut() {
-                let target_link = external_link
-                    .iter()
-                    .find(|p| p.id == inside.target_block_id);
-                if let Some(tar) = target_link {
-                    if tar.title.is_empty() == false {
-                        inside.title = tar.title.to_string();
-                    }
-                    inside.url = tar.url.to_string();
-                }
-            }
-        }
-    }
-
-    pub(crate) fn resolve_file_link(&mut self, file_link: &Vec<file_object::FileObject>) {
-        let list = self.cache_contents.values_mut();
-        let mut file_list = vec![];
-        for item in list {
-            if let ComponentAttrType::File(inside) = item.component_attr.borrow_mut() {
-                let target_link = file_link.iter().find(|p| p.id == inside.target_object_id);
-                if let Some(tar) = target_link {
-                    inside.file_url = tar.file_url.to_string();
-                    file_list.push(tar);
-                }
-            }
-        }
-        self.add_meta_data(&file_list);
-    }
-
-    fn add_meta_data(&mut self, file_list: &Vec<&file_object::FileObject>) {
-        let images = file_list
-            .into_iter()
-            .filter(|p| p.file_type == "images")
-            .map(|p| p.to_page_meta_og())
-            .collect::<Vec<PageMetaOpenGraphObj>>();
-
-        let videos = file_list
-            .into_iter()
-            .filter(|p| p.file_type == "videos")
-            .map(|p| p.to_page_meta_og())
-            .collect::<Vec<PageMetaOpenGraphObj>>();
-
-        let audio = file_list
-            .into_iter()
-            .filter(|p| p.file_type == "audios")
-            .map(|p| p.to_page_meta_og())
-            .collect::<Vec<PageMetaOpenGraphObj>>();
-
-        if images.len() > 0 {
-            self.meta.images = Some(images);
-        }
-        if videos.len() > 0 {
-            self.meta.videos = Some(videos);
-        }
-        if audio.len() > 0 {
-            self.meta.audio = Some(audio);
-        }
-    }
-
-    pub(crate) fn resolve_toc_component(&mut self) {
-        let toc_list = self
-            .cache_contents
-            .values()
-            .into_iter()
-            .filter(|p| {
-                if let ComponentAttrType::Text(attr) = &p.component_attr {
-                    return attr.style == TextStyle::Header1
-                        || attr.style == TextStyle::Header2
-                        || attr.style == TextStyle::Header3
-                        || attr.style == TextStyle::Header4;
-                }
-                // p.debug_type == "text"
-                return false;
-            })
-            .map(|p| p.to_toc_link().unwrap())
-            .collect::<Vec<_>>();
-        self.table_of_contents = toc_list;
-    }
-
-    pub(crate) fn resolve_tag_link(&mut self) {
-        // println!("tag-list :{:?}", tag_list);
-        // self.raw_tag_list.iter().map(f)
-        let included_tag = DEFAULT_TAG
-            .lock()
-            .unwrap()
-            .options
-            .iter()
-            .filter(|p| self.raw_tag_list.contains(&p.id))
-            .map(|f| f.to_page_ext_link())
-            .collect::<Vec<_>>();
-
-        self.tags = included_tag;
-    }
-
-    pub(crate) fn resolve_related_chapters(&mut self, page_list: &Vec<Page>) {
-        if self.serie.is_none() {
-            return;
-        }
-        let serie_tag = self.serie.as_ref().unwrap();
-        let mut d = page_list
-            .iter()
-            .filter(|p| {
-                if p.serie.is_none() {
-                    return false;
-                }
-                return p.serie.as_ref().unwrap().id == serie_tag.id;
-            })
-            .collect::<Vec<_>>();
-        d.sort_by(|a, b| b.publish_date.cmp(&a.publish_date));
-
-        self.related_chapters = d
-            .iter()
-            .take(5)
-            .map(|p| p.to_page_ext_link())
-            .collect::<Vec<_>>();
-    }
-
-    pub(crate) fn resolve_related_articles(&mut self, page_list: &Vec<Page>) {
-        if self.raw_tag_list.len() == 0 {
-            return;
-        }
-        let mut d = page_list
-            .iter()
-            .filter(|p| {
-                let ttt = intersection(&self.raw_tag_list, &p.raw_tag_list);
-                return ttt.len() > 0;
-            })
-            .collect::<Vec<_>>();
-        d.sort_by(|a, b| b.publish_date.cmp(&a.publish_date));
-
-        self.related_articles = d
-            .iter()
-            .take(5)
-            .map(|p| p.to_page_ext_link())
-            .collect::<Vec<_>>();
-    }
-
-    pub(crate) fn to_post_card_link(&self) -> PageExternalLink {
-        let mut tmp = self.to_page_ext_link();
-        tmp.snippet = Some(self.snippet.to_string());
-        tmp.tags = Some(self.tags.to_owned());
-
-        return tmp;
     }
 }

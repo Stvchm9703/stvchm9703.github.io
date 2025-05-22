@@ -15,7 +15,7 @@ pub struct LatexComponentAttr {
     pub processor: ProcessorType,
 }
 
-impl<'life> FromBlockContent<RawLatex<'life>, LatexComponentAttr> for LatexComponentAttr {
+impl<'life> FromBlockContent<RawLatex<'life>> for LatexComponentAttr {
     fn from_block_content(raw: &RawLatex<'life>) -> Result<LatexComponentAttr, anyhow::Error> {
         // let raw_clone = raw.clone();
         let tmp = LatexComponentAttr {

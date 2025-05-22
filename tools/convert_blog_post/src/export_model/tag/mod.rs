@@ -1,15 +1,19 @@
+pub mod option;
+pub mod util;
+
 use super::{
     common::{
         AttributeMap, get_field_value, get_shorten_id, get_snapshot_shorthanded,
         header_id_resolver, path_resolver,
     },
-    page_ext::{PageExternalLink, ToPageExternalLink},
-    tag_option::TagOption,
+    // option::TagOption,
+    page::ext::{PageExternalLink, ToPageExternalLink},
     trait_impl::{FromRaw, FromSnapshotList},
 };
 use crate::proto::anytype::SnapshotWithType;
 use anyhow::anyhow;
 use convert_blog_post_marco::set_field_value;
+use option::TagOption;
 use serde::{Deserialize, Serialize};
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -27,7 +31,7 @@ pub struct Tag {
     pub options: Vec<TagOption>,
 }
 
-impl FromSnapshotList<Tag> for Tag {
+impl FromSnapshotList for Tag {
     fn from_snapshot_list(list_raw: Vec<SnapshotWithType>) -> Result<Vec<Tag>, anyhow::Error> {
         let mut tmp_list: Vec<Tag> = vec![];
         for item in list_raw {
@@ -42,7 +46,7 @@ impl FromSnapshotList<Tag> for Tag {
     }
 }
 
-impl<'a> FromRaw<SnapshotWithType<'a>, Tag> for Tag {
+impl<'a> FromRaw<SnapshotWithType<'a>> for Tag {
     fn from_raw(input: &SnapshotWithType) -> Result<Tag, anyhow::Error> {
         let mut tmp = Tag::default();
         let instance = get_snapshot_shorthanded(input);

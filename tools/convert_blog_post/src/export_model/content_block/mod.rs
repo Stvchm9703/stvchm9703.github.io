@@ -1,3 +1,5 @@
+pub mod base_block;
+
 pub mod bookmark;
 pub mod file;
 pub mod jupyter;
@@ -23,7 +25,7 @@ use anyhow::{Error, anyhow};
 
 use super::{
     common::{AttributeMap, header_id_resolver, is_release},
-    page_ext::PageExternalLink,
+    page::ext::PageExternalLink,
     trait_impl::{FromBlock, FromBlockContent},
 };
 use crate::proto::anytype::model::{self, mod_Block};
@@ -45,10 +47,11 @@ pub struct ContentBlock {
     // pub items: Vec<ContentBlock>,
 }
 
-impl FromBlock<ContentBlock> for ContentBlock {
+impl FromBlock for ContentBlock {
     fn from_block(raw_blk: &model::Block) -> Result<ContentBlock, anyhow::Error> {
         let children_ids = raw_blk.childrenIds.iter();
         let children_ids = children_ids.map(|x| x.to_string()).collect();
+
         let mut tmp = ContentBlock {
             id: raw_blk.id.to_string(),
             children_ids: Some(children_ids),
@@ -169,7 +172,7 @@ impl ComponentAttrType {
     }
 }
 
-impl<'a> FromBlockContent<mod_Block::OneOfcontent<'a>, ComponentAttrType> for ComponentAttrType {
+impl<'a> FromBlockContent<mod_Block::OneOfcontent<'a>> for ComponentAttrType {
     fn from_block_content(
         raw_obj: &mod_Block::OneOfcontent<'a>,
     ) -> Result<ComponentAttrType, Error> {
@@ -311,7 +314,7 @@ pub struct ComponentStyle {
 pub type AlignStyle = model::mod_Block::Align;
 pub type VerticalAlignStyle = model::mod_Block::VerticalAlign;
 
-impl FromBlock<ComponentStyle> for ComponentStyle {
+impl FromBlock for ComponentStyle {
     fn from_block(raw: &model::Block) -> Result<ComponentStyle, Error> {
         let raw_clone = raw.clone();
         let tmp = ComponentStyle {

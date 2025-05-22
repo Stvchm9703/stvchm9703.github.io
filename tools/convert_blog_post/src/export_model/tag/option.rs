@@ -1,13 +1,16 @@
 use serde::{Deserialize, Serialize};
 
-use super::{
-    common::{
-        AttributeMap, get_field_value, get_shorten_id, get_snapshot_shorthanded, header_id_resolver,
+use crate::{
+    export_model::{
+        common::{
+            AttributeMap, get_field_value, get_shorten_id, get_snapshot_shorthanded,
+            header_id_resolver,
+        },
+        page::ext::{PageExternalLink, ToPageExternalLink},
+        trait_impl::{FromRaw, FromSnapshotList},
     },
-    page_ext::{PageExternalLink, ToPageExternalLink},
-    trait_impl::{FromRaw, FromSnapshotList},
+    proto::anytype::SnapshotWithType,
 };
-use crate::proto::anytype::SnapshotWithType;
 use anyhow::anyhow;
 use convert_blog_post_marco::set_field_value;
 
@@ -25,7 +28,7 @@ pub struct TagOption {
     pub attributes: AttributeMap, // Define AttributeMap according to your needs
 }
 
-impl FromSnapshotList<TagOption> for TagOption {
+impl FromSnapshotList for TagOption {
     fn from_snapshot_list(
         list_raw: Vec<SnapshotWithType>,
     ) -> Result<Vec<TagOption>, anyhow::Error> {
@@ -42,7 +45,7 @@ impl FromSnapshotList<TagOption> for TagOption {
     }
 }
 
-impl<'a> FromRaw<SnapshotWithType<'a>, TagOption> for TagOption {
+impl<'a> FromRaw<SnapshotWithType<'a>> for TagOption {
     fn from_raw(input: &SnapshotWithType) -> Result<TagOption, anyhow::Error> {
         let mut tmp = TagOption::default();
         let instance = get_snapshot_shorthanded(input);

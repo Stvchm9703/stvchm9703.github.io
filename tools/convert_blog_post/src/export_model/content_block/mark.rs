@@ -23,7 +23,7 @@ pub struct MarkRange {
     pub from: usize,
     pub to: usize,
 }
-impl FromRaw<RawRange, MarkRange> for MarkRange {
+impl FromRaw<RawRange> for MarkRange {
     fn from_raw(raw: &RawRange) -> Result<MarkRange, Error> {
         return Ok(MarkRange {
             from: raw.from as usize,
@@ -34,7 +34,7 @@ impl FromRaw<RawRange, MarkRange> for MarkRange {
 }
 pub type MarkType = mod_Mark::Type;
 
-impl<'a> FromRaw<RawMark<'a>, Mark> for Mark {
+impl<'a> FromRaw<RawMark<'a>> for Mark {
     fn from_raw(raw: &RawMark) -> Result<Mark, Error> {
         let mut tmp = Mark {
             mark_type: raw.type_pb.to_owned(),

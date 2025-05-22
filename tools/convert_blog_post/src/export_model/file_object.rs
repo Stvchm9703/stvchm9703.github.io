@@ -6,7 +6,7 @@ use anyhow::anyhow;
 
 use super::{
     common::{AttributeMap, get_field_value, get_shorten_id, get_snapshot_shorthanded},
-    page_ext::PageMetaOpenGraphObj,
+    page::meta::PageMetaOpenGraphObj,
     trait_impl::{FromRaw, FromSnapshotList},
 };
 
@@ -26,7 +26,7 @@ pub struct FileObject {
     pub attributes: AttributeMap,
 }
 
-impl<'a> FromRaw<SnapshotWithType<'a>, FileObject> for FileObject {
+impl<'a> FromRaw<SnapshotWithType<'a>> for FileObject {
     fn from_raw(raw_obj: &SnapshotWithType<'a>) -> Result<FileObject, anyhow::Error> {
         let mut tmp = Self::default();
         let instance = get_snapshot_shorthanded(raw_obj);
@@ -66,7 +66,7 @@ impl<'a> FromRaw<SnapshotWithType<'a>, FileObject> for FileObject {
     }
 }
 
-impl FromSnapshotList<FileObject> for FileObject {
+impl FromSnapshotList for FileObject {
     fn from_snapshot_list(
         list_raw: Vec<crate::proto::anytype::SnapshotWithType>,
     ) -> Result<Vec<FileObject>, anyhow::Error> {

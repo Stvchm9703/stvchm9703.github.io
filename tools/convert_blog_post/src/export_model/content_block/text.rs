@@ -31,7 +31,7 @@ pub struct TextComponentAttr {
     pub items: Option<Vec<TextItem>>,
 }
 
-impl<'life> FromBlockContent<RawText<'life>, TextComponentAttr> for TextComponentAttr {
+impl<'life> FromBlockContent<RawText<'life>> for TextComponentAttr {
     fn from_block_content(raw: &RawText<'life>) -> Result<TextComponentAttr, anyhow::Error> {
         let marks: Vec<Mark> = raw
             .marks

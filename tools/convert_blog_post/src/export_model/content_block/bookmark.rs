@@ -19,7 +19,7 @@ pub struct BookmarkComponentAttr {
 
 pub type BookmarkType = model::mod_LinkPreview::Type;
 
-impl<'life> FromBlockContent<RawBookmark<'life>, BookmarkComponentAttr> for BookmarkComponentAttr {
+impl<'life> FromBlockContent<RawBookmark<'life>> for BookmarkComponentAttr {
     fn from_block_content(
         raw: &RawBookmark<'life>,
     ) -> Result<BookmarkComponentAttr, anyhow::Error> {

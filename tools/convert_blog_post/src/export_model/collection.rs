@@ -28,7 +28,7 @@ pub struct Collection {
     articles: BTreeMap<String, Page>,
     // fromAnytype?(raw: SnapshotWithType): Collection;
 }
-impl<'a> FromRaw<SnapshotWithType<'a>, Collection> for Collection {
+impl<'a> FromRaw<SnapshotWithType<'a>> for Collection {
     fn from_raw(raw_obj: &SnapshotWithType<'a>) -> Result<Collection, anyhow::Error> {
         let mut tmp = Self::default();
         let instance = get_snapshot_shorthanded(raw_obj);

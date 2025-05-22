@@ -23,7 +23,7 @@ pub type LinkIconSize = mod_Link::IconSize;
 pub type LinkCardStyle = mod_Link::CardStyle;
 pub type LinkDescription = mod_Link::Description;
 
-impl<'life> FromBlockContent<RawLink<'life>, LinkComponentAttr> for LinkComponentAttr {
+impl<'life> FromBlockContent<RawLink<'life>> for LinkComponentAttr {
     fn from_block_content(raw: &RawLink<'life>) -> Result<LinkComponentAttr, anyhow::Error> {
         // let raw_clone = raw.clone();
         // println!("raw link : {:?}", raw_clone);
@@ -41,8 +41,8 @@ impl<'life> FromBlockContent<RawLink<'life>, LinkComponentAttr> for LinkComponen
     }
 }
 
-impl<'s> AddFromExternalFile<SnapshotWithType<'s>> for LinkComponentAttr {
-    fn add_from_external_file(&self, raw: &SnapshotWithType) -> Result<(), anyhow::Error> {
-        return Ok(());
-    }
-}
+// impl<'s> AddFromExternalFile<SnapshotWithType<'s>> for LinkComponentAttr {
+//     fn add_from_external_file(&self, raw: &SnapshotWithType) -> Result<(), anyhow::Error> {
+//         return Ok(());
+//     }
+// }

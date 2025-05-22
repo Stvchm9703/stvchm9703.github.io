@@ -21,7 +21,7 @@ pub struct FileComponentAttr {
     pub file_url: String,
 }
 
-impl<'life> FromBlockContent<RawFile<'life>, FileComponentAttr> for FileComponentAttr {
+impl<'life> FromBlockContent<RawFile<'life>> for FileComponentAttr {
     fn from_block_content(raw: &RawFile<'life>) -> Result<FileComponentAttr, anyhow::Error> {
         // let raw_clone = raw.clone();
         let tmp = FileComponentAttr {
@@ -37,8 +37,8 @@ impl<'life> FromBlockContent<RawFile<'life>, FileComponentAttr> for FileComponen
     }
 }
 
-impl AddFromExternalFile<FileComponentAttr> for FileComponentAttr {
-    fn add_from_external_file(&self, raw_obj: &FileComponentAttr) -> Result<(), anyhow::Error> {
-        todo!()
-    }
-}
+// impl AddFromExternalFile for FileComponentAttr {
+//     fn add_from_external_file(&self, raw_obj: &FileComponentAttr) -> Result<(), anyhow::Error> {
+//         todo!()
+//     }
+// }
