@@ -1,9 +1,7 @@
 use anyhow::{Error, anyhow};
-use convert_blog_post_marco::set_field_value;
 // use core::unicode::conversions::to_lower;
 use once_cell::sync::Lazy;
-use serde_json::to_string;
-use std::{borrow::BorrowMut, collections::BTreeMap, ptr::replace, sync::Mutex};
+use std::{collections::BTreeMap, sync::Mutex};
 // use super::{super::common::is_release, ComponentStyle};
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 
@@ -142,6 +140,13 @@ impl ObjectTypes {
     }
 }
 
+pub fn has_object_type(snapshot_data: &SmartBlockSnapshotBase, check_type: ObjectTypes) -> bool {
+    snapshot_data
+        .objectTypes
+        .iter()
+        .any(|x| x == check_type.to_str())
+}
+
 pub(crate) static GLOBAL_RELATION_NAMEMAP_STR: Lazy<Mutex<BTreeMap<String, String>>> =
     Lazy::new(|| {
         let map = BTreeMap::new();
@@ -177,6 +182,7 @@ pub fn set_relation_name_map(tag: &Tag) {
         .insert(tag.name.clone(), tag.relation_key.clone());
 }
 
+#[warn(unsafe_code)]
 pub fn set_tag_default_set(tag: &Tag) {
     let mut t = DEFAULT_TAG.lock().unwrap();
     *t = tag.to_owned();
@@ -312,13 +318,13 @@ fn test_set_field_value() {
     println!("a ;: {:#?}", a);
 
     #[derive(Debug, Serialize, Deserialize)]
-    struct azas {
+    struct Azas {
         s: usize,
     }
 
     let mut ax: i32 = 0;
-    let ay: String = String::from("");
-    let mut az: azas = azas { s: 3 };
+    let _ay: String = String::from("");
+    let mut az: Azas = Azas { s: 3 };
 
     set_field_value!(ax, atake, "x");
     println!("ax  : {:?}", ax);

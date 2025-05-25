@@ -1,5 +1,5 @@
 use crate::{
-    export_model::trait_impl::{AddFromExternalFile, FromBlockContent},
+    export_model::trait_impl::FromBlockContent,
     proto::anytype::model::mod_Block::mod_Content::{Latex as RawLatex, mod_Latex},
 };
 use serde::{Deserialize, Serialize};

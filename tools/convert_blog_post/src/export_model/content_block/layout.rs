@@ -5,16 +5,16 @@ use crate::{
         Block as RawBlock,
         mod_Block::mod_Content::{
             Layout as RawLayout, Table as RawTable, TableColumn as RawTableCol,
-            TableRow as RawTableRow, mod_Layout,
+            TableRow as RawTableRow,
         },
     },
 };
-use anyhow::{Error, anyhow};
+use anyhow::Error;
 use serde::{Deserialize, Serialize};
 
 use super::ContentBlock;
 
-pub type LayoutStyle = mod_Layout::Style;
+// pub type LayoutStyle = mod_Layout::Style;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -71,7 +71,7 @@ impl FromBlockContent<RawLayout> for LayoutComponentAttr {
 }
 
 impl FromBlockContent<RawTable> for LayoutComponentAttr {
-    fn from_block_content(raw_obj: &RawTable) -> Result<LayoutComponentAttr, anyhow::Error> {
+    fn from_block_content(_raw_obj: &RawTable) -> Result<LayoutComponentAttr, anyhow::Error> {
         let tmp = LayoutComponentAttr {
             layout_style: "Table".to_string(),
             ..LayoutComponentAttr::default()
@@ -92,7 +92,7 @@ impl FromBlockContent<RawTableRow> for LayoutComponentAttr {
 }
 
 impl FromBlockContent<RawTableCol> for LayoutComponentAttr {
-    fn from_block_content(raw_obj: &RawTableCol) -> Result<LayoutComponentAttr, anyhow::Error> {
+    fn from_block_content(_raw_obj: &RawTableCol) -> Result<LayoutComponentAttr, anyhow::Error> {
         let tmp = LayoutComponentAttr {
             layout_style: "TableCol".to_string(),
             ..LayoutComponentAttr::default()
@@ -112,7 +112,7 @@ impl LayoutComponentAttr {
             return Ok(());
         }
 
-        return Err(anyhow!("unresolved case"));
+        // return Err(anyhow!("unresolved case"));
     }
 }
 

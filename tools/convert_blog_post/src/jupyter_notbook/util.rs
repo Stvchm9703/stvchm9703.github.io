@@ -44,6 +44,7 @@ pub fn read_jupyter_notebook(file_path: &Path) -> Result<JupyterNotebookRoot, Er
 //   }
 //   return result;
 // }
+#[warn(unsafe_code)]
 pub fn resolve_jupyter_cell_output(lines: &Vec<String>) -> Result<Vec<String>, Error> {
     let mut result = vec![];
     let mut in_skip_count = false;

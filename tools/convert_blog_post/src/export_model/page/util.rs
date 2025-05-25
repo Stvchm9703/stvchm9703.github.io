@@ -37,7 +37,7 @@ pub fn resolve_page_external<'a>(
     file_list: &'a Vec<FileObject>,
     bookmark_list: &'a Vec<ExternalBookmarkLink>,
     tag_list: &'a Vec<Tag>,
-    nb_list: &'a Vec<JupyterNotebookRoot>,
+    _nb_list: &'a Vec<JupyterNotebookRoot>,
 ) {
     //
     page.recheck_fields();

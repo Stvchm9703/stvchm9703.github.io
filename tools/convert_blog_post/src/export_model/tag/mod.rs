@@ -4,7 +4,6 @@ pub mod util;
 use super::{
     common::{
         AttributeMap, get_field_value, get_shorten_id, get_snapshot_shorthanded,
-        header_id_resolver, path_resolver,
     },
     // option::TagOption,
     page::ext::{PageExternalLink, ToPageExternalLink},

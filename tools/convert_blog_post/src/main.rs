@@ -3,18 +3,12 @@ mod jupyter_notbook;
 mod proto;
 // mod anytype_simplied;
 
-use std::{
-    borrow::Borrow,
-    fmt::format,
-    fs::{self, File, OpenOptions, exists},
-    io::Write,
-    path::Path,
-};
+use std::fs::{self};
 
 // use crate::proto::anytype::object::AnytypeObject;
 // use crate::anytype_simplied::{convert_anytype_object, convert_snapshot};
 use crate::export_model::{
-    common::{ObjectTypes, get_snapshot_data},
+    common::{ObjectTypes, get_snapshot_data, has_object_type},
     file_object::FileObject,
     file_util::save_to_file,
     page::Page,
@@ -34,13 +28,11 @@ use export_model::{
 use glob;
 use jupyter_notbook::model::JupyterNotebookRoot;
 use proto::anytype::model::{SmartBlockSnapshotBase, SmartBlockType};
-use quick_protobuf::{MessageRead, MessageWrite};
+use quick_protobuf::MessageRead;
 
 // use prost::{self, Message};
 
 fn main() {
-    // println!("Hello, world!");
-    // test_run();
     test_prost();
 }
 
@@ -84,28 +76,14 @@ fn test_prost() {
                 && has_object_type(&snapshot_data, ObjectTypes::Page)
             {
                 if let Ok(obj) = Page::from_raw(&fil) {
-                    // println!("{:#?}", obj);
-                    // println!("file ; {:#?}", fil);
                     println!("id: {:?}", obj.id);
                     println!("file: {:?}", obj.title);
                     println!("filename: {:?}", filename);
-
-                    // let tmp_filename =
-                    //     format!("rust-ver/debug/{:?}.json", filename.to_str().unwrap());
-
-                    if obj.id == "bafyreialni2kwfzmrbytsbg3xl4zwug4mp4vbxxri5tcpdddtrfraexhha" {
-                        println!("fil: {:#?}", fil);
-                    }
-                    // fil.(format!("rust-ver/debug/{:?}.json", filename.to_str()))
-                    //     .unwrap();
-
+                    // if obj.id == "bafyreialni2kwfzmrbytsbg3xl4zwug4mp4vbxxri5tcpdddtrfraexhha" {
+                    //     println!("fil: {:#?}", fil);
+                    // }
                     page_list.push(obj);
                 }
-
-                // save_to_file(
-                //     &fil,
-                //     format!("rust-ver/debug/{:?}", filename.to_str()).as_str(),
-                // );
             }
 
             if fil.sbType == SmartBlockType::STRelation {
@@ -141,15 +119,24 @@ fn test_prost() {
 
     let file_assets_path = format!("{}/files/*", ANYTYPE_PB_PATH);
     let file_tar_path = "rust-ver/";
+
+    if fs::exists(format!("{}/files", file_tar_path)).is_ok_and(|f| f == false) {
+        fs::create_dir(format!("{}/files", file_tar_path));
+    }
+
     for entry in glob::glob(&file_assets_path).unwrap().into_iter() {
         let path = entry.ok().unwrap();
-        // println!("path ; {:?}", path.file_name());
+        // println!("path ; {:?}", path);
         let tar_path = path.canonicalize().unwrap().as_path().to_owned();
         let file_name: &str = path.file_name().unwrap().to_str().unwrap();
-        fs::copy(
+        // println!("file_name ; {:?}", file_name);
+
+        if let Err(e) = fs::copy(
             &tar_path,
             format!("{}/files/{}", file_tar_path, file_name).as_str(),
-        );
+        ) {
+            println!("e : {:?}", e);
+        }
 
         if path.extension().is_some_and(|f| f == "ipynb") {
             // jupyter_notbook_list
@@ -237,11 +224,4 @@ fn export_series_related(tag_list: Vec<Tag>, page_ref_list: &Vec<Page>) {
 
         save_to_file(&post_index_page, "rust-ver/series/index.json");
     }
-}
-
-fn has_object_type(snapshot_data: &SmartBlockSnapshotBase, check_type: ObjectTypes) -> bool {
-    snapshot_data
-        .objectTypes
-        .iter()
-        .any(|x| x == check_type.to_str())
 }

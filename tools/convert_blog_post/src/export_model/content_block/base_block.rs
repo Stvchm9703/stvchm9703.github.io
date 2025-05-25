@@ -2,11 +2,7 @@
 
 use super::ComponentStyle;
 
-use crate::export_model::{
-    common::{AttributeMap, header_id_resolver, is_release},
-    page::ext::PageExternalLink,
-    trait_impl::{FromBlock, FromBlockContent},
-};
+use crate::export_model::common::AttributeMap;
 use serde::{Deserialize, Serialize};
 // use serde_json::json;
 // use text::{TextComponentAttr, TextStyle};

@@ -1,11 +1,8 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    export_model::trait_impl::{AddFromExternalFile, FromBlockContent},
-    proto::anytype::{
-        SnapshotWithType,
-        model::mod_Block::mod_Content::{Link as RawLink, mod_Link},
-    },
+    export_model::trait_impl::FromBlockContent,
+    proto::anytype::model::mod_Block::mod_Content::{Link as RawLink, mod_Link},
 };
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -21,7 +18,7 @@ pub struct LinkComponentAttr {
 
 pub type LinkIconSize = mod_Link::IconSize;
 pub type LinkCardStyle = mod_Link::CardStyle;
-pub type LinkDescription = mod_Link::Description;
+// pub type LinkDescription = mod_Link::Description;
 
 impl<'life> FromBlockContent<RawLink<'life>> for LinkComponentAttr {
     fn from_block_content(raw: &RawLink<'life>) -> Result<LinkComponentAttr, anyhow::Error> {

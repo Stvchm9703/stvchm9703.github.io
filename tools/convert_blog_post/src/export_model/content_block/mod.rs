@@ -84,24 +84,24 @@ impl FromBlock for ContentBlock {
 impl<'a> ToString for mod_Block::OneOfcontent<'a> {
     fn to_string(&self) -> String {
         return match self {
-            mod_Block::OneOfcontent::smartblock(smartblock) => "smartblock",
-            mod_Block::OneOfcontent::text(text) => "text",
-            mod_Block::OneOfcontent::file(file) => "file",
-            mod_Block::OneOfcontent::layout(layout) => "layout",
-            mod_Block::OneOfcontent::div(div) => "div",
-            mod_Block::OneOfcontent::bookmark(bookmark) => "bookmark",
-            mod_Block::OneOfcontent::icon(icon) => "icon",
-            mod_Block::OneOfcontent::link(link) => "link",
-            mod_Block::OneOfcontent::dataview(dataview) => "dataview",
-            mod_Block::OneOfcontent::relation(relation) => "relation",
-            mod_Block::OneOfcontent::featuredRelations(featured_relations) => "featured_relations",
-            mod_Block::OneOfcontent::latex(latex) => "latex",
-            mod_Block::OneOfcontent::tableOfContents(table_of_contents) => "table_of_contents",
-            mod_Block::OneOfcontent::table(table) => "table",
-            mod_Block::OneOfcontent::tableColumn(table_column) => "table_column",
-            mod_Block::OneOfcontent::tableRow(table_row) => "table_row",
-            mod_Block::OneOfcontent::widget(widget) => "widget",
-            mod_Block::OneOfcontent::chat(chat) => "chat",
+            mod_Block::OneOfcontent::smartblock(_) => "smartblock",
+            mod_Block::OneOfcontent::text(_) => "text",
+            mod_Block::OneOfcontent::file(_) => "file",
+            mod_Block::OneOfcontent::layout(_) => "layout",
+            mod_Block::OneOfcontent::div(_) => "div",
+            mod_Block::OneOfcontent::bookmark(_) => "bookmark",
+            mod_Block::OneOfcontent::icon(_) => "icon",
+            mod_Block::OneOfcontent::link(_) => "link",
+            mod_Block::OneOfcontent::dataview(_) => "dataview",
+            mod_Block::OneOfcontent::relation(_) => "relation",
+            mod_Block::OneOfcontent::featuredRelations(_) => "featured_relations",
+            mod_Block::OneOfcontent::latex(_) => "latex",
+            mod_Block::OneOfcontent::tableOfContents(_) => "table_of_contents",
+            mod_Block::OneOfcontent::table(_) => "table",
+            mod_Block::OneOfcontent::tableColumn(_) => "table_column",
+            mod_Block::OneOfcontent::tableRow(_) => "table_row",
+            mod_Block::OneOfcontent::widget(_) => "widget",
+            mod_Block::OneOfcontent::chat(_) => "chat",
             mod_Block::OneOfcontent::None => "none",
         }
         .to_string();
@@ -177,9 +177,7 @@ impl<'a> FromBlockContent<mod_Block::OneOfcontent<'a>> for ComponentAttrType {
         raw_obj: &mod_Block::OneOfcontent<'a>,
     ) -> Result<ComponentAttrType, Error> {
         match raw_obj {
-            mod_Block::OneOfcontent::smartblock(smartblock) => {
-                Ok(ComponentAttrType::from_input(json!({})))
-            }
+            mod_Block::OneOfcontent::smartblock(_) => Ok(ComponentAttrType::from_input(json!({}))),
             mod_Block::OneOfcontent::text(text) => {
                 let y = TextComponentAttr::from_block_content(text);
                 if let Ok(result) = y {
@@ -216,7 +214,7 @@ impl<'a> FromBlockContent<mod_Block::OneOfcontent<'a>> for ComponentAttrType {
                     Err(anyhow!("init error :{:?}", y.err()))
                 }
             }
-            mod_Block::OneOfcontent::icon(icon) => todo!(),
+            mod_Block::OneOfcontent::icon(_) => todo!(),
             mod_Block::OneOfcontent::link(link) => {
                 let y = LinkComponentAttr::from_block_content(link);
                 if let Ok(result) = y {
@@ -225,19 +223,19 @@ impl<'a> FromBlockContent<mod_Block::OneOfcontent<'a>> for ComponentAttrType {
                     Err(anyhow!("init error :{:?}", y.err()))
                 }
             }
-            mod_Block::OneOfcontent::dataview(dataview) => {
+            mod_Block::OneOfcontent::dataview(_) => {
                 Ok(ComponentAttrType::from_input(json!({
                     // "style": dataview.style.to_string(),
                     "orginal_type": "dataview",
                 })))
             }
-            mod_Block::OneOfcontent::relation(relation) => {
+            mod_Block::OneOfcontent::relation(_) => {
                 Ok(ComponentAttrType::from_input(json!({
                     // "style": dataview.style.to_string(),
                     "orginal_type": "relation",
                 })))
             }
-            mod_Block::OneOfcontent::featuredRelations(featured_relations) => {
+            mod_Block::OneOfcontent::featuredRelations(_) => {
                 Ok(ComponentAttrType::from_input(json!({
                     // "style": dataview.style.to_string(),
                     "orginal_type": "featuredRelations",
@@ -251,7 +249,7 @@ impl<'a> FromBlockContent<mod_Block::OneOfcontent<'a>> for ComponentAttrType {
                     Err(anyhow!("init error :{:?}", y.err()))
                 }
             }
-            mod_Block::OneOfcontent::tableOfContents(table_of_contents) => {
+            mod_Block::OneOfcontent::tableOfContents(_) => {
                 Ok(ComponentAttrType::from_input(json!({
                     // "style": dataview.style.to_string(),
                     "orginal_type": "tableOfContents",
@@ -281,13 +279,13 @@ impl<'a> FromBlockContent<mod_Block::OneOfcontent<'a>> for ComponentAttrType {
                     Err(anyhow!("init error :{:?}", y.err()))
                 }
             }
-            mod_Block::OneOfcontent::widget(widget) => {
+            mod_Block::OneOfcontent::widget(_) => {
                 Ok(ComponentAttrType::from_input(json!({
                     // "style": dataview.style.to_string(),
                     "orginal_type": "widget",
                 })))
             }
-            mod_Block::OneOfcontent::chat(chat) => {
+            mod_Block::OneOfcontent::chat(_) => {
                 Ok(ComponentAttrType::from_input(json!({
                     // "style": dataview.style.to_string(),
                     "orginal_type": "chat",

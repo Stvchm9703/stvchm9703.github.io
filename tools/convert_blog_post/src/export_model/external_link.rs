@@ -1,5 +1,5 @@
 use super::{
-    common::{ObjectTypes, get_field_value, get_shorten_id, get_snapshot_shorthanded},
+    common::{get_field_value, get_shorten_id, get_snapshot_shorthanded},
     trait_impl::{FromRaw, FromSnapshotList},
 };
 use crate::proto::anytype::SnapshotWithType;
@@ -17,8 +17,6 @@ pub struct ExternalBookmarkLink {
     pub title: String,
     pub level: Option<i64>,
 }
-
-pub const EXTERNAL_BOOKMARK_LINK_OBJECT_TYPES: ObjectTypes = ObjectTypes::Bookmark;
 
 impl FromSnapshotList for ExternalBookmarkLink {
     // const FilterKeyword: ObjectTypes = ObjectTypes::Bookmark;

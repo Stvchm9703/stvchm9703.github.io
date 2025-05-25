@@ -9,7 +9,7 @@ use anyhow::anyhow;
 use super::{
     common::{AttributeMap, get_field_value, get_shorten_id, get_snapshot_shorthanded},
     page::Page,
-    trait_impl::{FromRaw, FromSnapshotList},
+    trait_impl::FromRaw,
 };
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
