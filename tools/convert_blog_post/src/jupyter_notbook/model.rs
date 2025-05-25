@@ -12,7 +12,7 @@ pub struct JupyterNotebookRoot {
 // type Cell = CodeCell | MarkdownCell;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(tag = "cell_type")]
+#[serde(tag = "cell_type", rename_all = "snake_case")]
 pub enum Cell {
     Unknown,
     Code(CodeCell),

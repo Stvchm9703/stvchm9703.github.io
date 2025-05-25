@@ -25,7 +25,7 @@ quick-protobuf = "0.8.0"
 once_cell = "*"
 rust_string_utils = "0.1.20"
 regex = "*"
-regex_static = "*"
+lazy-regex = "*"
 convert_blog_post_marco = { path = "./convert_blog_post_marco" }
 stringcase = "*"
 lo_ = "0.1.10"

@@ -175,16 +175,6 @@ impl Page {
             if !subitemvec.is_empty() {
                 itemv.push(TextItem::create_container(&subitemvec));
             }
-
-            // println!("itemc : {:}")
-
-            // if self.id == "bafyreialni2kwfzmrbytsbg3xl4zwug4mp4vbxxri5tcpdddtrfraexhha" {
-            //     println!("itemc : {:#?}", itemv);
-
-            //     println!("text_sebering - snapshot: {:#?}", child);
-            //     // println!("curr-lyr : {:?}", current_layer);
-            //     // println!("child-lyr : {:#?}", child_layer);
-            // }
         }
     }
 

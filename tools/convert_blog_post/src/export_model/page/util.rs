@@ -2,14 +2,12 @@ use crate::{
     export_model::{
         common::DEFAULT_TAG,
         content_block::{ComponentAttrType, text::TextStyle},
-        external_link,
-        external_link::ExternalBookmarkLink,
-        file_object,
-        file_object::FileObject,
+        external_link::{self, ExternalBookmarkLink},
+        file_object::{self, FileObject},
         tag::Tag,
         // trait_impl::{FromBlock, FromRaw, FromSnapshotList},
     },
-    jupyter_notbook::model::JupyterNotebookRoot,
+    jupyter_notbook::{self, model::JupyterNotebookRoot},
 };
 
 use std::{
@@ -37,13 +35,14 @@ pub fn resolve_page_external<'a>(
     file_list: &'a Vec<FileObject>,
     bookmark_list: &'a Vec<ExternalBookmarkLink>,
     tag_list: &'a Vec<Tag>,
-    _nb_list: &'a Vec<JupyterNotebookRoot>,
+    nb_list: &'a Vec<JupyterNotebookRoot>,
 ) {
     //
     page.recheck_fields();
     // resolve the external data inject
     page.resolve_external_link(bookmark_list);
     page.resolve_file_link(file_list);
+    page.resolve_notebook(nb_list);
 
     if let Ok(mut t) = DEFAULT_TAG.lock() {
         if t.id.is_empty() {
