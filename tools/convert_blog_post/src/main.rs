@@ -12,28 +12,22 @@ use std::{
 // use crate::proto::anytype::object::AnytypeObject;
 // use crate::anytype_simplied::{convert_anytype_object, convert_snapshot};
 use crate::export_model::{
-    common::{ObjectTypes, get_snapshot_data, has_object_type},
+    collection::Collection,
+    common::{DEFAULT_TAG, ObjectTypes, get_snapshot_data, has_object_type, header_id_resolver},
+    external_link::ExternalBookmarkLink,
     file_object::FileObject,
-    file_util::save_to_file,
-    page::Page,
-    tag::Tag,
+    file_util::save_to_file_path,
+    page::{self, Page},
+    tag::{self, Tag, option::TagOption},
+    trait_impl::FromRaw,
 };
 use crate::proto::anytype::SnapshotWithType;
 // use crate::anytype_proto::SnapshotWithType;
 
 use anyhow::{Error, Result, anyhow};
-use export_model::{
-    collection::Collection,
-    common::{DEFAULT_TAG, header_id_resolver, path_resolver},
-    external_link::ExternalBookmarkLink,
-    file_util::save_to_file_path,
-    page,
-    tag::{self, option::TagOption},
-    trait_impl::FromRaw,
-};
 use glob;
 use jupyter_notbook::model::JupyterNotebookRoot;
-use proto::anytype::model::{SmartBlockSnapshotBase, SmartBlockType};
+use proto::anytype::model::SmartBlockType;
 use quick_protobuf::MessageRead;
 
 use clap::Parser;
@@ -58,13 +52,12 @@ fn main() {
 fn main_process(arg: &Args) -> Result<(), anyhow::Error> {
     // Test the functionality of the convert_blog_post tool
     // ...
-    let import_path = path::PathBuf::from(&arg.import_path)
-        .canonicalize()
-        .unwrap();
+    let import_path = PathBuf::from(&arg.import_path).canonicalize().unwrap();
 
-    let export_path = path::PathBuf::from(&arg.export_path)
-        .canonicalize()
-        .unwrap();
+    if fs::exists(&arg.export_path).is_ok_and(|f| f == false) {
+        fs::create_dir_all(&arg.export_path)?;
+    }
+    let export_path = PathBuf::from(&arg.export_path).canonicalize().unwrap();
 
     println!("import-path : {:?}", import_path);
     println!("export-path : {:?}", export_path);
@@ -87,8 +80,6 @@ fn main_process(arg: &Args) -> Result<(), anyhow::Error> {
         // Process each file here
         let path = entry.ok().unwrap();
 
-        let filename = path.file_name().unwrap();
-
         let file_bytes = std::fs::read(&path).unwrap();
 
         let mut reader = quick_protobuf::BytesReader::from_bytes(&file_bytes.clone());
@@ -107,12 +98,6 @@ fn main_process(arg: &Args) -> Result<(), anyhow::Error> {
                 && has_object_type(&snapshot_data, ObjectTypes::Page)
             {
                 if let Ok(obj) = Page::from_raw(&fil) {
-                    println!("id: {:?}", obj.id);
-                    println!("file: {:?}", obj.title);
-                    println!("filename: {:?}", filename);
-                    // if obj.id == "bafyreialni2kwfzmrbytsbg3xl4zwug4mp4vbxxri5tcpdddtrfraexhha" {
-                    //     println!("fil: {:#?}", fil);
-                    // }
                     page_list.push(obj);
                 }
             }
@@ -155,7 +140,7 @@ fn main_process(arg: &Args) -> Result<(), anyhow::Error> {
         fs::create_dir_all(&export_file_path)?;
     }
 
-    let file_assets_path = format!("{}/*", export_file_path.to_str().unwrap());
+    let file_assets_path = format!("{}/files/*", import_path.to_str().unwrap());
     for entry in glob::glob(&file_assets_path).unwrap().into_iter() {
         let path = entry.ok().unwrap();
 

@@ -1,7 +1,5 @@
-use std::path::PathBuf;
-
 use crate::export_model::{
-    common::{header_id_resolver, set_relation_name_map},
+    common::set_relation_name_map,
     // option::TagOption,
     page::{Page, ext::PageExternalLink},
     // tag::Tag,
@@ -9,7 +7,6 @@ use crate::export_model::{
 use lo_::chunk;
 // use option::TagOption;
 use serde::{Deserialize, Serialize};
-use serde_json::to_string;
 
 use super::{Tag, option::TagOption};
 pub fn resolve_tag_option<'a>(
@@ -62,9 +59,6 @@ pub fn generate_tag_index(tag_set: &Tag, page_list: &Vec<Page>) -> Vec<TagIndexL
         })
         .collect::<Vec<_>>();
 
-    // println!("total option in tag : {:?}", tag_option_index.len());
-    // println!("review page :{:?}", page_list.len());
-
     for tag_item in tag_option_index.iter_mut() {
         let mut included = page_list
             .iter()
@@ -86,10 +80,7 @@ pub fn generate_tag_index(tag_set: &Tag, page_list: &Vec<Page>) -> Vec<TagIndexL
 
             output.push(tag_item_page);
         }
-        // tag_item.
-        // chunk(untaggedSerie, 150);
     }
-    // println!("total option pages in tag : {:?}", output.len());
 
     return output;
 }
@@ -133,8 +124,6 @@ pub fn generate_serie_index(tag_set: &Tag, page_list: &Vec<Page>) -> Vec<TagInde
 
             output.push(tag_item_page);
         }
-        // tag_item.
-        // chunk(untaggedSerie, 150);
     }
     println!("total option pages in tag : {:?}", output.len());
 

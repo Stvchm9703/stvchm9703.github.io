@@ -24,4 +24,4 @@ src/lib/skill-tree/check-list.txt
 
 tools/convert_blog_post/target/
 blog_post/Anytype.*.*/
-blog_post_resolved/
+blog_post_resolved*

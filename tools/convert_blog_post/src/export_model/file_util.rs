@@ -1,11 +1,12 @@
-use anyhow::{Error, Result, anyhow};
+use anyhow::{Error, Result};
 use serde::Serialize;
 use std::{
     fs::{self, OpenOptions},
     io::Write,
-    path::{Path, PathBuf},
+    path::PathBuf,
 };
 
+/**
 pub fn save_to_file<T: Serialize>(item: &T, fname: &str) -> Result<(), Error> {
     let list_as_json = serde_json::to_string_pretty(item).unwrap();
 
@@ -31,9 +32,9 @@ pub fn save_to_file<T: Serialize>(item: &T, fname: &str) -> Result<(), Error> {
 
     Ok(())
 }
-
+ */
 pub fn save_to_file_path<T: Serialize>(item: &T, fpath: &PathBuf) -> Result<(), Error> {
-    let serializeds = serde_json::to_string_pretty(item).unwrap();
+    let serialized = serde_json::to_string_pretty(item).unwrap();
 
     // let path = Path::new(fname);
     if let Some(parent) = fpath.parent() {

@@ -137,11 +137,4 @@ impl TextItem {
     fn to_endpoint(blk: &ContentBlock) -> TextItem {
         TextItem::Other(blk.to_owned())
     }
-
-    pub fn is_level_text(&self) -> bool {
-        match self {
-            TextItem::LevelText(_) => true,
-            _ => false,
-        }
-    }
 }

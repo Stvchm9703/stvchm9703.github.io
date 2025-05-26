@@ -8,6 +8,7 @@ use super::file_object::FileObject;
 
 #[warn(dead_code)]
 pub trait FromContentBlock: Sized {
+    #[warn(dead_code)]
     fn from_content_block(raw: &ContentBlock) -> Result<Self, Error>;
 }
 

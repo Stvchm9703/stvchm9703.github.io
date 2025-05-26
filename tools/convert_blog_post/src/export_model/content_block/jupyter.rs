@@ -1,7 +1,8 @@
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 
-use crate::jupyter_notbook::model::JupyterNotebookRoot;
+use crate::jupyter_notbook::model::{Cell, CodeCell, JupyterNotebookRoot};
+use crate::jupyter_notbook::util::resolve_jupyter_cell_output;
 
 use super::mark::Mark;
 use super::text::{TextComponentAttr, TextStyle};
@@ -45,6 +46,27 @@ impl JupyterComponentAttr {
     }
     pub fn add_notebook_file(&mut self, file: &JupyterNotebookRoot) {
         // self.file_name = file_name;
-        self.cell = file.cells.get(self.cell_number).cloned();
+        // self.cell =
+        let mut cloned_nb = file.to_owned();
+        let cell_s = cloned_nb.cells.get_mut(self.cell_number);
+        if let Some(cell) = cell_s {
+            if let JupyterCell::Code(code) = cell {
+                if let Some(outputs) = code.outputs.as_mut() {
+                    for output in outputs.iter_mut() {
+                        if let Some(data) = output.data.as_mut() {
+                            // data.push(" ".to_string());
+                            if let Some(text_html) = data.text_html.as_mut() {
+                                if let Ok(html) = resolve_jupyter_cell_output(text_html) {
+                                    *text_html = html;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            self.cell = Some(cell.to_owned());
+        }
+
+        // = cell_s;
     }
 }
