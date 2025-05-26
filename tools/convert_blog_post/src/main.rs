@@ -1,9 +1,13 @@
+mod cli;
 mod export_model;
 mod jupyter_notbook;
 mod proto;
 // mod anytype_simplied;
 
-use std::fs::{self};
+use std::{
+    fs::{self},
+    path::{self, PathBuf},
+};
 
 // use crate::proto::anytype::object::AnytypeObject;
 // use crate::anytype_simplied::{convert_anytype_object, convert_snapshot};
@@ -17,10 +21,12 @@ use crate::export_model::{
 use crate::proto::anytype::SnapshotWithType;
 // use crate::anytype_proto::SnapshotWithType;
 
+use anyhow::{Error, Result, anyhow};
 use export_model::{
     collection::Collection,
-    common::{DEFAULT_TAG, header_id_resolver},
+    common::{DEFAULT_TAG, header_id_resolver, path_resolver},
     external_link::ExternalBookmarkLink,
+    file_util::save_to_file_path,
     page,
     tag::{self, option::TagOption},
     trait_impl::FromRaw,
@@ -30,20 +36,45 @@ use jupyter_notbook::model::JupyterNotebookRoot;
 use proto::anytype::model::{SmartBlockSnapshotBase, SmartBlockType};
 use quick_protobuf::MessageRead;
 
+use clap::Parser;
+use cli::Args;
+
 // use prost::{self, Message};
 
 fn main() {
-    test_prost();
+    let args = Args::parse();
+    // test_prost();
+    println!("args : {:#?}", args.import_path);
+    // args.import_path
+    // args.import_path
+
+    main_process(&args).unwrap();
 }
 
 // const ANYTYPE_BASE_PATH: &str = "../../blog_post/Anytype.20250415.122153.2";
 
-const ANYTYPE_PB_PATH: &str = "../../blog_post/Anytype.20250514.130201.63";
+//const ANYTYPE_PB_PATH: &str = "../../blog_post/Anytype.20250514.130201.63";
 
-fn test_prost() {
+fn main_process(arg: &Args) -> Result<(), anyhow::Error> {
     // Test the functionality of the convert_blog_post tool
     // ...
-    let prefix = format!("{}/**/*.pb", ANYTYPE_PB_PATH);
+    let import_path = path::PathBuf::from(&arg.import_path)
+        .canonicalize()
+        .unwrap();
+
+    let export_path = path::PathBuf::from(&arg.export_path)
+        .canonicalize()
+        .unwrap();
+
+    println!("import-path : {:?}", import_path);
+    println!("export-path : {:?}", export_path);
+
+    let check_import_path = fs::exists(&import_path);
+    if check_import_path.as_ref().is_ok_and(|f| f == &false) || check_import_path.as_ref().is_err()
+    {
+        return Err(anyhow::anyhow!("import path does not exist"));
+    }
+    let prefix = format!("{}/**/*.pb", import_path.to_str().unwrap());
     let mut page_list: Vec<Page> = vec![];
     let mut coll_list: Vec<Collection> = vec![];
     let mut tag_list: Vec<Tag> = vec![];
@@ -117,25 +148,24 @@ fn test_prost() {
 
     tag::util::resolve_tag_option(&mut tag_list, &tag_opt_list);
 
-    let file_assets_path = format!("{}/files/*", ANYTYPE_PB_PATH);
-    let file_tar_path = "rust-ver/";
-
-    if fs::exists(format!("{}/files", file_tar_path)).is_ok_and(|f| f == false) {
-        fs::create_dir(format!("{}/files", file_tar_path));
+    // let file_tar_path = &arg.export_path.to_str().unwrap();
+    let mut export_file_path = export_path.to_owned();
+    export_file_path.push("files");
+    if fs::exists(&export_file_path).is_ok_and(|f| f == false) {
+        fs::create_dir_all(&export_file_path)?;
     }
 
+    let file_assets_path = format!("{}/*", export_file_path.to_str().unwrap());
     for entry in glob::glob(&file_assets_path).unwrap().into_iter() {
         let path = entry.ok().unwrap();
-        // println!("path ; {:?}", path);
+
         let tar_path = path.canonicalize().unwrap().as_path().to_owned();
         let file_name: &str = path.file_name().unwrap().to_str().unwrap();
-        // println!("file_name ; {:?}", file_name);
 
-        if let Err(e) = fs::copy(
-            &tar_path,
-            format!("{}/files/{}", file_tar_path, file_name).as_str(),
-        ) {
-            println!("e : {:?}", e);
+        let mut tar_copy_path = export_file_path.clone();
+        tar_copy_path.push(file_name);
+        if arg.skip_copy == false {
+            fs::copy(&tar_path, &tar_copy_path).expect("failed to copy file");
         }
 
         if path.extension().is_some_and(|f| f == "ipynb") {
@@ -162,29 +192,68 @@ fn test_prost() {
         page::util::resolve_page_related_posts(page, page_ref_list);
     }
 
-    for page in page_list.into_iter() {
-        save_to_file(&page, format!("rust-ver/{}.json", page.id).as_str());
-    }
+    // if let Some(coll) = &arg.collections {
+    //     for coll in coll {
+    //         // let file_dir_name = header_id_resolver(&coll.name, &coll.id);
 
-    export_series_related(tag_list, page_ref_list);
+    //     }
+    // }
+    export_page_collection(page_list, coll_list, &export_path)?;
+    export_series_related(tag_list, page_ref_list, &export_path)?;
+    export_tags_related(page_ref_list, &export_path)?;
 
-    export_tags_related(page_ref_list);
+    Ok(())
 }
 
-fn export_tags_related(page_ref_list: &Vec<Page>) {
+fn export_page_collection(
+    page_list: Vec<Page>,
+    coll_list: Vec<Collection>,
+    file_tar_path: &PathBuf,
+) -> Result<(), anyhow::Error> {
+    let mut index_list = vec![];
+    for coll in coll_list.iter() {
+        let file_dir_name = header_id_resolver(&coll.name, &coll.id);
+        let mut coll_dir = file_tar_path.to_owned();
+        coll_dir.push(file_dir_name);
+        if let Err(e) = fs::create_dir_all(&coll_dir) {
+            eprintln!("Failed to create directory: {}", e);
+            return Err(anyhow!(e));
+        }
+
+        let sub_page = page_list
+            .to_owned()
+            .into_iter()
+            .filter(|p| p.collection_id == coll.id)
+            .collect::<Vec<_>>();
+
+        for page in sub_page.iter() {
+            // page::util::resolve_page_related_posts(page, page_ref_list);
+            let mut page_file_path = coll_dir.to_owned();
+            page_file_path.push(format!("{}.json", page.id));
+
+            save_to_file_path(&page, &page_file_path)?;
+            index_list.push(page.to_index_reference(coll_dir.to_str().unwrap()));
+        }
+    }
+    let mut index_file_path = file_tar_path.to_owned();
+    index_file_path.push("index.json");
+    save_to_file_path(&index_list, &index_file_path)?;
+
+    Ok(())
+}
+
+fn export_tags_related(page_ref_list: &Vec<Page>, file_tar_path: &PathBuf) -> Result<(), Error> {
     if let Ok(tag_set) = DEFAULT_TAG.lock() {
         let tag_page_list = tag::util::generate_tag_index(&tag_set, page_ref_list);
         let mut post_index_page = vec![];
+        let mut tag_path = file_tar_path.to_owned();
+        tag_path.push("tags");
         tag_page_list.iter().for_each(|f| {
-            save_to_file(
-                f,
-                format!(
-                    "rust-ver/tags/{}/p{}.json",
-                    header_id_resolver(f.name.as_str(), f.id.as_str()),
-                    f.page_index.unwrap()
-                )
-                .as_str(),
-            );
+            let mut tag_page_path = tag_path.clone();
+            tag_page_path.push(header_id_resolver(f.name.as_str(), f.id.as_str()));
+            tag_page_path.push(format!("p{}.json", f.page_index.unwrap()));
+
+            save_to_file_path(f, &tag_page_path).expect("fail save tag page json");
 
             if f.page_index.is_some_and(|page_num| page_num == 0) {
                 let mut y = f.to_owned();
@@ -193,26 +262,32 @@ fn export_tags_related(page_ref_list: &Vec<Page>) {
                 post_index_page.push(y);
             }
         });
-        save_to_file(&post_index_page, "rust-ver/tags/index.json");
+
+        let mut index_file_path = tag_path.clone();
+        index_file_path.push("index.json");
+        save_to_file_path(&post_index_page, &index_file_path)?;
     }
+
+    Ok(())
 }
 
-fn export_series_related(tag_list: Vec<Tag>, page_ref_list: &Vec<Page>) {
+fn export_series_related(
+    tag_list: Vec<Tag>,
+    page_ref_list: &Vec<Page>,
+    file_tar_path: &PathBuf,
+) -> Result<(), Error> {
     if let Some(serie_tag) = tag_list.iter().find(|f| f.name == "Series") {
         let serie_page_list = tag::util::generate_serie_index(serie_tag, page_ref_list);
 
         let mut post_index_page = vec![];
+        let mut tag_path = file_tar_path.to_owned();
+        tag_path.push("series");
 
         serie_page_list.iter().for_each(|f| {
-            save_to_file(
-                f,
-                format!(
-                    "rust-ver/series/{}/p{}.json",
-                    header_id_resolver(f.name.as_str(), f.id.as_str()),
-                    f.page_index.unwrap()
-                )
-                .as_str(),
-            );
+            let mut tag_page_path = tag_path.clone();
+            tag_page_path.push(header_id_resolver(&f.name, &f.id));
+            tag_page_path.push(format!("p{}.json", f.page_index.unwrap()));
+            save_to_file_path(f, &tag_page_path).expect("fail save series page json");
 
             if f.page_index.is_some_and(|page_num| page_num == 0) {
                 let mut y = f.to_owned();
@@ -222,6 +297,10 @@ fn export_series_related(tag_list: Vec<Tag>, page_ref_list: &Vec<Page>) {
             }
         });
 
-        save_to_file(&post_index_page, "rust-ver/series/index.json");
+        let mut index_file_path = tag_path.clone();
+        index_file_path.push("index.json");
+        save_to_file_path(&post_index_page, &index_file_path)?;
     }
+
+    Ok(())
 }

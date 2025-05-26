@@ -303,8 +303,11 @@ pub(crate) fn header_id_resolver(text: &str, id: &str) -> String {
     format!("{}_{}", path_resolver(text), get_shorten_id(id))
 }
 
+
+
 #[test]
 fn test_set_field_value() {
+    use convert_blog_post_marco::set_field_value;
     let a = serde_json::json!({
         "x": 1,
         "y" : "z",

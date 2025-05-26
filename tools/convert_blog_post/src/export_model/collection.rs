@@ -15,17 +15,17 @@ use super::{
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Collection {
-    id: String,
+    pub id: String,
     #[serde(rename = "_sid")]
-    sid: String,
-    name: String,
-    description: String,
-    cover: String,
-    styles: Vec<String>,
-    attributes: AttributeMap,
-    workspace_id: String,
-    article_id_list: Vec<String>,
-    articles: BTreeMap<String, Page>,
+    pub sid: String,
+    pub name: String,
+    pub description: String,
+    pub cover: String,
+    pub styles: Vec<String>,
+    pub attributes: AttributeMap,
+    pub workspace_id: String,
+    pub article_id_list: Vec<String>,
+    pub articles: BTreeMap<String, Page>,
     // fromAnytype?(raw: SnapshotWithType): Collection;
 }
 impl<'a> FromRaw<SnapshotWithType<'a>> for Collection {

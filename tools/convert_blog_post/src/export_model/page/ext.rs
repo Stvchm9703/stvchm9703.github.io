@@ -1,4 +1,3 @@
-
 use serde::{Deserialize, Serialize};
 
 use super::{Page, get_shorten_id, path_resolver};
@@ -42,5 +41,34 @@ impl ToPageExternalLink for Page {
     }
     fn to_page_external_link(&self) -> PageExternalLink {
         self.to_page_ext_link()
+    }
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct PageIndexReference {
+    pub id: String,
+    pub post_id: String,
+    pub label: String,
+    pub url: String,
+    pub res: String,
+    pub page_content_path: String,
+    pub publish_date: i64,
+}
+
+impl Page {
+    pub fn to_index_reference(&self, base_path: &str) -> PageIndexReference {
+        return PageIndexReference {
+            id: self.id.to_string(),
+            post_id: self.id.to_string(),
+            label: self.title.to_string(),
+            url: format!(
+                "/posts/{}_{}",
+                get_shorten_id(self.id.as_str()),
+                path_resolver(self.title.as_str())
+            ),
+            res: path_resolver(&self.title),
+            page_content_path: format!("{}/{}.json", base_path, self.id),
+            publish_date: self.publish_date,
+        };
     }
 }
