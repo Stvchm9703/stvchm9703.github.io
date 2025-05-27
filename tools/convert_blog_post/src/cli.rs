@@ -19,4 +19,7 @@ pub struct Args {
 
     #[arg(short, long)]
     pub collections: Option<Vec<String>>,
+
+    #[arg(short, long)]
+    pub ts_export: bool,
 }

@@ -37,11 +37,6 @@ use cli::Args;
 
 fn main() {
     let args = Args::parse();
-    // test_prost();
-    println!("args : {:#?}", args.import_path);
-    // args.import_path
-    // args.import_path
-
     main_process(&args).unwrap();
 }
 
