@@ -25,6 +25,7 @@
     "@sveltejs/kit": "^2.20.7",
     "@sveltejs/vite-plugin-svelte": "^5.0.3",
     "@types/bun": "latest",
+    "@types/lodash-es": "^4.17.12",
     "@unocss/extractor-svelte": "^66.0.0",
     "@unocss/preset-mini": "^66.1.0-beta.6",
     "@unocss/preset-wind3": "^66.1.0-beta.6",
