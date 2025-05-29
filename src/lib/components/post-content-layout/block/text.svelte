@@ -8,7 +8,8 @@
         AccordionContent,
         AccordionTrigger,
     } from "$lib/components/ui/accordion";
-    import Self from "./text.svelte";
+    // import Self from "./text.svelte";
+    import Block from "./layout.svelte";
     import { cn } from "$lib/utils";
     import {
         resolveMarks,
@@ -33,7 +34,7 @@
     const hasText = text !== undefined && text !== "" && text !== null;
     let tMarks = marks.marks || [];
     const resolveHeaderId = (text: string, id: string) =>
-        headerIdResolver(text, id).replaceAll("-", "_").toLowerCase();
+        headerIdResolver(text, id).toLowerCase();
 </script>
 
 {#if element_style === "Header1" && hasText}
@@ -147,13 +148,15 @@
                 {@html resolveMarks(tMarks, text)}
             </AccordionTrigger>
             <AccordionContent class="pl-3 lg:pl-8 pr-2">
-                {#each other["items"] as item}
-                    <Self {...item} />
+                {#each other.items as item}
+                    <!-- {#if item._text_item_type == "Other"} -->
+                    <Block {...item} />
+                    <!-- {/if} -->
                 {/each}
             </AccordionContent>
         </AccordionItem>
     </Accordion>
-{:else if element_style === undefined && hasText}
+{:else if (element_style === "Paragraph" || element_style === undefined) && hasText}
     <p id={headerIdResolver("p", id)} class={resolveStyle(content_style)}>
         <!-- {@debug element_style} -->
         {@html resolveMarks(tMarks, text)}

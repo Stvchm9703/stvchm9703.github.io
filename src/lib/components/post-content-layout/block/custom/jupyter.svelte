@@ -72,17 +72,17 @@
                                 : "bg-transparent",
                         ])}
                     >
-                        {#if outputBlock.data["text/html"]}
-                            {@html outputBlock.data["text/html"].join("")}
-                        {:else if outputBlock.data["text/plain"]}
-                            {@html outputBlock.data["text/plain"].join("")}
-                        {:else if outputBlock.data["image/png"]}
+                        {#if outputBlock.data["image/png"]}
                             <img
                                 class="w-full aspect-3/2 block object-contain object-position-center"
                                 src={`data:image/png;base64,${outputBlock.data["image/png"]}`}
                                 alt="Image"
                                 aria-label="render result, {fileName} - cell: {cellNumber}"
                             />
+                        {:else if outputBlock.data["text/html"]}
+                            {@html outputBlock.data["text/html"].join("")}
+                        {:else if outputBlock.data["text/plain"]}
+                            {@html outputBlock.data["text/plain"].join("")}
                         {:else}
                             No data available
                         {/if}

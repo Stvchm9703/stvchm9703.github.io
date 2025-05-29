@@ -12,7 +12,7 @@ import { buttonVariants } from "$lib/components/ui/button";
     <!-- {/* Main Headline */} -->
     <div class="mb-10">
         <h2 class="font-serif text-2xl md:text-5xl font-bold mb-4 capitalize">
-            {post.title}
+            {post.label}
         </h2>
         <div class="flex gap-2 text-muted-foreground mb-4 items-center">
             {#if post.serie}
@@ -21,14 +21,14 @@ import { buttonVariants } from "$lib/components/ui/button";
                         href={post.serie.url}
                         target="_self"
                     >
-                        {post.serie.name}
+                        {post.serie.label}
                     </a>
 
                 <i class="h-4 border-r-1 border-r-slate-400 border-r-solid -mb-1"></i>
             {/if}
             <div class="flex items-center gap-1">
                 <CalendarIcon class="h-4 w-4" />
-                <span class="text-sm">{displayDate(post.publish_date)}</span>
+                <span class="text-sm">{displayDate(post.publishDate)}</span>
             </div>
             <i class="h-4 border-r-1 border-r-slate-400 border-r-solid -mb-1"></i>
             <span class="text-sm">{"steven"}</span>
@@ -42,9 +42,7 @@ import { buttonVariants } from "$lib/components/ui/button";
                         {post.snippet}
                     </p>
                     <div class="flex gap-4 mt-3">
-                        {#each post.tags as tag}
-                        <Tag {...tag} />
-                        {/each}
+                        {#each post.tags as tag} <Tag {...tag} /> {/each}
                     </div>
                     {/if}
                 </div>

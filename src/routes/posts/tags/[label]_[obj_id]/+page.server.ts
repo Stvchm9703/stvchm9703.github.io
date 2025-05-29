@@ -4,6 +4,7 @@ import type { MetaTagsProps, Twitter, OpenGraph } from "svelte-meta-tags";
 
 import { BASE } from "$env/static/private";
 import { pathResolver } from "$generateor/common";
+import { kebabCase } from "lodash-es";
 
 export const prerender = true;
 export const csr = false;
@@ -13,7 +14,9 @@ export const load: PageLoad = async ({ fetch, params }) => {
   const tags = await index_req.json();
   const tagObj = tags.find((s) => s._sid === params.obj_id);
 
-  const tag = await fetch(`http://localhost:3000/tags/${tagObj.id}/p0.json`);
+  const tag = await fetch(
+    `http://localhost:3000/tags/${kebabCase(tagObj.name)}_${tagObj._sid}/p0.json`,
+  );
 
   return {
     tag: await tag.json(),

@@ -58,10 +58,10 @@
             <PostCard
                 key={post.id}
                 id={post.id}
-                title={post.title}
+                title={post.label}
                 content={post.snippet}
                 serie={post.serie}
-                post_date={displayDate(post.publish_date)}
+                post_date={displayDate(post.publishDate)}
                 link={post.url}
                 tags={post.tags}
                 class="mb-4"

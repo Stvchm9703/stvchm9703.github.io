@@ -1,16 +1,16 @@
 <script lang="ts">
-    import Self from "./layout.svelte";
+    // import Self from "./layout.svelte";
     const block = $props();
+    const { componentType, layoutStyle } = block.componentAttr;
+
+    const items = block.componentAttr?.items || [];
+
     import { cn } from "$lib/utils";
-    import {
-        resolveMarks,
-        pathResolver,
-        headerIdResolver,
-        resolveStyle,
-    } from "./common";
+    import { headerIdResolver } from "./common";
     // id={headerIdResolver(componentType, id)}
 
     // CMS - content block render Component
+    import FlexBlock from "$lib/components/post-content-layout/block/flex_block.svelte";
     import BlockText from "$lib/components/post-content-layout/block/text.svelte";
     import BlockCode from "$lib/components/post-content-layout/block/code.svelte";
     import BlockLatex from "$lib/components/post-content-layout/block/latex.svelte";
@@ -20,43 +20,42 @@
     import BlockFile from "$lib/components/post-content-layout/block/file.svelte";
     import BlockJupyter from "$lib/components/post-content-layout/block/custom/jupyter.svelte";
     // import BlockLayout from "$lib/components/post-content-layout/block/layout.svelte";
+
+    // console.log();
 </script>
 
-{#if block.componentType.includes("Layout")}
+{#if componentType === "Layout"}
     <div
-        id={headerIdResolver(block.componentType, block.id)}
+        id={headerIdResolver(componentType + "-" + layoutStyle, block.id || "")}
         class={cn([
             {
-                "flex flex-col lg:flex-row":
-                    block.componentType === "LayoutRow",
-                "block flex-1": block.componentType === "LayoutColumn",
+                "flex flex-col lg:flex-row": layoutStyle === "Row",
+                "block flex-1": layoutStyle === "Column",
             },
         ])}
     >
-        {#each block.children as child_blk}
-            <Self {...child_blk} />
+        {#each items as child_blk, childIDX}
+            <FlexBlock {...child_blk} />
         {/each}
     </div>
-{:else if block.componentType === "Text" && block.componentAttr["style"] === "Code"}
+{:else if componentType === "Text" && block.componentAttr["style"] === "Code"}
     <BlockCode {...block} />
-{:else if block.componentType === "JupyterComponent"}
+{:else if componentType === "JupyterComponent"}
     <BlockJupyter {...block} />
-{:else if block.componentType === "Text"}
+{:else if componentType === "Text"}
     <BlockText {...block} />
-{:else if block.componentType === "Table"}
+{:else if componentType === "Table"}
     <BlockTable {...block} />
-{:else if block.componentType === "Bookmark"}
+{:else if componentType === "Bookmark"}
     <BlockBookmark {...block} />
-{:else if block.componentType === "File"}
+{:else if componentType === "File"}
     <BlockFile {...block} />
-{:else if block.componentType === "Link"}
+{:else if componentType === "Link"}
     <BlockLink {...block} />
-{:else if block.componentType === "Latex"}
+{:else if componentType === "Latex"}
     <BlockLatex {...block} />
-{:else if block.componentType === "Layout" || block.componentType === "TableOfContents" || block.componentType === "Relation"}
-    <!-- <span> not yet implement : {block.componentType} </span> -->
-{:else if block.componentType === "CustomComponent"}
-    <!-- <span> not yet implement : {block.componentType} </span> -->
+{:else if componentType === "CustomComponent"}
+    <!-- <span> not yet implement : {componentType} </span> -->
 {:else}
-    <!-- <span> not yet implement : {block.componentType} </span> -->
+    <!-- <span> not yet implement : {componentType} </span> -->
 {/if}

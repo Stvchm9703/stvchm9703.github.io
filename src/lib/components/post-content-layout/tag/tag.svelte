@@ -1,7 +1,7 @@
 <script>
     import { cn } from "$lib/utils";
     import { badgeVariants } from "$lib/components/ui/badge";
-    const { id, name, url, ...rest } = $props();
+    const { id, label : name, url, ...rest } = $props();
 </script>
 
 <a

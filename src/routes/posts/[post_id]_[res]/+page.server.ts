@@ -45,8 +45,8 @@ function resolvePostDetailMetaTags(post: IPage) {
   const title = post.title;
   const description = post.snippet;
   const tags = [
-    post.serie?.name ?? "",
-    ...post.tags.map((tag) => tag.name),
+    post.serie?.label ?? "",
+    ...post.tags.map((tag) => tag.label),
   ].filter((p) => p !== "");
   const twitter = {
     cardType: "summary_large_image",
@@ -58,7 +58,7 @@ function resolvePostDetailMetaTags(post: IPage) {
     title,
     description,
     article: {
-      publishedTime: new Date((post.publish_date ?? 0) * 1000).toISOString(),
+      publishedTime: new Date((post.publishDate ?? 0) * 1000).toISOString(),
       // modifiedTime: post.updatedAt,
       authors: [BASE],
       tags,

@@ -7,6 +7,7 @@ import type { MetaTagsProps, Twitter, OpenGraph } from "svelte-meta-tags";
 
 import { BASE } from "$env/static/private";
 import { pathResolver } from "$lib/utils";
+import { kebabCase } from "lodash-es";
 
 export const prerender = true;
 export const csr = false;
@@ -22,7 +23,7 @@ export const load: PageLoad = async ({ fetch, params }) => {
   }
 
   const serie = await fetch(
-    `http://localhost:3000/series/${seriesObj.id}/p0.json`,
+    `http://localhost:3000/series/${kebabCase(seriesObj.name)}_${seriesObj._sid}/p0.json`,
   );
 
   if (!serie.ok) {
@@ -51,7 +52,7 @@ function resolveTagsIndexPageMetaTags(tagObj: any) {
   const openGraph = {
     title,
     description,
-    url: `${BASE}/posts/tags/${tag}_${tagObj._sid}`,
+    url: `${BASE}/posts/series/${tag}_${tagObj._sid}`,
   } satisfies OpenGraph;
 
   const tmpBase: MetaTagsProps = {

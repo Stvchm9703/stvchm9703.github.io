@@ -98,7 +98,7 @@ export const resolveMarks = (marks: TextMark[], text: string): string => {
   return result;
 };
 export const headerIdResolver = (text: string, id: string) =>
-  `${pathResolver(text || "")}-${id.slice(-6)}`;
+  `${pathResolver(text || "")}_${id.slice(-8)}`;
 
 export const pathResolver = (path: string) =>
   path

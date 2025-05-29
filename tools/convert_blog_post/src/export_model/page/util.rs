@@ -15,7 +15,7 @@ use std::{
     // collections::BTreeMap,
 };
 
-use super::Page;
+use super::{Page, ext::ToPageMiniExternalLink};
 // use anyhow::{Error, anyhow};
 // use super::attr::get_page_details;
 // use convert_blog_post_marco::set_field_value;
@@ -213,8 +213,18 @@ impl Page {
     pub(crate) fn to_post_card_link(&self) -> PageExternalLink {
         let mut tmp = self.to_page_ext_link();
         tmp.snippet = Some(self.snippet.to_string());
-        tmp.tags = Some(self.tags.to_owned());
-
+        tmp.tags = Some(
+            self.tags
+                .to_owned()
+                .iter()
+                .map(|f| f.to_page_mini_external_link())
+                .collect(),
+        );
+        if let Some(d) = self.serie.as_ref() {
+            let mut link = d.to_page_mini_external_link();
+            link.url = link.url.replace("/tags/", "/series/");
+            tmp.serie = Some(link);
+        }
         return tmp;
     }
 }

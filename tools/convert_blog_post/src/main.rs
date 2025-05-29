@@ -194,7 +194,7 @@ fn export_page_collection(
     for coll in coll_list.iter() {
         let file_dir_name = header_id_resolver(&coll.name, &coll.id);
         let mut coll_dir = file_tar_path.to_owned();
-        coll_dir.push(file_dir_name);
+        coll_dir.push(&file_dir_name);
         if let Err(e) = fs::create_dir_all(&coll_dir) {
             eprintln!("Failed to create directory: {}", e);
             return Err(anyhow!(e));
@@ -212,7 +212,7 @@ fn export_page_collection(
             page_file_path.push(format!("{}.json", page.id));
 
             save_to_file_path(&page, &page_file_path)?;
-            index_list.push(page.to_index_reference(coll_dir.to_str().unwrap()));
+            index_list.push(page.to_index_reference(&file_dir_name));
         }
     }
     let mut index_file_path = file_tar_path.to_owned();

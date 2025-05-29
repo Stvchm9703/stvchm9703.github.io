@@ -62,7 +62,7 @@
                 title={post.title}
                 content={post.snippet}
                 serie={post.serie}
-                post_date={displayDate(post.publish_date)}
+                post_date={displayDate(post.publishDate)}
                 link={post.url}
                 tags={post.tags}
                 class="mb-4"

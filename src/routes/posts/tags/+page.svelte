@@ -1,5 +1,7 @@
 <script>
     import { cn, pathResolver, once, preventDefault } from "$lib/utils";
+    import { kebabCase } from "lodash-es";
+
     import { page } from "$app/state";
     import Tag from "$lib/components/post-content-layout/tag/tag.svelte";
     import { MetaTags } from "svelte-meta-tags";
@@ -57,8 +59,8 @@
         {#each tagList as tag}
             <Tag
                 {...tag}
-                name={`${tag.name} (${tag.resultList.length})`}
-                url="/posts/tags/{pathResolver(tag.name)}_{tag._sid}"
+                label={`${tag.name} (${tag.totalCount})`}
+                url="/posts/tags/{kebabCase(tag.name)}_{tag._sid}"
                 onclick={preventDefault(() => handleTagClick(tag))}
             />
         {/each}

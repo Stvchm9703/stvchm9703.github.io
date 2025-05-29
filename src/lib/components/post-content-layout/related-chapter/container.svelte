@@ -14,7 +14,7 @@
                     class="font-medium hover:underline"
                     target="_self"
                 >
-                    {chapter.title}
+                    {chapter.label}
                 </a>
             </div>
         {/each}

@@ -25,7 +25,7 @@ export const pathResolver = (path: string) => {
     .join("-");
 };
 export const displayDate = (publish_date: number) =>
-  new Date(publish_date * 1000).toLocaleDateString();
+  publish_date !== 0 ? new Date(publish_date * 1000).toLocaleDateString() : "";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

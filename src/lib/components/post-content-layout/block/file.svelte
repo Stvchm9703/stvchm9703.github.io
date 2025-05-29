@@ -7,7 +7,7 @@
         id,
         fields,
         componentAttr,
-        style: content_style,
+        // style: content_style,
         ...rest
     }: ContentBlock = $props();
 

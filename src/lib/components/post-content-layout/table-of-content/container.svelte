@@ -16,7 +16,7 @@
                 class={"block text-sm hover:underline py-1 border-l-2 border-transparent hover:border-primary pl-2 ransition-colors"}
                 style={`padding-left: ${item.level * 0.75}rem;`}
             >
-                {item.title}
+                {item.label}
             </a>
         {/each}
     </nav>

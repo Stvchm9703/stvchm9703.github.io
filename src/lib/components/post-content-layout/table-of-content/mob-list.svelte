@@ -14,7 +14,7 @@
                 href={item.url}
                 class="block text-sm hover:underline py-1"
             >
-                {item.title}
+                {item.label}
             </a>
         {/each}
         <!-- ))} -->

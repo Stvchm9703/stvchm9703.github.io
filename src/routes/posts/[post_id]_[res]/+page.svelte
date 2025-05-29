@@ -39,11 +39,13 @@
     import { displayDate } from "$lib/utils";
     import { MetaTags } from "svelte-meta-tags";
     import { onMount } from "svelte";
+    // import { mel } from "svelte-highlight/languages";
 
     const post: IPage = page.data.content;
     const { meta } = page.data;
     onMount(() => {
         console.log(post);
+        console.log(meta);
     });
 </script>
 
@@ -67,7 +69,7 @@
             {#if isEmpty(post.serie) == false}
                 <BreadcrumbItem>
                     <BreadcrumbLink href={post.serie?.url}>
-                        {post.serie?.name}
+                        {post.serie?.label}
                     </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator>
@@ -110,7 +112,7 @@
             <div class="mb-8">
                 <div class="flex flex-wrap gap-2 mb-3">
                     {#each post.tags as tag}
-                        <Tag {...tag} />
+                        <Tag {...tag} key={tag.id} />
                     {/each}
                 </div>
                 <h2
@@ -126,7 +128,7 @@
                         <!-- <Calendar class="w-4 h-4 text-current" /> -->
                         <i class="w-4 h-4 i-carbon-calendar"></i>
                         <span class="text-sm"
-                            >{displayDate(post.publish_date)}</span
+                            >{displayDate(post.publishDate)}</span
                         >
                     </div>
                     <!-- <div class="flex items-center gap-2">
@@ -142,13 +144,13 @@
 
             <!-- {/* Article Content */} -->
             <div class="font-serif leading-relaxed mb-12">
-                {#each post.reformedContents as block}
+                {#each post.contents as block}
                     <BlockLayout {...block} />
                 {/each}
             </div>
         </article>
         <!-- {/* Related Posts */} -->
-        {#if post.relatedPosts.length > 0}
+        {#if post.relatedArticles.length > 0}
             <div class="mb-12">
                 <h4 class="font-serif text-2xl font-bold mb-4">
                     Related Articles
@@ -156,7 +158,7 @@
                 <hr class="mb-6" />
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <!-- {post.relatedPosts.map((relatedPost) => ( -->
-                    {#each post.relatedPosts as relatedPost}
+                    {#each post.relatedArticles.slice(0, 3) as relatedPost}
                         <a
                             id={relatedPost.id}
                             key={relatedPost.id}
@@ -165,13 +167,13 @@
                             target="_self"
                         >
                             <article
-                                title={relatedPost.title}
+                                title={relatedPost.label}
                                 class="border p-4 h-full hover:bg-muted/50 transition-colors"
                             >
                                 <h5
                                     class="font-serif text-lg font-bold group-hover:underline"
                                 >
-                                    {relatedPost.title}
+                                    {relatedPost.label}
                                 </h5>
                             </article>
                         </a>

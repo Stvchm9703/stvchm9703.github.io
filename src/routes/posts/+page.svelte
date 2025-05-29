@@ -46,9 +46,9 @@
                 <PostCard
                     id={post.id}
                     key={post.id}
-                    title={post.title}
+                    title={post.label}
                     content={post.snippet}
-                    post_date={displayDate(post.publish_date)}
+                    post_date={displayDate(post.publishDate)}
                     link={post.url}
                     tags={post.tags}
                 />
