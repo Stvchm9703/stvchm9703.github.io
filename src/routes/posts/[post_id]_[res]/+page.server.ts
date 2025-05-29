@@ -9,7 +9,7 @@ import type {
 } from "svelte-meta-tags";
 import { displayDate } from "$lib/utils";
 import { BASE } from "$env/static/private";
-// export const csr = false;
+export const csr = false;
 export const prerender = true;
 
 export const load: PageLoad = async ({ fetch, params }) => {

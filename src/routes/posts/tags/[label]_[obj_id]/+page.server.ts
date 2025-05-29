@@ -5,6 +5,7 @@ import type { MetaTagsProps, Twitter, OpenGraph } from "svelte-meta-tags";
 import { BASE } from "$env/static/private";
 import { pathResolver } from "$generateor/common";
 import { kebabCase } from "lodash-es";
+import { error } from "@sveltejs/kit";
 
 export const prerender = true;
 export const csr = false;
@@ -13,6 +14,12 @@ export const load: PageLoad = async ({ fetch, params }) => {
   const index_req = await fetch("http://localhost:3000/tags/index.json");
   const tags = await index_req.json();
   const tagObj = tags.find((s) => s._sid === params.obj_id);
+
+  if (!tagObj) {
+    error(404, {
+      message: "Series Not found",
+    });
+  }
 
   const tag = await fetch(
     `http://localhost:3000/tags/${kebabCase(tagObj.name)}_${tagObj._sid}/p0.json`,

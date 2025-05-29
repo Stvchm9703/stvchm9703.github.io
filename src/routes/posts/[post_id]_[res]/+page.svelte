@@ -23,14 +23,6 @@
     // import PostCard from "$lib/components/post-layout/card/base-card.svelte";
 
     // CMS - content block render Component
-    // import BlockText from "$lib/components/post-content-layout/block/text.svelte";
-    // import BlockCode from "$lib/components/post-content-layout/block/code.svelte";
-    // import BlockLatex from "$lib/components/post-content-layout/block/latex.svelte";
-    // import BlockTable from "$lib/components/post-content-layout/block/table.svelte";
-    // import BlockBookmark from "$lib/components/post-content-layout/block/bookmark.svelte";
-    // import BlockLink from "$lib/components/post-content-layout/block/link.svelte";
-    // import BlockFile from "$lib/components/post-content-layout/block/file.svelte";
-    // import BlockJupyter from "$lib/components/post-content-layout/block/custom/jupyter.svelte";
     import BlockLayout from "$lib/components/post-content-layout/block/layout.svelte";
 
     import { isEmpty } from "lodash-es";
@@ -131,10 +123,6 @@
                             >{displayDate(post.publishDate)}</span
                         >
                     </div>
-                    <!-- <div class="flex items-center gap-2">
-                        <i class="w-4 h-4 i-carbon-time"></i>
-                        <span class="text-sm">{post.readTime}</span>
-                    </div> -->
                     <div class="flex items-center gap-2">
                         <i class="w-4 h-4 i-carbon-user"></i>
                         <span class="text-sm"> By Steven, </span>

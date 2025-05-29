@@ -171,6 +171,9 @@ impl Page {
             if let Some(serie_id) = series.first() {
                 if let Some(tag) = GLOBAL_RELATION_NAMEMAP.lock().unwrap().get(rel_key) {
                     self.serie = tag.get_option_page_link(serie_id);
+                    if let Some(serie_field) = self.serie.as_mut() {
+                        serie_field.url = serie_field.url.replace("/tags/", "/series/");
+                    }
                 }
             }
         }

@@ -79,6 +79,10 @@
                                 alt="Image"
                                 aria-label="render result, {fileName} - cell: {cellNumber}"
                             />
+                            <figcaption>
+                                {outputBlock.data["text/plain"]}
+                                render result, {fileName} - cell: {cellNumber}
+                            </figcaption>
                         {:else if outputBlock.data["text/html"]}
                             {@html outputBlock.data["text/html"].join("")}
                         {:else if outputBlock.data["text/plain"]}
@@ -90,8 +94,7 @@
                 {/each}
             {:else if cell_type === "markdown"}
                 <section class="jupyter-cell markdown block">
-                    <Markdown md={source.join("")} plugins={exmdPlugins}
-                    ></Markdown>
+                    <Markdown md={source.join("")} plugins={exmdPlugins} />
                 </section>
             {/if}
         </Tabs.Content>
