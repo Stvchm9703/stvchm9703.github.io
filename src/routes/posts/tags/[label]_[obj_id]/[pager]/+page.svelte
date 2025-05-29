@@ -4,6 +4,8 @@
     import { buttonVariants } from "$lib/components/ui/button";
     import { displayDate, cn } from "$lib/utils";
     import { MetaTags } from "svelte-meta-tags";
+    import { kebabCase } from "lodash-es";
+
     const { meta, tag } = $page.data;
 </script>
 
@@ -40,8 +42,15 @@
                     buttonVariants.variants.size.lg,
                     "leading-12",
                 ])}
-                href="/posts/tags/{tag.name}_{tag._sid}/{tag.pageIndex + 1}"
-                htmx-get="/posts/tags/{tag.name}_{tag._sid}/{tag.pageIndex + 1}"
+                href="/posts/tags/{kebabCase(
+                    tag.name,
+                )}_{tag._sid}/{tag.pageIndex + 1}"
+                hx-get="/posts/pr/tags/{kebabCase(
+                    tag.name,
+                )}_{tag._sid}/{tag.pageIndex + 1}"
+                hx-trigger="click"
+                hx-target="#parent-div"
+                hx-swap="afterend transition:true scroll:bottom"
             >
                 Load More
             </a>

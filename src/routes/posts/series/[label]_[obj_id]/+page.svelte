@@ -4,6 +4,8 @@
     import { buttonVariants } from "$lib/components/ui/button";
     import { displayDate, cn } from "$lib/utils";
     import { MetaTags } from "svelte-meta-tags";
+    import { kebabCase } from "lodash-es";
+
     import {
         Breadcrumb,
         BreadcrumbItem,
@@ -78,10 +80,15 @@
                     buttonVariants.variants.size.lg,
                     "leading-12",
                 ])}
-                href="/posts/series/{serie.name}_{serie._sid}/{serie.pageIndex +
-                    1}"
-                htmx-get="/posts/series/{serie.name}_{serie._sid}/{serie.pageIndex +
-                    1}"
+                href="/posts/series/{kebabCase(
+                    serie.name,
+                )}_{serie._sid}/{serie.pageIndex + 1}"
+                hx-get="/posts/pr/series/{kebabCase(
+                    serie.name,
+                )}_{serie._sid}/{serie.pageIndex + 1}"
+                hx-trigger="click"
+                hx-target="#parent-div"
+                hx-swap="afterend"
             >
                 Load More
             </a>

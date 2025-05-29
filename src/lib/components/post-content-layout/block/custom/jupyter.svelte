@@ -98,7 +98,17 @@
                 </section>
             {/if}
         </Tabs.Content>
-        <Tabs.Content value="source" class={tabContentClass}>
+        <Tabs.Content
+            value="source"
+            class={cn([
+                tabContentClass,
+                "bg-slate-100",
+                "flex",
+                "flex-col",
+                "flex-1",
+                "justify-center",
+            ])}
+        >
             {#await initHighlight() then mod}
                 <Highlight
                     language={mod}
@@ -130,7 +140,7 @@
     @import "$lib/styles/svelte_highlight.css";
     .jupyter-cell {
         /* @apply border-1 border-solid border-coolgray-200; */
-        @apply w-auto content;
+        @apply w-auto block;
     }
     .jupyter-cell :global(th),
     .jupyter-cell :global(td) {

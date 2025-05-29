@@ -4,6 +4,7 @@
     import { buttonVariants } from "$lib/components/ui/button";
     import { displayDate, cn } from "$lib/utils";
     import { MetaTags } from "svelte-meta-tags";
+    import { kebabCase } from "lodash-es";
     import {
         Breadcrumb,
         BreadcrumbItem,
@@ -54,7 +55,7 @@
     <hr />
 
     <hr />
-    <div class="flex flex-col gap-4" datatype="vcard">
+    <div id="parent-div" class="flex flex-col gap-4" datatype="vcard">
         {#each serie.resultList as post}
             <PostCard
                 key={post.id}
@@ -77,10 +78,15 @@
                     buttonVariants.variants.size.lg,
                     "leading-12",
                 ])}
-                href="/posts/tags/{serie.name}_{serie._sid}/{serie.pageIndex +
-                    1}"
-                htmx-get="/posts/tags/{serie.name}_{serie._sid}/{serie.pageIndex +
-                    1}"
+                href="/posts/series/{kebabCase(
+                    serie.name,
+                )}_{serie._sid}/{serie.pageIndex + 1}"
+                hx-get="/posts/pr/series/{kebabCase(
+                    serie.name,
+                )}_{serie._sid}/{serie.pageIndex + 1}"
+                hx-trigger="click"
+                hx-target="#parent-div"
+                hx-swap="afterend"
             >
                 Load More
             </a>

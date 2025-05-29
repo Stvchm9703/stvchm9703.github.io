@@ -36,8 +36,8 @@
     const post: IPage = page.data.content;
     const { meta } = page.data;
     onMount(() => {
-        console.log(post);
-        console.log(meta);
+        // console.log(post);
+        // console.log(meta);
     });
 </script>
 
