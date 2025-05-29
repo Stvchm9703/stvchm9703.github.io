@@ -5,6 +5,10 @@
     import { Button } from "$lib/components/ui/button";
     // import { Blocks, Calendar } from "lucide-svelte";
     import {
+        initLightGallery,
+        // lightgallery,
+    } from "$lib/stores/lightgallery.svelte";
+    import {
         Breadcrumb,
         BreadcrumbItem,
         BreadcrumbLink,
@@ -32,12 +36,13 @@
     import { MetaTags } from "svelte-meta-tags";
     import { onMount } from "svelte";
     // import { mel } from "svelte-highlight/languages";
-
     const post: IPage = page.data.content;
     const { meta } = page.data;
+
+    /** @type {HTMLDivElement} */
+    let articleContent;
     onMount(() => {
-        // console.log(post);
-        // console.log(meta);
+        initLightGallery(articleContent, post.meta.images);
     });
 </script>
 
@@ -131,7 +136,10 @@
             </div>
 
             <!-- {/* Article Content */} -->
-            <div class="font-serif leading-relaxed mb-12">
+            <div
+                bind:this={articleContent}
+                class="font-serif leading-relaxed mb-12"
+            >
                 {#each post.contents as block}
                     <BlockLayout {...block} />
                 {/each}
@@ -189,3 +197,9 @@
         </div>
     </div>
 </section>
+
+<style>
+    /* @import "lightgallery/css/lightgallery.css"; */
+    /* @import "lightgallery/css/lg-thumbnail.css"; */
+    /* @import "lightgallery/css/lg-zoom.css"; */
+</style>

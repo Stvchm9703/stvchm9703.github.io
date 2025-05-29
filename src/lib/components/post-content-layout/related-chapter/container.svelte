@@ -8,7 +8,7 @@
     </h4>
     <div class="space-y-4">
         {#each relatedChapters as chapter}
-            <div key={chapter.id} class="text-sm">
+            <div key={chapter.id} class="text-sm my-2">
                 <a
                     href={chapter.url}
                     class="font-medium hover:underline"

@@ -83,6 +83,7 @@
     "d3-zoom": "^3.0.0",
     "fuse.js": "^7.1.0",
     "highlight.js": "^11.11.1",
+    "lightgallery": "^2.8.3",
     "lodash-es": "^4.17.21",
     "lucide-svelte": "^0.503.0",
     "mermaid": "^11.6.0",

@@ -2,6 +2,12 @@
     import type { ContentBlock } from "$generateor/content_block";
     import { cn } from "$lib/utils";
     import { headerIdResolver, resolveStyle } from "./common";
+    import {
+        // initLightGallery,
+        // lightgallery,
+        openGallery,
+    } from "$lib/stores/lightgallery.svelte";
+
     const {
         postTitle,
         id,
@@ -25,7 +31,11 @@
 </script>
 
 {#if fileType === "Image"}
-    <figure id={elemId} class={cn([baseClass, resolveStyle(style)])}>
+    <figure
+        id={elemId}
+        class={cn([baseClass, resolveStyle(style)])}
+        onclick={() => openGallery(fileUrl)}
+    >
         <figcaption></figcaption>
         <picture>
             <img
