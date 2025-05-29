@@ -5,6 +5,7 @@ import type { MetaTagsProps, Twitter, OpenGraph } from "svelte-meta-tags";
 import { BASE } from "$env/static/private";
 import { error, redirect } from "@sveltejs/kit";
 import { pathResolver } from "$lib/utils";
+import { kebabCase } from "lodash-es";
 
 export const prerender = true;
 export const csr = false;
@@ -35,7 +36,7 @@ export const load: PageLoad = async ({ fetch, params }) => {
   }
 
   const serie = await fetch(
-    `http://localhost:3000/series/${seriesObj.id}/p${params.pager}.json`,
+    `http://localhost:3000/tags/${kebabCase(seriesObj.name)}_${seriesObj._sid}/p${params.pager}.json`,
   );
 
   if (!serie.ok) {
