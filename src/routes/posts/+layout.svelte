@@ -1,13 +1,10 @@
 <script>
 
   import "uno.css";
-
     import { page } from "$app/state";
-
     // let today_date = new Date().toLocaleDateString();
-    const { today_date, today_year  } = page.data;
+    const { today_date, today_year } = page.data;
     const { children } = $props();
-
     import { MetaTags } from 'svelte-meta-tags';
 </script>
 
@@ -24,7 +21,7 @@
 <div class="container mx-auto px-4  max-w-7xl">
     <section class="pt-4 pb-2 lg:pb-4">
         <!-- {/* Newspaper Header */} -->
-        <div class="border-b-2 border-dark-900 lg:pb-4 lg:mb-8">
+        <div class="border-b-2 border-dark-900 lg:pb-4 lg:mb-4">
             <h1
                 class="font-serif text-5xl md:text-7xl text-center font-bold tracking-tight"
             >

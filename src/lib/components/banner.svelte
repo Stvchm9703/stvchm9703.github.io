@@ -1,7 +1,7 @@
 <!-- @migration-task Error while migrating Svelte code: $$props is used together with named props in a way that cannot be automatically migrated. -->
 <script>
     import { onMount } from "svelte";
-    import { Picture } from "svelte-lazy-loader";
+    // import { Picture } from "svelte-lazy-loader";
     import ImageSet from "./Image.svelte";
     import { intersect } from "@svelte-put/intersect";
 
@@ -37,7 +37,9 @@
     </slot>
 
     <div
-        class="relative p-4 lg:p-16 2xl:pl-24 w-auto block z-2 overflow-hidden {isFullScreen ? 'h-full' : ''}"
+        class="relative p-4 lg:p-16 2xl:pl-24 w-auto block z-2 overflow-hidden {isFullScreen
+            ? 'h-full'
+            : ''}"
     >
         <div class="max-w-screen-2xl mx-auto w-full {containerClass}">
             <slot>

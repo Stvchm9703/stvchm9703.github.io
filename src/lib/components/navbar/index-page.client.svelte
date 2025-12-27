@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { createSuspense, Suspense } from "@svelte-drama/suspense";
+  import { Suspense } from "@svelte-drama/suspense";
   import MediaQuery from "svelte-media-queries";
   // const suspend = createSuspense();
 
@@ -26,12 +26,12 @@
       {#snippet children({ matches })}
         {@const [tablet, desktop] = matches}
         {#if tablet}
-          {#await suspend(MobNavComponent) then MyComponent}
-            <MyComponent {activeId} />
+          {#await suspend(MobNavComponent) then MobComponent}
+            <MobComponent {activeId} />
           {/await}
         {:else if desktop}
-          {#await suspend(PCNavComponent) then MyComponent}
-            <MyComponent />
+          {#await suspend(PCNavComponent) then PcComponent}
+            <PcComponent />
           {/await}
         {/if}
             {/snippet}

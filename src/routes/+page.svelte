@@ -17,14 +17,14 @@
 
   import ScrollFrame from "$lib/components/scroll-frame.svelte";
   // import SkillTree from "$lib/skill-tree/elk/main.svelte";
-  import SkillV2 from "$lib/components/skillset/main.svelte"
+  import SkillV2 from "$lib/components/skillset/main.svelte";
   import ProjectSet from "$lib/components/project-set/card-list.svelte";
   import ImageSet from "$lib/components/Image.svelte";
 
   // import { onMount } from "svelte";
   import { page } from "$app/state";
-    import { MetaTags } from "svelte-meta-tags";
-  const {meta} = page.data;
+  import { MetaTags } from "svelte-meta-tags";
+  const { meta } = page.data;
 
   let currentSection = "index";
 </script>
@@ -82,13 +82,20 @@
   </h1>
   <BannerGridCell align="left" row={2} class="xl:min-h-64">
     <h2 class="subtitle">A Man who run with code</h2>
-    <div class="text-light-200">almost, but not quite. Highly motivated and detail-oriented software developer with 3+ years of experience in designing, developing, and deploying cutting-edge software solutions. Proficient in Javascript, C#, Golang with expertise in Web Application. Proven track record of delivering high-quality projects on time, with a strong passion for innovation and continuous learning.</div>
+    <div class="text-light-200">
+      almost, but not quite. Highly motivated and detail-oriented software
+      developer with 3+ years of experience in designing, developing, and
+      deploying cutting-edge software solutions. Proficient in Javascript, C#,
+      Golang with expertise in Web Application. Proven track record of
+      delivering high-quality projects on time, with a strong passion for
+      innovation and continuous learning.
+    </div>
   </BannerGridCell>
 
   <BannerGridCell align="right" row={2} class="xl:min-h-64">
     <h2 class="subtitle">A Game Maker</h2>
     <div class="text-light-200">
-        small, fanart, with C# skill, that how I create games using Unity Engine.
+      small, fanart, with C# skill, that how I create games using Unity Engine.
     </div>
   </BannerGridCell>
   <h1
@@ -221,8 +228,7 @@
     />
   </BannerGridCell>
 
-<!--  -->
-
+  <!--  -->
 </Banner>
 
 <Banner
@@ -321,7 +327,7 @@
               <div class="flex flex-col">
                 <a
                   class="text-right 2xl:text-2xl text-lg text-light-50 font-light"
-                  href="https://www.linkedin.com/in/chengsteven430431182/"
+                  href="https://www.linkedin.com/in/cheng-steven-430431182/"
                   target="_blank"
                 >
                   Steven Cheng

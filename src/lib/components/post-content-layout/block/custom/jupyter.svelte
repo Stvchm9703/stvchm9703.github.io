@@ -15,6 +15,8 @@
     const { source, outputs, cell_type } = cell;
     const elemId = headerIdResolver("jupyter", id);
 
+    import Island from "$lib/islands/island.svelte";
+
     async function initHighlight() {
         if (cell_type === "code") {
             return await import(`svelte-highlight/languages/python`).then(

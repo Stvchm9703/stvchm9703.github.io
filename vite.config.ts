@@ -9,13 +9,14 @@ import entryShakingPlugin from "vite-plugin-entry-shaking";
 import stripComments from "vite-plugin-strip-comments";
 import { visualizer } from "rollup-plugin-visualizer";
 import { imagetools } from "vite-imagetools";
+import devtoolsJson from "vite-plugin-devtools-json";
 import dynamicImport from "vite-plugin-dynamic-import";
 // import type { UserConfig } from "vite";
 import { defineConfig, loadEnv } from "vite";
 import deadFile from "vite-plugin-deadfile";
 // import transformerDirectives from '@unocss/transformer-directives'
 
-console.log("schould be here");
+// console.log("schould be here");
 
 export default defineConfig(async ({ mode }) => {
   process.env = { ...process.env, ...loadEnv(mode, process.cwd()) };
@@ -35,6 +36,7 @@ export default defineConfig(async ({ mode }) => {
           }
         },
       }),
+      devtoolsJson(),
       // deadFile({
       //   include: ["src/**"],
       // }),

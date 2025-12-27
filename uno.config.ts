@@ -6,7 +6,7 @@ import {
   presetWind,
 } from "unocss";
 
-import presetWind4 from "@unocss/preset-wind4";
+// import presetWind4 from "@unocss/preset-wind4";
 import { colors } from "@unocss/preset-wind4/colors";
 const colorKey = Object.keys(colors);
 // import { presetDaisy } from 'unocss-preset-daisy';
@@ -54,7 +54,7 @@ export default defineConfig({
   presets: [
     presetAnimations(),
     presetWind(),
-    presetWind4(),
+    // presetWind4(),
     presetFluid(),
     presetIcons({
       collections: {
@@ -87,16 +87,19 @@ export default defineConfig({
     {
       getCSS: ({ theme }) => `
       html { scroll-behavior: smooth; }
-      *{ font-family: ${theme.fontFamily.sans}; }
+      *{ font-family: ${theme.fontFamily.sans}; --at-apply: border-border;}
       code, pre, .font-mono {
         font-family: ${theme.fontFamily.mono};
+      }
+      body {
+        --at-apply: bg-background text-foreground m-0;
       }
     `,
     },
   ],
   safelist: [
     ...flatten(
-      colorKey.map((color) => [`bg-${color}-300/30`, `text-${color}-700`]),
+      colorKey.map((color) => [`bg-${color}-300/30`, `text-${color}-700`])
     ),
     "prose",
   ],

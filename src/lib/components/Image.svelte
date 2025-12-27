@@ -1,6 +1,6 @@
 <script>
     // import { onMount } from "svelte";
-    import { Picture } from "svelte-lazy-loader";
+    import Picture from "./lazy-picture.svelte";
 
     // export let alt = "";
     // export let height = ""; // needed to reduce CLS

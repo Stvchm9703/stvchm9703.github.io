@@ -17,8 +17,8 @@ export const initLightGallery = (el: HTMLElement, page_img_item: any[]) => {
       id: idx,
       path: item.url,
       src: `/blog/assets/${item.url}`,
-      // thumb: item.thumbnail,
-      subHtml: "<h4>Image 1 title</h4><p>Image 1 descriptions.</p>",
+      thumb: `/blog/assets/${item.url}`,
+      subHtml: "",
     }));
 
     lightgallery = lightGallery(el, {
@@ -27,11 +27,7 @@ export const initLightGallery = (el: HTMLElement, page_img_item: any[]) => {
       plugins: [lgZoom],
       dynamic: true,
       download: false,
-      dynamicEl: page_img_item.map((item, idx) => ({
-        id: idx,
-        path: item.url,
-        src: `/blog/assets/${item.url}`,
-      })),
+      dynamicEl: items,
     });
   }
 };
