@@ -3,7 +3,7 @@ import { sveltekit } from "@sveltejs/kit/vite";
 // import unocss from '@unocss/svelte-scoped/vite';
 import unocss from "@unocss/vite";
 import ViteCompression from "vite-plugin-compression";
-// import { extractorSvelte } from "@unocss/core";
+import extractorSvelte from "@unocss/extractor-svelte";
 import { chunkSplitPlugin } from "vite-plugin-chunk-split";
 import entryShakingPlugin from "vite-plugin-entry-shaking";
 import stripComments from "vite-plugin-strip-comments";
@@ -40,11 +40,14 @@ export default defineConfig(async ({ mode }) => {
       // deadFile({
       //   include: ["src/**"],
       // }),
+      sveltekit(),
+
       unocss({
+        // configOrPath: 'uno.config.ts',
         // mode: 'dist-chunk',
+        // injectReset: "@unocss/reset/tailwind.css",
         configFile: "uno.config.ts",
       }),
-      sveltekit(),
       // entryShakingPlugin({
       //   targets: [
       //     // Or using glob patterns.

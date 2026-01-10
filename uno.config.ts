@@ -3,10 +3,9 @@ import {
   presetTypography,
   presetWebFonts,
   // presetMini,
-  presetWind,
+  presetWind4,
 } from "unocss";
-
-// import presetWind4 from "@unocss/preset-wind4";
+import { createRemToPxProcessor } from "@unocss/preset-wind4/utils";
 import { colors } from "@unocss/preset-wind4/colors";
 const colorKey = Object.keys(colors);
 // import { presetDaisy } from 'unocss-preset-daisy';
@@ -53,8 +52,17 @@ export default defineConfig({
   ],
   presets: [
     presetAnimations(),
-    presetWind(),
-    // presetWind4(),
+    // presetWind(),
+    presetWind4({
+      preflights: {
+        
+        reset: true,
+        theme: {
+          mode: 'on-demand',
+          process: createRemToPxProcessor(),
+        },
+      },
+    }),
     presetFluid(),
     presetIcons({
       collections: {
@@ -87,10 +95,8 @@ export default defineConfig({
     {
       getCSS: ({ theme }) => `
       html { scroll-behavior: smooth; }
-      *{ font-family: ${theme.fontFamily.sans}; --at-apply: border-border;}
-      code, pre, .font-mono {
-        font-family: ${theme.fontFamily.mono};
-      }
+      *{ --at-apply: border-border font-sans;}
+      code, pre, .font-mono { --at-apply: font-mono; }
       body {
         --at-apply: bg-background text-foreground m-0;
       }

@@ -1,16 +1,39 @@
-<script>
-    import { cn } from "$lib/utils.ts";
-    export let direction = "left";
-    export let pauseOnHover = false;
-    export let reverse = false;
-    export let fade = false;
-    export let innerClassName = "";
-    export let numberOfCopies = 2;
+<script lang="ts" module>
+    import type { Snippet } from "svelte";
+    export interface MargueeProps {
+        direction?: "left" | "up";
+        pauseOnHover?: boolean;
+        reverse?: boolean;
+        fade?: boolean;
+        innerClassName?: string;
+        numberOfCopies?: number;
+        class?: string;
+        children?: Snippet;
+    }
 </script>
+
+
+<script lang="ts">
+    import { cn } from "$lib/utils";
+    let {
+        direction = "left",
+        pauseOnHover = true,
+        reverse = false,
+        fade = true,
+        innerClassName = "",
+        numberOfCopies = 2,
+        class: className = "",
+        children,
+        ...restProps
+    }: MargueeProps = $props();
+</script>
+
+
+
 
 <div
     class={cn(
-        `group flex gap-[1rem] overflow-hidden py-2 ${$$restProps.class}`,
+        `group flex gap-[1rem] overflow-hidden py-2 ${className}`,
         {
             "flex-row": direction === "left",
             "flex-col": direction !== "left",
@@ -44,7 +67,7 @@
                 innerClassName,
             )}
         >
-            <slot />
+            {@render children?.()}
         </div>
     {/each}
 </div>
