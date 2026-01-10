@@ -1,6 +1,6 @@
 mod cli;
 mod export_model;
-mod jupyter_notbook;
+mod jupyter_notebook;
 mod proto;
 // mod anytype_simplied;
 
@@ -26,7 +26,7 @@ use crate::proto::anytype::SnapshotWithType;
 
 use anyhow::{Error, Result, anyhow};
 use glob;
-use jupyter_notbook::model::JupyterNotebookRoot;
+use jupyter_notebook::model::JupyterNotebookRoot;
 use proto::anytype::model::SmartBlockType;
 use quick_protobuf::MessageRead;
 
