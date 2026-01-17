@@ -36,12 +36,13 @@
     import { MetaTags } from "svelte-meta-tags";
     import { onMount } from "svelte";
     // import { mel } from "svelte-highlight/languages";
-    const post: IPage = page.data.content;
-    const { meta } = page.data;
+    const { content: post, meta } = page.data;
+    // const {  } = page.data;
 
     /** @type {HTMLDivElement} */
     let articleContent;
     onMount(() => {
+        // console.log(post);
         initLightGallery(articleContent, post.meta.images);
     });
 </script>

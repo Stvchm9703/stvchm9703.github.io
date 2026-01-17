@@ -52,7 +52,11 @@ fn main_process(arg: &Args) -> Result<(), anyhow::Error> {
     if fs::exists(&arg.export_path).is_ok_and(|f| f == false) {
         fs::create_dir_all(&arg.export_path)?;
     }
-    let export_path = PathBuf::from(&arg.export_path).canonicalize().unwrap();
+    let mut export_path_str = arg.export_path.to_str().unwrap();
+    if export_path_str.trim().is_empty() {
+        export_path_str = format!("./exported_blog_posts__{}", chrono::Local::now().format("%Y%m%d%H%M%S")).as_str();
+    }
+    let export_path = PathBuf::from(&export_path_str).canonicalize().unwrap();
 
     println!("import-path : {:?}", import_path);
     println!("export-path : {:?}", export_path);

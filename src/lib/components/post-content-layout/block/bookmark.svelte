@@ -5,7 +5,7 @@
         CardTitle,
         CardDescription,
     } from "$lib/components/ui/card";
-    import type { ContentBlock } from "$generateor/content_block";
+    // import type { ContentBlock } from "$generateor/content_block";
     import { resolveMarks, resolveStyle, headerIdResolver } from "./common";
 
     let { class: className, id, componentAttr, ...rest } = $props();

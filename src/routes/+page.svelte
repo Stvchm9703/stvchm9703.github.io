@@ -26,16 +26,16 @@
   import { MetaTags } from "svelte-meta-tags";
   const { meta } = page.data;
 
-  let currentSection = "index";
+  
+  
+
 </script>
 
 <!-- <svelte:head>
   <title>Steven, the web dev</title>
 </svelte:head> -->
-
 <MetaTags {...meta} />
-
-<Navbar activeId={currentSection} />
+<Navbar />
 
 <Banner
   id="index"
