@@ -3,12 +3,12 @@ use smallvec::{SmallVec, smallvec};
 
 use super::Page;
 use crate::export_model::content_block::{
-        ComponentAttrType, ContentBlock,
-        layout::{LayoutComponentAttr, LayoutItem},
-        text::{TextComponentAttr, TextItem, TextStyle},
-    };
+    ComponentAttrType, ContentBlock,
+    layout::{LayoutComponentAttr, LayoutItem},
+    text::{TextComponentAttr, TextItem, TextStyle},
+};
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 struct PageTextListSet {
     pub style: TextStyle,
     pub start: usize,
@@ -21,20 +21,29 @@ struct PageTextListSet {
 }
 
 impl PageTextListSet {
-    pub fn is_sebering(&self, style: &TextStyle, order: &usize, layer: &usize) -> bool {
-        return &self.style == style && order > &self.end && &self.layer == layer;
+    /// Check if a block can be added to this sibering group.
+    /// Must be same style, same layer, and consecutive order (end + 1 == new order)
+    pub fn can_continue_sibering(&self, style: &TextStyle, order: &usize, layer: &usize) -> bool {
+        &self.style == style && &self.layer == layer && self.end + 1 == *order
     }
 
     pub fn push_next(&mut self, blk: &ContentBlock) -> Result<(), Error> {
-        if self.end + 1 > blk.order {
-            return Err(anyhow!("unresovled"));
+        if self.end + 1 != blk.order {
+            return Err(anyhow!(
+                "not consecutive: expected order {}, got {}",
+                self.end + 1,
+                blk.order
+            ));
         }
 
-        self.end = blk.order.to_owned();
+        self.end = blk.order;
         self.sebering_id_list.push(blk.id.to_owned());
-        // self.4 = layer;
-        //
         return Ok(());
+    }
+
+    /// Returns true if this group has multiple items (actual sibering occurred)
+    pub fn has_siblings(&self) -> bool {
+        self.sebering_id_list.len() > 1
     }
 }
 
@@ -123,7 +132,6 @@ impl Page {
         // 696b1639e212b5ce0180b80d
 
         if let Some(root_blk) = tmp_cache_contents.get(&self.id) {
-            // add default layer
             tmp_text_mark_and_number.push(PageTextListSet {
                 style: TextStyle::Title,
                 is_header: true,
@@ -135,6 +143,7 @@ impl Page {
 
         let current_layer = 1;
 
+        // First pass: resolve internal children and collect sibering groups
         for id in order_list {
             let ct_blk = tmp_cache_contents.get_mut(id);
 
@@ -144,42 +153,102 @@ impl Page {
                     &mut tmp_text_mark_and_number,
                     current_layer,
                 );
-                self.contents.push(blk.to_owned());
             }
         }
 
-        if let Some(root_blk) = tmp_cache_contents.get_mut(&self.id) {
-            // self.transform_text_list(root_blk, &mut tmp_text_mark_and_number, 0);
-            let child = tmp_text_mark_and_number
-                .iter()
-                .filter(|p| {
-                    p.layer == 1
-                        && root_blk
-                            .children_ids
-                            .as_ref()
-                            .is_some_and(|f| f.contains(&p.start_id))
-                })
-                .collect::<Vec<_>>();
+        // Second pass: group consecutive list items and build final contents
+        self.apply_sibering_groups(order_list, &tmp_text_mark_and_number, current_layer);
+    }
 
-            let mut itemv: Vec<TextItem> = vec![];
-            let mut subitemvec: Vec<TextItem> = vec![];
+    /// Apply sibering groups to create grouped list containers in the final output
+    fn apply_sibering_groups(
+        &mut self,
+        order_list: &Vec<String>,
+        text_sebering: &PageTextListMainSet,
+        layer: usize,
+    ) {
+        // Get all sibering groups at this layer that have multiple items
+        let layer_groups: Vec<&PageTextListSet> = text_sebering
+            .iter()
+            .filter(|g| g.layer == layer && g.sebering_id_list.len() >= 1)
+            .collect();
 
-            for &item in child.iter() {
-                if let Some(s) = tmp_cache_contents.get(&item.start_id) {
-                    let subitem = TextItem::to_subitem(s);
-                    if matches!(subitem, TextItem::LevelText(_)) {
-                        if !subitemvec.is_empty() {
-                            itemv.push(TextItem::create_container(&subitemvec));
-                        }
-                        subitemvec = vec![subitem];
-                    } else {
-                        subitemvec.push(subitem);
-                    }
-                }
+        // Build a set of IDs that are part of sibering groups (not the first item)
+        let mut skip_ids: std::collections::HashSet<String> = std::collections::HashSet::new();
+        for group in layer_groups.iter() {
+            // Skip all items except the first one - they'll be grouped with the first
+            for id in group.sebering_id_list.iter().skip(1) {
+                skip_ids.insert(id.clone());
+            }
+        }
+
+        // Build the final contents list
+        for id in order_list {
+            // Skip items that are part of a sibering group (not the first item)
+            if skip_ids.contains(id) {
+                continue;
             }
 
-            if !subitemvec.is_empty() {
-                itemv.push(TextItem::create_container(&subitemvec));
+            // Check if this id is the start of a sibering group
+            let sibering_group = layer_groups.iter().find(|g| g.start_id == *id);
+
+            if let Some(group) = sibering_group {
+                if group.sebering_id_list.len() > 1 {
+                    // This is the start of a group with siblings - create a container
+                    let container = self.create_list_container(group);
+                    self.contents.push(container);
+                } else {
+                    // Single item, just push it normally
+                    if let Some(blk) = self.cache_contents.get(id) {
+                        self.contents.push(blk.to_owned());
+                    }
+                }
+            } else {
+                // Not part of any sibering group, push normally
+                if let Some(blk) = self.cache_contents.get(id) {
+                    self.contents.push(blk.to_owned());
+                }
+            }
+        }
+    }
+
+    /// Create a container ContentBlock that groups multiple consecutive list items
+    fn create_list_container(&self, group: &PageTextListSet) -> ContentBlock {
+        let mut items: Vec<TextItem> = vec![];
+
+        for id in group.sebering_id_list.iter() {
+            if let Some(blk) = self.cache_contents.get(id) {
+                let item = TextItem::to_subitem(blk);
+                items.push(item);
+            }
+        }
+
+        // Get the first block to use as the base for the container
+        let first_blk = self.cache_contents.get(&group.start_id);
+
+        if let Some(base_blk) = first_blk {
+            let mut container = base_blk.clone();
+
+            // Update the component_attr to include all items
+            if let ComponentAttrType::Text(ref mut text_attr) = container.component_attr {
+                text_attr.items = Some(items);
+            }
+
+            // Update children_ids to include all sibering IDs
+            container.children_ids = Some(group.sebering_id_list.clone());
+
+            container
+        } else {
+            // Fallback: create a minimal container
+            ContentBlock {
+                id: group.start_id.clone(),
+                order: group.start,
+                component_attr: ComponentAttrType::Text(TextComponentAttr {
+                    style: group.style.clone(),
+                    items: Some(items),
+                    ..TextComponentAttr::default()
+                }),
+                ..ContentBlock::default()
             }
         }
     }
@@ -190,9 +259,6 @@ impl Page {
         text_sebering: &mut PageTextListMainSet,
         current_layer: usize,
     ) {
-        // if self.id == "bafyreialni2kwfzmrbytsbg3xl4zwug4mp4vbxxri5tcpdddtrfraexhha" {
-        //     println!("current_block : {:#?}", current_block);
-        // }
         self.resolve_layout_nest_children(current_block, text_sebering, current_layer);
         self.resolve_text_nest_children(current_block, text_sebering, current_layer);
     }
@@ -247,15 +313,18 @@ impl Page {
         }
 
         if attr.style == TextStyle::Numbered || attr.style == TextStyle::Marked {
-            let sebering = text_sebering
-                .iter_mut()
-                .find(|p| p.is_sebering(&attr.style, &cloned_curr_blk.order, &current_layer));
-            if let Some(last_item) = sebering {
-                // find next?
-                let _ = last_item.push_next(&cloned_curr_blk);
+            // Try to find an existing sibering group that this block can continue
+            let sebering = text_sebering.iter_mut().find(|p| {
+                p.can_continue_sibering(&attr.style, &cloned_curr_blk.order, &current_layer)
+            });
+
+            if let Some(existing_group) = sebering {
+                // This block continues an existing sibering group
+                let _ = existing_group.push_next(&cloned_curr_blk);
             } else {
+                // Start a new sibering group
                 text_sebering.push(PageTextListSet {
-                    style: attr.style,
+                    style: attr.style.clone(),
                     is_header: false,
                     start: cloned_curr_blk.order,
                     start_id: cloned_curr_blk.id.to_owned(),
@@ -270,18 +339,20 @@ impl Page {
         self.transform_text_list(current_block, text_sebering, current_layer);
     }
 
+    /// Transform nested children within a text block (for Toggle, Marked, Numbered with children)
     fn transform_text_list(
         &mut self,
         current_block: &mut ContentBlock,
         text_sebering: &mut PageTextListMainSet,
         current_layer: usize,
     ) {
-        if text_sebering.len() == 0 {
+        if text_sebering.is_empty() {
             return;
         }
         let cached = self.cache_contents.to_owned();
 
-        let child_layer = text_sebering
+        // Find sibering groups that are children of this block (next layer down)
+        let child_layer_groups: Vec<&PageTextListSet> = text_sebering
             .iter()
             .filter(|p| {
                 p.layer == current_layer + 1
@@ -290,51 +361,64 @@ impl Page {
                         .as_ref()
                         .is_some_and(|f| f.contains(&p.start_id))
             })
-            .collect::<Vec<_>>();
+            .collect();
 
-        // if self.id == "bafyreialni2kwfzmrbytsbg3xl4zwug4mp4vbxxri5tcpdddtrfraexhha" {
-        //     println!("text_sebering - snapshot: {:#?}", text_sebering);
-        //     println!("curr-lyr : {:?}", current_layer);
-        //     println!("child-lyr : {:#?}", child_layer);
-        // }
-        if child_layer.len() > 0 {
-            let mut itemv: Vec<TextItem> = vec![];
-            let mut subitemvec: Vec<TextItem> = vec![];
-            // let mut is_
-            match &mut current_block.component_attr {
-                ComponentAttrType::Text(text) => {
-                    if let Some(r) = current_block.children_ids.to_owned() {
-                        for it in r.iter() {
-                            if let Some(s) = cached.get(it) {
-                                let subitem = TextItem::to_subitem(s);
-                                if matches!(subitem, TextItem::LevelText(_)) {
-                                    if !subitemvec.is_empty() {
-                                        itemv.push(TextItem::create_container(&subitemvec));
+        if !child_layer_groups.is_empty() {
+            // Build a set of IDs that should be skipped (non-first items in sibering groups)
+            let mut skip_ids: std::collections::HashSet<String> = std::collections::HashSet::new();
+            for group in child_layer_groups.iter() {
+                for id in group.sebering_id_list.iter().skip(1) {
+                    skip_ids.insert(id.clone());
+                }
+            }
+
+            let mut items: Vec<TextItem> = vec![];
+
+            if let ComponentAttrType::Text(text) = &mut current_block.component_attr {
+                if let Some(child_ids) = current_block.children_ids.to_owned() {
+                    for child_id in child_ids.iter() {
+                        // Skip non-first items in sibering groups
+                        if skip_ids.contains(child_id) {
+                            continue;
+                        }
+
+                        // Check if this child starts a sibering group
+                        let child_group =
+                            child_layer_groups.iter().find(|g| g.start_id == *child_id);
+
+                        if let Some(group) = child_group {
+                            if group.sebering_id_list.len() > 1 {
+                                // Create a container for the sibering group
+                                let mut group_items: Vec<TextItem> = vec![];
+                                for gid in group.sebering_id_list.iter() {
+                                    if let Some(blk) = cached.get(gid) {
+                                        group_items.push(TextItem::to_subitem(blk));
                                     }
-                                    subitemvec = vec![subitem];
-                                } else {
-                                    subitemvec.push(subitem);
                                 }
+                                items.push(TextItem::create_container(&group_items));
+                            } else {
+                                // Single item
+                                if let Some(blk) = cached.get(child_id) {
+                                    items.push(TextItem::to_subitem(blk));
+                                }
+                            }
+                        } else {
+                            // Not part of any sibering group
+                            if let Some(blk) = cached.get(child_id) {
+                                items.push(TextItem::to_subitem(blk));
                             }
                         }
                     }
-                    if !subitemvec.is_empty() {
-                        itemv.push(TextItem::create_container(&subitemvec));
-                    }
-                    text.items = Some(itemv);
-                    // current_block.component_attr = ComponentAttrType::Text(text.to_owned());
-                    // println!("cur-blk : {:#?}", current_block);
                 }
-                _ => {}
+                text.items = Some(items);
             }
         }
 
+        // Update the cache with the modified block
         let new_block = current_block.clone();
         self.cache_contents.remove(&current_block.id);
-        let _ = self
-            .cache_contents
-            .insert(new_block.id.to_owned(), new_block.to_owned());
-        // text_sebering.clear();
+        self.cache_contents
+            .insert(new_block.id.to_owned(), new_block);
     }
     fn resolve_layout_nest_children(
         &mut self,
@@ -345,18 +429,16 @@ impl Page {
         let attr: &mut LayoutComponentAttr;
         match &mut current_block.component_attr {
             ComponentAttrType::Layout(e) | ComponentAttrType::Table(e) => attr = e,
-            _ => {
-                // println!("skip resolve_layout_nest_children");
-                return;
-            }
+            _ => return,
         }
 
-        let lk_children_ids = current_block.children_ids.as_ref().unwrap();
+        let Some(lk_children_ids) = current_block.children_ids.as_ref() else {
+            return;
+        };
         let mut cached = self.cache_contents.to_owned();
 
-        for child_id in lk_children_ids.into_iter() {
-            let child_blk_result = cached.get_mut(child_id);
-            if let Some(child_blk) = child_blk_result {
+        for child_id in lk_children_ids.iter() {
+            if let Some(child_blk) = cached.get_mut(child_id) {
                 if child_blk.children_ids.is_some() {
                     self.resolve_internal_children_pipeline(
                         child_blk,
@@ -366,9 +448,8 @@ impl Page {
                 }
 
                 let layout_item = LayoutItem::from_content_block(child_blk);
-
                 if let Err(e) = attr.push_item(layout_item) {
-                    println!("error throw in {:?}", e);
+                    eprintln!("Error adding layout item: {:?}", e);
                 }
             }
         }
