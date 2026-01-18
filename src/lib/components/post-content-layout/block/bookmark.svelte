@@ -16,9 +16,9 @@
     isElement="a"
     stComponent="bookmark"
     href={componentAttr.url}
-    class={[resolveStyle(componentAttr["style"]), "my-2", className]}
+    class={[resolveStyle(componentAttr["style"]), ["my-4", "py-0"],  className]}
 >
-    <CardContent class={["py-4"]}>
+    <CardContent class={["py-4", "space-y-2"]}>
         <CardTitle>{componentAttr.title}</CardTitle>
         <CardDescription>{componentAttr.description}</CardDescription>
     </CardContent>
