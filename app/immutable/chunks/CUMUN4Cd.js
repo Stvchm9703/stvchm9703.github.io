@@ -1,1 +1,0 @@
-import{C as l}from"./BW5koCBL.js";function o(o,i){var r,s=null==(r=o.$$events)?void 0:r[i.type],t=l(s)?s.slice():null==s?[]:[s];for(var a of t)a.call(this,i)}export{o as b};

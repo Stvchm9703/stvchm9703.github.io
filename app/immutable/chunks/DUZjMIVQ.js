@@ -1,1 +1,0 @@
-import{G as n,I as r,J as u,q as a,S as s}from"./BW5koCBL.js";function t(n,r){return n===r||(null==n?void 0:n[s])===r}function l(s={},l,o,i){return n((()=>{var n,i;return r((()=>{n=i,i=[],u((()=>{s!==o(...i)&&(l(s,...i),n&&t(o(...n),s)&&l(null,...n))}))})),()=>{a((()=>{i&&t(o(...i),s)&&l(null,...i)}))}})),s}export{l as b};

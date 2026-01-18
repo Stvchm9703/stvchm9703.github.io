@@ -1,0 +1,1 @@
+const a=Math.abs,s=Math.atan2,t=Math.cos,n=Math.max,h=Math.min,M=Math.sin,o=Math.sqrt,r=1e-12,c=Math.PI,i=c/2,u=2*c;function e(a){return a>1?0:a<-1?c:Math.acos(a)}function f(a){return a>=1?i:a<=-1?-i:Math.asin(a)}export{t as a,n as c,M as d,o as f,s as i,h as l,e as n,r as o,u as p,f as r,i as s,a as t,c as u};
