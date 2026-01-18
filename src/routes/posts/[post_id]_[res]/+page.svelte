@@ -3,7 +3,7 @@
 
     import { page } from "$app/state";
     import { Button } from "$lib/components/ui/button";
-    // import { Blocks, Calendar } from "lucide-svelte";
+
     import {
         initLightGallery,
         // lightgallery,
@@ -17,7 +17,7 @@
         BreadcrumbSeparator,
     } from "$lib/components/ui/breadcrumb";
 
-    import Slash from "svelte-radix/Slash.svelte";
+    // import Slash from "svelte-radix/Slash.svelte";
     // import Separator from "$lib/components/ui/separator/separator.svelte";
     import TableOfContents from "$lib/components/post-content-layout/table-of-content/container.svelte";
     import TableOfContentsMobile from "$lib/components/post-content-layout/table-of-content/mob-list.svelte";
@@ -48,31 +48,27 @@
 </script>
 
 <MetaTags {...meta} />
-
+<template>
+    {JSON.stringify(post)}
+</template>
 <section class="pt-2 pb-4 lg:pb-6">
     <Breadcrumb>
         <BreadcrumbList>
             <BreadcrumbItem>
                 <BreadcrumbLink href="/">Home</BreadcrumbLink>
             </BreadcrumbItem>
-            <BreadcrumbSeparator>
-                <Slash tabindex="-1" />
-            </BreadcrumbSeparator>
+            <BreadcrumbSeparator />
             <BreadcrumbItem>
                 <BreadcrumbLink href="/posts">Blog Post</BreadcrumbLink>
             </BreadcrumbItem>
-            <BreadcrumbSeparator>
-                <Slash tabindex="-1" />
-            </BreadcrumbSeparator>
+            <BreadcrumbSeparator />
             {#if isEmpty(post.serie) == false}
                 <BreadcrumbItem>
                     <BreadcrumbLink href={post.serie?.url}>
                         {post.serie?.label}
                     </BreadcrumbLink>
                 </BreadcrumbItem>
-                <BreadcrumbSeparator>
-                    <Slash tabindex="-1" />
-                </BreadcrumbSeparator>
+                <BreadcrumbSeparator />
             {/if}
 
             <BreadcrumbItem>

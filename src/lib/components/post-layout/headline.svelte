@@ -1,5 +1,5 @@
 <script>
-    import CalendarIcon from "lucide-svelte/icons/calendar";
+    import CalendarIcon from "@lucide/svelte/icons/calendar";
     import Separator from "$lib/components/ui/separator/separator.svelte";
     import Image from "$lib/components/Image.svelte";
     import Tag from "$lib/components/post-content-layout/tag/tag.svelte";

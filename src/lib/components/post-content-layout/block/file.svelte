@@ -30,6 +30,10 @@
     const elemId = headerIdResolver(fileType, id);
 </script>
 
+<template>
+    {JSON.stringify(componentAttr)}
+</template>
+
 {#if fileType === "Image"}
     <figure
         id={elemId}
@@ -58,3 +62,4 @@
         {fileName}
     </a>
 {/if}
+

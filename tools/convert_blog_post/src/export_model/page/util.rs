@@ -133,10 +133,9 @@ impl Page {
     }
 
     pub(crate) fn resolve_toc_component(&mut self) {
-        let toc_list = self
+        let mut toc_blocks: Vec<_> = self
             .cache_contents
             .values()
-            .into_iter()
             .filter(|p| {
                 if let ComponentAttrType::Text(attr) = &p.component_attr {
                     return attr.style == TextStyle::Header1
@@ -144,12 +143,17 @@ impl Page {
                         || attr.style == TextStyle::Header3
                         || attr.style == TextStyle::Header4;
                 }
-                // p.debug_type == "text"
                 return false;
             })
-            .map(|p| p.to_toc_link().unwrap())
-            .collect::<Vec<_>>();
-        self.table_of_contents = toc_list;
+            .collect();
+
+        // Sort by the block's order field
+        toc_blocks.sort_by_key(|b| b.order);
+
+        self.table_of_contents = toc_blocks
+            .into_iter()
+            .filter_map(|p| p.to_toc_link())
+            .collect();
     }
 
     pub(crate) fn resolve_tag_link(&mut self) {

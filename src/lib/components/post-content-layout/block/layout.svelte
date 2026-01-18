@@ -1,8 +1,11 @@
 <script lang="ts">
     // import Self from "./layout.svelte";
     const block = $props();
-    const { componentType, layoutStyle } = block.componentAttr;
+    // const { componentType, layoutStyle } = block.componentAttr;
 
+    const componentType = block.componentAttr?.componentType || "Unkown";
+    const layoutStyle = block.componentAttr?.layoutStyle || "";
+    
     const items = block.componentAttr?.items || [];
 
     import { cn } from "$lib/utils";
@@ -26,7 +29,7 @@
 
 {#if componentType === "Layout"}
     <div
-        id={headerIdResolver(componentType + "-" + layoutStyle, block.id || "")}
+        id={headerIdResolver(componentType + "_" + layoutStyle, block.id || "")}
         class={cn([
             {
                 "flex flex-col lg:flex-row": layoutStyle === "Row",

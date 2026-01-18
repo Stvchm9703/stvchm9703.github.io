@@ -432,12 +432,26 @@ impl Page {
             _ => return,
         }
 
+        // Skip if items are already populated (avoid duplicates)
+        if attr.items.as_ref().is_some_and(|items| !items.is_empty()) {
+            return;
+        }
+
         let Some(lk_children_ids) = current_block.children_ids.as_ref() else {
             return;
         };
-        let mut cached = self.cache_contents.to_owned();
+        let lk_children_ids = lk_children_ids.clone();
+        let mut cached = self.cache_contents.clone();
+
+        // Track which child IDs have been added to prevent duplicates
+        let mut added_ids: std::collections::HashSet<String> = std::collections::HashSet::new();
 
         for child_id in lk_children_ids.iter() {
+            // Skip if already added
+            if added_ids.contains(child_id) {
+                continue;
+            }
+
             if let Some(child_blk) = cached.get_mut(child_id) {
                 if child_blk.children_ids.is_some() {
                     self.resolve_internal_children_pipeline(
@@ -450,8 +464,15 @@ impl Page {
                 let layout_item = LayoutItem::from_content_block(child_blk);
                 if let Err(e) = attr.push_item(layout_item) {
                     eprintln!("Error adding layout item: {:?}", e);
+                } else {
+                    added_ids.insert(child_id.clone());
                 }
             }
         }
+
+        // Update the cache with the modified block (including the items)
+        let updated_block = current_block.clone();
+        self.cache_contents
+            .insert(updated_block.id.clone(), updated_block);
     }
 }

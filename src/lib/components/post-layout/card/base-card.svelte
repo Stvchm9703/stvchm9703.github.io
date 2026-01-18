@@ -1,6 +1,6 @@
 <script>
     import { cn } from "$lib/utils";
-    import CalendarIcon from "lucide-svelte/icons/calendar";
+    import CalendarIcon from "@lucide/svelte/icons/calendar";
 
     import Tag from "$lib/components/post-content-layout/tag/tag.svelte";
     import { headerIdResolver } from "$lib/components/post-content-layout/block/common";

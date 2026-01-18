@@ -53,9 +53,6 @@ importers:
       lodash-es:
         specifier: ^4.17.22
         version: 4.17.22
-      lucide-svelte:
-        specifier: ^0.523.0
-        version: 0.523.0(svelte@5.46.1)
       mermaid:
         specifier: ^11.12.2
         version: 11.12.2
@@ -2443,11 +2440,6 @@ packages:
 
   lru-cache@10.4.3:
     resolution: {integrity: sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ==}
-
-  lucide-svelte@0.523.0:
-    resolution: {integrity: sha512-aFLBJxFLY7e2Hu0yPb/vG+UwfAYWMkT4ZBhqC3wv9AmfNW7P/b8XDjfcSY1GREihBDgUo9fWoQiXVWsNHGIUJg==}
-    peerDependencies:
-      svelte: ^3 || ^4 || ^5.0.0-next.42
 
   luxon@3.7.2:
     resolution: {integrity: sha512-vtEhXh/gNjI9Yg1u4jX/0YVPMvxzHuGgCm6tC5kZyb08yjGWGnqAjGJvcXbqQR2P3MyMEFnRbpcdFS6PBcLqew==}
@@ -5439,10 +5431,6 @@ snapshots:
 
   lru-cache@10.4.3:
     optional: true
-
-  lucide-svelte@0.523.0(svelte@5.46.1):
-    dependencies:
-      svelte: 5.46.1
 
   luxon@3.7.2: {}
 

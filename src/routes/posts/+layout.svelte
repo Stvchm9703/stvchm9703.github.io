@@ -6,6 +6,7 @@
     const { today_date, today_year } = page.data;
     const { children } = $props();
     import { MetaTags } from 'svelte-meta-tags';
+    import PostSearchBar from "$lib/components/post-search/main.svelte";
 </script>
 
 
@@ -18,10 +19,10 @@
     description="Developer blog, Steven Dev;s Log"
 />
 
-<div class="container mx-auto px-4  max-w-7xl">
+<div class="container mx-auto px-4 max-w-7xl">
     <section class="pt-4 pb-2 lg:pb-4">
         <!-- {/* Newspaper Header */} -->
-        <div class="border-b-2 border-dark-900 lg:pb-4 lg:mb-4">
+        <div class="border-b-2 border-dark-900">
             <h1
                 class="font-serif text-5xl md:text-7xl text-center font-bold tracking-tight"
             >
@@ -34,6 +35,17 @@
             </div>
         </div>
     </section>
+    <nav class="border-b pb-2 mb-4 flex justify-between item-baseline">
+        <section class="flex item-baseline space-x-4 ">
+            <a href="/posts" class="hover:underline px-3 leading-6">Home</a>
+            <a href="/posts/about" class="hover:underline px-3 leading-6">About</a>
+            <a href="/posts/contact" class="hover:underline px-3 leading-6">Contact</a>
+            <a href="/posts/archive" class="hover:underline px-3 leading-6">Archive</a>
+        </section>
+        <section>
+            <PostSearchBar />
+        </section>
+    </nav>
 
     {@render children()}
 

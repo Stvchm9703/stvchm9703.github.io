@@ -1,5 +1,5 @@
 <script>
-    import { cn, pathResolver, once, preventDefault } from "$lib/utils";
+    import { preventDefault } from "$lib/utils";
     import { kebabCase } from "lodash-es";
     import { page } from "$app/state";
     import Tag from "$lib/components/post-content-layout/tag/tag.svelte";
@@ -13,7 +13,7 @@
         BreadcrumbSeparator,
     } from "$lib/components/ui/breadcrumb";
 
-    import Slash from "svelte-radix/Slash.svelte";
+    // import Slash from "svelte-radix/Slash.svelte";
 
     const { series, meta } = page.data;
     const handleTagClick = (tag) => {
@@ -32,15 +32,11 @@
             <BreadcrumbItem>
                 <BreadcrumbLink href="/">Home</BreadcrumbLink>
             </BreadcrumbItem>
-            <BreadcrumbSeparator>
-                <Slash tabindex="-1" />
-            </BreadcrumbSeparator>
+            <BreadcrumbSeparator />
             <BreadcrumbItem>
                 <BreadcrumbLink href="/posts">Blog Post</BreadcrumbLink>
             </BreadcrumbItem>
-            <BreadcrumbSeparator>
-                <Slash tabindex="-1" />
-            </BreadcrumbSeparator>
+            <BreadcrumbSeparator />
             <BreadcrumbItem>
                 <BreadcrumbPage>Series</BreadcrumbPage>
             </BreadcrumbItem>

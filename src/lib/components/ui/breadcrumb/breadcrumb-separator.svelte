@@ -1,5 +1,6 @@
 <script lang="ts">
-	import ChevronRight from "@lucide/svelte/icons/chevron-right";
+	// import ChevronRight from "@lucide/svelte/icons/chevron-right";
+	import Slash from './breadcrumb-separator-slash.svelte';
 	import type { WithElementRef } from "bits-ui";
 	import type { HTMLLiAttributes } from "svelte/elements";
 	import { cn } from "$lib/utils.js";
@@ -22,6 +23,6 @@
 	{#if children}
 		{@render children?.()}
 	{:else}
-		<ChevronRight />
+		<Slash />
 	{/if}
 </li>

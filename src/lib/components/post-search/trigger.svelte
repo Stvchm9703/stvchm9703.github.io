@@ -1,35 +1,16 @@
-<script lang="ts">
-  import * as Command from "$lib/components/ui/command/index.js";
+<script>
   import { cn } from "$lib/utils";
-
-  import SearchBar from "./search-bar.svelte";
   import { Button } from "$lib/components/ui/button/index.js";
   import { Search } from "@lucide/svelte";
-  //   import Trigger from "./trigger.svelte";
-
-  let open = $state(false);
-
-  function handleOnTriggerClick() {
-    open = true;
-    console.log("trigger clicked");
-  }
-
-  function handleKeydown(e: KeyboardEvent) {
-    if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
-      e.preventDefault();
-      open = !open;
-    }
-  }
+  const props = $props();
 </script>
-
-<svelte:document onkeydown={handleKeydown} />
 
 <Button
   variant="outline"
   class={cn(
     "relative h-9 w-full justify-start rounded-none bg-muted/50 text-sm text-muted-foreground sm:w-64 md:w-80"
   )}
-  onclick={handleOnTriggerClick}
+  {...props}
 >
   <Search class="mr-2 h-4 w-4 shrink-0 opacity-50" />
   <span class="inline-flex items-center gap-2"> Search... </span>
@@ -39,7 +20,3 @@
     <span class="text-xs">⌘</span>K
   </kbd>
 </Button>
-
-<Command.CommandDialog bind:open class="bg-zinc-50 dark:bg-zinc-800">
-  <SearchBar />
-</Command.CommandDialog>

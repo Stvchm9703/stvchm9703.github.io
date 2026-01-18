@@ -1,15 +1,8 @@
 <script lang="ts">
-    // import Calendar from "svelte-radix/Calendar.svelte";
-    // import EnvelopeClosed from "svelte-radix/EnvelopeClosed.svelte";
-    // import Face from "svelte-radix/Face.svelte";
-    // import Gear from "svelte-radix/Gear.svelte";
-    // import Person from "svelte-radix/Person.svelte";
-    // import Rocket from "svelte-radix/Rocket.svelte";
-
     import * as Command from "$lib/components/ui/command/index.js";
 </script>
 
-<Command.Root class="max-w-[450px] rounded-lg border shadow-md">
+<Command.Root class="">
     <Command.Input placeholder="Type a command or search..." />
     <Command.List>
         <Command.Empty>No results found.</Command.Empty>
