@@ -1,6 +1,5 @@
 <script>
 
-  import "uno.css";
     import { page } from "$app/state";
     // let today_date = new Date().toLocaleDateString();
     const { today_date, today_year } = page.data;

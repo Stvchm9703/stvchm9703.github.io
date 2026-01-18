@@ -11,11 +11,11 @@
   const exmdPlugins = [gfmPlugin()];
 
   const { id, componentAttr } = $props();
-  const { cell, fileName, cellNumber } = componentAttr;
-  const { source, outputs, cell_type } = cell;
-  const elemId = headerIdResolver("jupyter", id);
+  const { cell, fileName, cellNumber } = $derived(componentAttr);
+  const { source, outputs, cell_type } = $derived(cell);
+  const elemId = $derived(headerIdResolver("jupyter", id));
 
-  import Island from "$lib/islands/island.svelte";
+  // import Island from "$lib/islands/island.svelte";
 
   async function initHighlight() {
     const defaultMd = await import(`svelte-highlight/languages/markdown`).then(
@@ -25,8 +25,7 @@
       return await import(`svelte-highlight/languages/python`).then(
         (module) => module.default
       );
-    } 
-    else if (cell_type === "markdown") {
+    } else if (cell_type === "markdown") {
       return defaultMd;
     }
 
@@ -62,8 +61,6 @@
       <Tabs.Trigger value="source" class={tabTriggerClass}>Source</Tabs.Trigger>
     </Tabs.List>
     <Tabs.Content value="outputs" class={tabContentClass}>
-     
-
       {#if cell_type === "code"}
         {#each outputs as outputBlock}
           <section
@@ -83,10 +80,10 @@
                 alt="Image"
                 aria-label="render result, {fileName} - cell: {cellNumber}"
               />
-              <figcaption>
+              <span class="text-xs text-gray-500 mt-2 block">
                 {outputBlock.data["text/plain"]}
                 render result, {fileName} - cell: {cellNumber}
-              </figcaption>
+              </span>
             {:else if outputBlock.data["text/html"]}
               {@html outputBlock.data["text/html"].join("")}
             {:else if outputBlock.data["text/plain"]}
@@ -95,15 +92,12 @@
               No data available
             {/if}
             <!-- {JSON.stringify(outputBlock.data["text/html"])} -->
-
           </section>
-
         {/each}
       {:else if cell_type === "markdown"}
         <section class="jupyter-cell markdown block">
           <Markdown md={source.join("")} plugins={exmdPlugins} />
         </section>
-      
       {/if}
     </Tabs.Content>
     <Tabs.Content

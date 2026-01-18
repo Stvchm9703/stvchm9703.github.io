@@ -1,6 +1,7 @@
 <script lang="ts">
     import { Highlight, LineNumbers } from "svelte-highlight";
-    import Copy from "svelte-radix/Copy.svelte";
+    // import Copy from "svelte-radix/Copy.svelte";
+    import Copy from "@lucide/svelte/icons/copy";
     import { typescript, type LanguageType } from "svelte-highlight/languages";
     import "svelte-highlight/styles/gruvbox-dark-soft.css";
     import { headerIdResolver, resolveStyle } from "./common";
@@ -16,17 +17,12 @@
         ...rest
     }: ContentBlock = $props();
 
-    const { text, style: element_style, marks, ...other } = componentAttr;
-    const hasText = text !== undefined && text !== "" && text !== null;
+    const { text, style: element_style, marks, ...other } = $derived(componentAttr);
+    // const hasText = text !== undefined && text !== "" && text !== null;
 
-    let lang: LanguageType = $state.raw(typescript);
+    let lang: LanguageType<any> = $state.raw(typescript);
 
-    onMount(async () => {
-        // console.log("mounted");
-        // lang = await import(`svelte-highlight/languages/${fields["lang"]}`)
-        //     .default;
-        // console.log(lang);
-    });
+
 
     const copy = async () => {
         await navigator.clipboard?.writeText(text);

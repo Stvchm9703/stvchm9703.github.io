@@ -11,10 +11,11 @@
 
   let { class: className, id, componentAttr, componentType } = $props();
 
-  let cardTitle =
-    componentAttr?.title || componentAttr?.href || componentAttr?.url || "Link";
+  const cardTitle = $derived(
+    componentAttr?.title || componentAttr?.href || componentAttr?.url || "Link"
+  );
 
-let linkUrl = componentAttr?.href || componentAttr?.url || "#";
+  const linkUrl = $derived(componentAttr?.href || componentAttr?.url || "#");
 </script>
 
 {#if componentAttr["cardStyle"] === "Card"}

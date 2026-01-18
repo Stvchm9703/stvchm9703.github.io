@@ -1,5 +1,6 @@
 <script lang="ts">
-    import { page } from "$app/stores";
+    // import "uno.css";
+    import { page } from "$app/state";
     import PostCard from "$lib/components/post-layout/card";
     import { buttonVariants } from "$lib/components/ui/button";
     import { displayDate, cn } from "$lib/utils";
@@ -14,9 +15,8 @@
         BreadcrumbPage,
         BreadcrumbSeparator,
     } from "$lib/components/ui/breadcrumb";
-    import Slash from "svelte-radix/Slash.svelte";
 
-    const { meta, serie } = $page.data;
+    const { meta, serie } = page.data;
 </script>
 
 <MetaTags {...meta} />
@@ -27,21 +27,15 @@
             <BreadcrumbItem>
                 <BreadcrumbLink href="/">Home</BreadcrumbLink>
             </BreadcrumbItem>
-            <BreadcrumbSeparator>
-                <Slash tabindex="-1" />
-            </BreadcrumbSeparator>
+            <BreadcrumbSeparator/>
             <BreadcrumbItem>
                 <BreadcrumbLink href="/posts">Blog Post</BreadcrumbLink>
             </BreadcrumbItem>
-            <BreadcrumbSeparator>
-                <Slash tabindex="-1" />
-            </BreadcrumbSeparator>
+            <BreadcrumbSeparator/>
             <BreadcrumbItem>
                 <BreadcrumbLink href="/posts/series">Series</BreadcrumbLink>
             </BreadcrumbItem>
-            <BreadcrumbSeparator>
-                <Slash tabindex="-1" />
-            </BreadcrumbSeparator>
+            <BreadcrumbSeparator/>
             <BreadcrumbItem>
                 <BreadcrumbPage class="capitalize">{serie.name}</BreadcrumbPage>
             </BreadcrumbItem>

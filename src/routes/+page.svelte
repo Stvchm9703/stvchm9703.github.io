@@ -27,8 +27,6 @@
   const { meta } = page.data;
 
   
-  
-
 </script>
 
 <!-- <svelte:head>

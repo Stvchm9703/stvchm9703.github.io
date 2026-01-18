@@ -12,15 +12,19 @@
   import Block from "./layout.svelte";
   import type { ContentBlock } from "$generateor/content_block";
 
-  import {  resolveStyle } from "./common";
+  import { resolveStyle } from "./common";
 
-  const { id, order, fields, componentAttr, style, ...rest }: ContentBlock =
-    $props();
-  const componentType = rest?.componentType || rest?.layoutStyle || "Table";
+  const { id, order, fields, componentAttr, style, ...rest }: ContentBlock = $props();
+  const componentType = $derived(
+    () => rest?.componentType || rest?.layoutStyle || "Table"
+  );
 
-  let items = componentAttr?.items || rest?.items || [];
-  const header = items[1].items[0];
-  const rows = items[1].items.slice(1);
+  const items = $derived(() => {
+    return componentAttr?.items || rest?.items || [];
+  });
+
+  const header = $derived(() => items[1].items[0]);
+  const rows = $derived(() => items[1].items.slice(1));
 </script>
 
 <Table

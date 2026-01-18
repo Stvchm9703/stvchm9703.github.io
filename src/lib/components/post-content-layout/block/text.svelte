@@ -25,14 +25,19 @@
     style: content_style,
     ...rest
   }: ContentBlock = $props();
-  const { text, style: element_style, marks, ...other } = componentAttr;
+  const {
+    text,
+    style: element_style,
+    marks,
+    ...other
+  } = $derived(componentAttr);
   // const { content } = block;
   // console.log(other);
   //
   const header_classes = "text-2xl font-bold mt-8 mb-4 scroll-mt-16";
 
-  const hasText = text !== undefined && text !== "" && text !== null;
-  let tMarks = marks.marks || [];
+  const hasText = $derived(text !== undefined && text !== "" && text !== null);
+  let tMarks = $derived(marks.marks || []);
   const resolveHeaderId = (text: string, id: string) =>
     headerIdResolver(text, id).toLowerCase();
 </script>
@@ -81,7 +86,10 @@
     </template> -->
 
     {#each other["items"] as item}
-      <li id={headerIdResolver("ul", id) + `_${item.order}`} class={resolveStyle(item.style)}>
+      <li
+        id={headerIdResolver("ul", id) + `_${item.order}`}
+        class={resolveStyle(item.style)}
+      >
         <!-- {@html item["text"]} -->
         {@html resolveMarks(item["marks"], item["text"])}
       </li>

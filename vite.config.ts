@@ -46,17 +46,19 @@ export default defineConfig(async ({ mode }) => {
         // configOrPath: 'uno.config.ts',
         // mode: 'dist-chunk',
         // injectReset: "@unocss/reset/tailwind.css",
+        extractors: [extractorSvelte()],
         configFile: "uno.config.ts",
       }),
-      // entryShakingPlugin({
-      //   targets: [
-      //     // Or using glob patterns.
-      //     {
-      //       glob: "src/lib/**/*.{ts,js}",
-      //       // globOptions: { ignore: ["excluded.ts"] },
-      //     },
-      //   ],
-      // }),
+
+      entryShakingPlugin({
+        targets: [
+          // Or using glob patterns.
+          {
+            glob: "src/lib/**/*.{ts,js}",
+            // globOptions: { ignore: ["excluded.ts"] },
+          },
+        ],
+      }),
       await entryShakingPlugin({
         targets: [
           // Or using glob patterns.
@@ -109,7 +111,6 @@ export default defineConfig(async ({ mode }) => {
               return "main";
             }
           },
-          compact: true,
         },
       },
     },

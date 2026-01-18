@@ -1,12 +1,12 @@
 <script lang="ts">
-    import { page } from "$app/stores";
+    import { page } from "$app/state";
     import PostCard from "$lib/components/post-layout/card";
     import { buttonVariants } from "$lib/components/ui/button";
     import { displayDate, cn } from "$lib/utils";
     import { MetaTags } from "svelte-meta-tags";
     import { kebabCase } from "lodash-es";
 
-    const { meta, tag } = $page.data;
+    const { meta, tag } = page.data;
 </script>
 
 <MetaTags {...meta} />

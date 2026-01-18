@@ -1,5 +1,5 @@
 <script lang="ts">
-    import "uno.css";
+    // import "uno.css";
 
     import { page } from "$app/state";
     import { Button } from "$lib/components/ui/button";
@@ -17,7 +17,6 @@
         BreadcrumbSeparator,
     } from "$lib/components/ui/breadcrumb";
 
-    // import Slash from "svelte-radix/Slash.svelte";
     // import Separator from "$lib/components/ui/separator/separator.svelte";
     import TableOfContents from "$lib/components/post-content-layout/table-of-content/container.svelte";
     import TableOfContentsMobile from "$lib/components/post-content-layout/table-of-content/mob-list.svelte";
@@ -31,7 +30,7 @@
 
     import { isEmpty } from "lodash-es";
 
-    import type { Page as IPage } from "$generateor/page";
+    // import type { Page as IPage } from "$generateor/page";
     import { displayDate } from "$lib/utils";
     import { MetaTags } from "svelte-meta-tags";
     import { onMount } from "svelte";
@@ -192,9 +191,3 @@
         </div>
     </div>
 </section>
-
-<style>
-    /* @import "lightgallery/css/lightgallery.css"; */
-    /* @import "lightgallery/css/lg-thumbnail.css"; */
-    /* @import "lightgallery/css/lg-zoom.css"; */
-</style>
