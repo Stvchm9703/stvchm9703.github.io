@@ -11,11 +11,13 @@
 
 use std::borrow::Cow;
 use quick_protobuf::{MessageInfo, MessageRead, MessageWrite, BytesReader, Writer, WriterBackend, Result};
+use core::convert::{TryFrom, TryInto};
 use quick_protobuf::sizeofs::*;
-use serde::Serialize;
 use super::*;
+use serde::Serialize;
 use crate::proto::google;
 use crate::proto::anytype;
+
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum SmartBlockType {
     AccountOld = 0,
@@ -43,7 +45,7 @@ pub enum SmartBlockType {
     FileObject = 533,
     NotificationObject = 535,
     DevicesObject = 536,
-    ChatObject = 537,
+    ChatObjectDeprecated = 537,
     ChatDerivedObject = 544,
     AccountObject = 545,
 }
@@ -82,7 +84,7 @@ impl From<i32> for SmartBlockType {
             533 => SmartBlockType::FileObject,
             535 => SmartBlockType::NotificationObject,
             536 => SmartBlockType::DevicesObject,
-            537 => SmartBlockType::ChatObject,
+            537 => SmartBlockType::ChatObjectDeprecated,
             544 => SmartBlockType::ChatDerivedObject,
             545 => SmartBlockType::AccountObject,
             _ => Self::default(),
@@ -118,7 +120,7 @@ impl<'a> From<&'a str> for SmartBlockType {
             "FileObject" => SmartBlockType::FileObject,
             "NotificationObject" => SmartBlockType::NotificationObject,
             "DevicesObject" => SmartBlockType::DevicesObject,
-            "ChatObject" => SmartBlockType::ChatObject,
+            "ChatObjectDeprecated" => SmartBlockType::ChatObjectDeprecated,
             "ChatDerivedObject" => SmartBlockType::ChatDerivedObject,
             "AccountObject" => SmartBlockType::AccountObject,
             _ => Self::default(),
@@ -348,6 +350,41 @@ impl<'a> From<&'a str> for ParticipantPermissions {
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
+pub enum InviteType {
+    Member = 0,
+    Guest = 1,
+    WithoutApprove = 2,
+}
+
+impl Default for InviteType {
+    fn default() -> Self {
+        InviteType::Member
+    }
+}
+
+impl From<i32> for InviteType {
+    fn from(i: i32) -> Self {
+        match i {
+            0 => InviteType::Member,
+            1 => InviteType::Guest,
+            2 => InviteType::WithoutApprove,
+            _ => Self::default(),
+        }
+    }
+}
+
+impl<'a> From<&'a str> for InviteType {
+    fn from(s: &'a str) -> Self {
+        match s {
+            "Member" => InviteType::Member,
+            "Guest" => InviteType::Guest,
+            "WithoutApprove" => InviteType::WithoutApprove,
+            _ => Self::default(),
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum ParticipantStatus {
     Joining = 0,
     Active = 1,
@@ -428,23 +465,27 @@ impl<'a> From<&'a str> for SpaceAccessType {
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum SpaceUxType {
-    Chat = 0,
+    None = 0,
     Data = 1,
     Stream = 2,
+    Chat = 3,
+    OneToOne = 4,
 }
 
 impl Default for SpaceUxType {
     fn default() -> Self {
-        SpaceUxType::Chat
+        SpaceUxType::None
     }
 }
 
 impl From<i32> for SpaceUxType {
     fn from(i: i32) -> Self {
         match i {
-            0 => SpaceUxType::Chat,
+            0 => SpaceUxType::None,
             1 => SpaceUxType::Data,
             2 => SpaceUxType::Stream,
+            3 => SpaceUxType::Chat,
+            4 => SpaceUxType::OneToOne,
             _ => Self::default(),
         }
     }
@@ -453,9 +494,11 @@ impl From<i32> for SpaceUxType {
 impl<'a> From<&'a str> for SpaceUxType {
     fn from(s: &'a str) -> Self {
         match s {
-            "Chat" => SpaceUxType::Chat,
+            "None" => SpaceUxType::None,
             "Data" => SpaceUxType::Data,
             "Stream" => SpaceUxType::Stream,
+            "Chat" => SpaceUxType::Chat,
+            "OneToOne" => SpaceUxType::OneToOne,
             _ => Self::default(),
         }
     }
@@ -633,6 +676,82 @@ impl<'a> From<&'a str> for DeviceNetworkType {
     }
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+pub enum SyncStatus {
+    SyncStatusSynced = 0,
+    SyncStatusSyncing = 1,
+    SyncStatusError = 2,
+    SyncStatusQueued = 3,
+}
+
+impl Default for SyncStatus {
+    fn default() -> Self {
+        SyncStatus::SyncStatusSynced
+    }
+}
+
+impl From<i32> for SyncStatus {
+    fn from(i: i32) -> Self {
+        match i {
+            0 => SyncStatus::SyncStatusSynced,
+            1 => SyncStatus::SyncStatusSyncing,
+            2 => SyncStatus::SyncStatusError,
+            3 => SyncStatus::SyncStatusQueued,
+            _ => Self::default(),
+        }
+    }
+}
+
+impl<'a> From<&'a str> for SyncStatus {
+    fn from(s: &'a str) -> Self {
+        match s {
+            "SyncStatusSynced" => SyncStatus::SyncStatusSynced,
+            "SyncStatusSyncing" => SyncStatus::SyncStatusSyncing,
+            "SyncStatusError" => SyncStatus::SyncStatusError,
+            "SyncStatusQueued" => SyncStatus::SyncStatusQueued,
+            _ => Self::default(),
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+pub enum SyncError {
+    SyncErrorNull = 0,
+    SyncErrorIncompatibleVersion = 2,
+    SyncErrorNetworkError = 3,
+    SyncErrorOversized = 4,
+}
+
+impl Default for SyncError {
+    fn default() -> Self {
+        SyncError::SyncErrorNull
+    }
+}
+
+impl From<i32> for SyncError {
+    fn from(i: i32) -> Self {
+        match i {
+            0 => SyncError::SyncErrorNull,
+            2 => SyncError::SyncErrorIncompatibleVersion,
+            3 => SyncError::SyncErrorNetworkError,
+            4 => SyncError::SyncErrorOversized,
+            _ => Self::default(),
+        }
+    }
+}
+
+impl<'a> From<&'a str> for SyncError {
+    fn from(s: &'a str) -> Self {
+        match s {
+            "SyncErrorNull" => SyncError::SyncErrorNull,
+            "SyncErrorIncompatibleVersion" => SyncError::SyncErrorIncompatibleVersion,
+            "SyncErrorNetworkError" => SyncError::SyncErrorNetworkError,
+            "SyncErrorOversized" => SyncError::SyncErrorOversized,
+            _ => Self::default(),
+        }
+    }
+}
+
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct SmartBlockSnapshotBase<'a> {
@@ -697,6 +816,106 @@ impl<'a> MessageWrite for SmartBlockSnapshotBase<'a> {
     }
 }
 
+
+// IMPORTANT: For any future changes, note that the lifetime parameter
+// of the `proto` field is set to 'static!!!
+//
+// This means that the internals of `proto` should at no point create a
+// mutable reference to something using that lifetime parameter, on pain
+// of UB. This applies even though it may be transmuted to a smaller
+// lifetime later (through `proto()` or `proto_mut()`).
+//
+// At the time of writing, the only possible thing that uses the
+// lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+// not UB.
+//
+#[derive(Debug)]
+struct SmartBlockSnapshotBaseOwnedInner {
+    buf: Vec<u8>,
+    proto: Option<SmartBlockSnapshotBase<'static>>,
+    _pin: core::marker::PhantomPinned,
+}
+
+impl SmartBlockSnapshotBaseOwnedInner {
+    fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+        let inner = Self {
+            buf,
+            proto: None,
+            _pin: core::marker::PhantomPinned,
+        };
+        let mut pinned = Box::pin(inner);
+
+        let mut reader = BytesReader::from_bytes(&pinned.buf);
+        let proto = SmartBlockSnapshotBase::from_reader(&mut reader, &pinned.buf)?;
+
+        unsafe {
+            let proto = core::mem::transmute::<_, SmartBlockSnapshotBase<'_>>(proto);
+            pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+        }
+        Ok(pinned)
+    }
+}
+
+pub struct SmartBlockSnapshotBaseOwned {
+    inner: core::pin::Pin<Box<SmartBlockSnapshotBaseOwnedInner>>,
+}
+
+#[allow(dead_code)]
+impl SmartBlockSnapshotBaseOwned {
+    pub fn buf(&self) -> &[u8] {
+        &self.inner.buf
+    }
+
+    pub fn proto<'a>(&'a self) -> &'a SmartBlockSnapshotBase<'a> {
+        let proto = self.inner.proto.as_ref().unwrap();
+        unsafe { core::mem::transmute::<&SmartBlockSnapshotBase<'static>, &SmartBlockSnapshotBase<'a>>(proto) }
+    }
+
+    pub fn proto_mut<'a>(&'a mut self) -> &'a mut SmartBlockSnapshotBase<'a> {
+        let inner = self.inner.as_mut();
+        let inner = unsafe { inner.get_unchecked_mut() };
+        let proto = inner.proto.as_mut().unwrap();
+        unsafe { core::mem::transmute::<_, &mut SmartBlockSnapshotBase<'a>>(proto) }
+    }
+}
+
+impl core::fmt::Debug for SmartBlockSnapshotBaseOwned {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        self.inner.proto.as_ref().unwrap().fmt(f)
+    }
+}
+
+impl TryFrom<Vec<u8>> for SmartBlockSnapshotBaseOwned {
+    type Error=quick_protobuf::Error;
+
+    fn try_from(buf: Vec<u8>) -> Result<Self> {
+        Ok(Self { inner: SmartBlockSnapshotBaseOwnedInner::new(buf)? })
+    }
+}
+
+impl TryInto<Vec<u8>> for SmartBlockSnapshotBaseOwned {
+    type Error=quick_protobuf::Error;
+
+    fn try_into(self) -> Result<Vec<u8>> {
+        let mut buf = Vec::new();
+        let mut writer = Writer::new(&mut buf);
+        self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+        Ok(buf)
+    }
+}
+
+impl From<SmartBlockSnapshotBase<'static>> for SmartBlockSnapshotBaseOwned {
+    fn from(proto: SmartBlockSnapshotBase<'static>) -> Self {
+        Self {
+            inner: Box::pin(SmartBlockSnapshotBaseOwnedInner {
+                buf: Vec::new(),
+                proto: Some(proto),
+                _pin: core::marker::PhantomPinned,
+            })
+        }
+    }
+}
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct Search {
@@ -704,7 +923,7 @@ pub struct Search {
 
 impl<'a> MessageRead<'a> for Search {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let msg = Self::default();
+        let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -724,7 +943,15 @@ impl MessageWrite for Search {
         Ok(())
     }
 }
+impl TryFrom<&[u8]> for Search {
+    type Error=quick_protobuf::Error;
 
+    fn try_from(buf: &[u8]) -> Result<Self> {
+        let mut reader = BytesReader::from_bytes(&buf);
+        Ok(Search::from_reader(&mut reader, &buf)?)
+    }
+}
+            
 pub mod mod_Search {
 
 use std::borrow::Cow;
@@ -770,6 +997,106 @@ impl<'a> MessageWrite for Result_pb<'a> {
     }
 }
 
+
+// IMPORTANT: For any future changes, note that the lifetime parameter
+// of the `proto` field is set to 'static!!!
+//
+// This means that the internals of `proto` should at no point create a
+// mutable reference to something using that lifetime parameter, on pain
+// of UB. This applies even though it may be transmuted to a smaller
+// lifetime later (through `proto()` or `proto_mut()`).
+//
+// At the time of writing, the only possible thing that uses the
+// lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+// not UB.
+//
+#[derive(Debug)]
+struct Result_pbOwnedInner {
+    buf: Vec<u8>,
+    proto: Option<Result_pb<'static>>,
+    _pin: core::marker::PhantomPinned,
+}
+
+impl Result_pbOwnedInner {
+    fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+        let inner = Self {
+            buf,
+            proto: None,
+            _pin: core::marker::PhantomPinned,
+        };
+        let mut pinned = Box::pin(inner);
+
+        let mut reader = BytesReader::from_bytes(&pinned.buf);
+        let proto = Result_pb::from_reader(&mut reader, &pinned.buf)?;
+
+        unsafe {
+            let proto = core::mem::transmute::<_, Result_pb<'_>>(proto);
+            pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+        }
+        Ok(pinned)
+    }
+}
+
+pub struct Result_pbOwned {
+    inner: core::pin::Pin<Box<Result_pbOwnedInner>>,
+}
+
+#[allow(dead_code)]
+impl Result_pbOwned {
+    pub fn buf(&self) -> &[u8] {
+        &self.inner.buf
+    }
+
+    pub fn proto<'a>(&'a self) -> &'a Result_pb<'a> {
+        let proto = self.inner.proto.as_ref().unwrap();
+        unsafe { core::mem::transmute::<&Result_pb<'static>, &Result_pb<'a>>(proto) }
+    }
+
+    pub fn proto_mut<'a>(&'a mut self) -> &'a mut Result_pb<'a> {
+        let inner = self.inner.as_mut();
+        let inner = unsafe { inner.get_unchecked_mut() };
+        let proto = inner.proto.as_mut().unwrap();
+        unsafe { core::mem::transmute::<_, &mut Result_pb<'a>>(proto) }
+    }
+}
+
+impl core::fmt::Debug for Result_pbOwned {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        self.inner.proto.as_ref().unwrap().fmt(f)
+    }
+}
+
+impl TryFrom<Vec<u8>> for Result_pbOwned {
+    type Error=quick_protobuf::Error;
+
+    fn try_from(buf: Vec<u8>) -> Result<Self> {
+        Ok(Self { inner: Result_pbOwnedInner::new(buf)? })
+    }
+}
+
+impl TryInto<Vec<u8>> for Result_pbOwned {
+    type Error=quick_protobuf::Error;
+
+    fn try_into(self) -> Result<Vec<u8>> {
+        let mut buf = Vec::new();
+        let mut writer = Writer::new(&mut buf);
+        self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+        Ok(buf)
+    }
+}
+
+impl From<Result_pb<'static>> for Result_pbOwned {
+    fn from(proto: Result_pb<'static>) -> Self {
+        Self {
+            inner: Box::pin(Result_pbOwnedInner {
+                buf: Vec::new(),
+                proto: Some(proto),
+                _pin: core::marker::PhantomPinned,
+            })
+        }
+    }
+}
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct Meta<'a> {
@@ -818,10 +1145,110 @@ impl<'a> MessageWrite for Meta<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct MetaOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Meta<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl MetaOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Meta::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Meta<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct MetaOwned {
+                inner: core::pin::Pin<Box<MetaOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl MetaOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Meta<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Meta<'static>, &Meta<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Meta<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Meta<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for MetaOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for MetaOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: MetaOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for MetaOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Meta<'static>> for MetaOwned {
+                fn from(proto: Meta<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(MetaOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 }
 
 #[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Debug, Default, PartialEq, Clone )]
+#[derive(Debug, Default, PartialEq, Clone)]
 pub struct Block<'a> {
     pub id: Cow<'a, str>,
     pub fields: Option<google::protobuf::Struct<'a>>,
@@ -934,12 +1361,110 @@ impl<'a> MessageWrite for Block<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct BlockOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Block<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl BlockOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Block::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Block<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct BlockOwned {
+                inner: core::pin::Pin<Box<BlockOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl BlockOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Block<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Block<'static>, &Block<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Block<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Block<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for BlockOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for BlockOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: BlockOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for BlockOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Block<'static>> for BlockOwned {
+                fn from(proto: Block<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(BlockOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 pub mod mod_Block {
 
-use serde::{Deserialize, Serialize};
-
 use super::*;
-
+use serde::{Serialize, Deserialize};
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct Restrictions {
@@ -988,6 +1513,16 @@ impl MessageWrite for Restrictions {
     }
 }
 
+
+            impl TryFrom<&[u8]> for Restrictions {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: &[u8]) -> Result<Self> {
+                    let mut reader = BytesReader::from_bytes(&buf);
+                    Ok(Restrictions::from_reader(&mut reader, &buf)?)
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct Content {
@@ -995,7 +1530,7 @@ pub struct Content {
 
 impl<'a> MessageRead<'a> for Content {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let msg = Self::default();
+        let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -1016,6 +1551,16 @@ impl MessageWrite for Content {
     }
 }
 
+
+            impl TryFrom<&[u8]> for Content {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: &[u8]) -> Result<Self> {
+                    let mut reader = BytesReader::from_bytes(&buf);
+                    Ok(Content::from_reader(&mut reader, &buf)?)
+                }
+            }
+            
 pub mod mod_Content {
 
 use std::borrow::Cow;
@@ -1053,10 +1598,18 @@ impl MessageWrite for Layout {
     }
 }
 
+
+            impl TryFrom<&[u8]> for Layout {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: &[u8]) -> Result<Self> {
+                    let mut reader = BytesReader::from_bytes(&buf);
+                    Ok(Layout::from_reader(&mut reader, &buf)?)
+                }
+            }
+            
 pub mod mod_Layout {
     use serde::{Deserialize, Serialize};
-
-
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
 pub enum Style {
@@ -1172,10 +1725,108 @@ impl<'a> MessageWrite for Link<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct LinkOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Link<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl LinkOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Link::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Link<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct LinkOwned {
+                inner: core::pin::Pin<Box<LinkOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl LinkOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Link<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Link<'static>, &Link<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Link<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Link<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for LinkOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for LinkOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: LinkOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for LinkOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Link<'static>> for LinkOwned {
+                fn from(proto: Link<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(LinkOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 pub mod mod_Link {
-    use serde::{Deserialize, Serialize};
-
-
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Deserialize, Serialize)]
 pub enum IconSize {
@@ -1354,6 +2005,16 @@ impl MessageWrite for Div {
     }
 }
 
+
+            impl TryFrom<&[u8]> for Div {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: &[u8]) -> Result<Self> {
+                    let mut reader = BytesReader::from_bytes(&buf);
+                    Ok(Div::from_reader(&mut reader, &buf)?)
+                }
+            }
+            
 pub mod mod_Div {
 
 
@@ -1458,6 +2119,106 @@ impl<'a> MessageWrite for Bookmark<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct BookmarkOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Bookmark<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl BookmarkOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Bookmark::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Bookmark<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct BookmarkOwned {
+                inner: core::pin::Pin<Box<BookmarkOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl BookmarkOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Bookmark<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Bookmark<'static>, &Bookmark<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Bookmark<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Bookmark<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for BookmarkOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for BookmarkOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: BookmarkOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for BookmarkOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Bookmark<'static>> for BookmarkOwned {
+                fn from(proto: Bookmark<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(BookmarkOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 pub mod mod_Bookmark {
 
 
@@ -1533,6 +2294,106 @@ impl<'a> MessageWrite for Icon<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct IconOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Icon<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl IconOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Icon::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Icon<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct IconOwned {
+                inner: core::pin::Pin<Box<IconOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl IconOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Icon<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Icon<'static>, &Icon<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Icon<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Icon<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for IconOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for IconOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: IconOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for IconOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Icon<'static>> for IconOwned {
+                fn from(proto: Icon<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(IconOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct FeaturedRelations { }
@@ -1546,6 +2407,16 @@ impl<'a> MessageRead<'a> for FeaturedRelations {
 
 impl MessageWrite for FeaturedRelations { }
 
+
+            impl TryFrom<&[u8]> for FeaturedRelations {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: &[u8]) -> Result<Self> {
+                    let mut reader = BytesReader::from_bytes(&buf);
+                    Ok(FeaturedRelations::from_reader(&mut reader, &buf)?)
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct Text<'a> {
@@ -1602,6 +2473,106 @@ impl<'a> MessageWrite for Text<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct TextOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Text<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl TextOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Text::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Text<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct TextOwned {
+                inner: core::pin::Pin<Box<TextOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl TextOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Text<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Text<'static>, &Text<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Text<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Text<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for TextOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for TextOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: TextOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for TextOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Text<'static>> for TextOwned {
+                fn from(proto: Text<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(TextOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 pub mod mod_Text {
 
 use std::borrow::Cow;
@@ -1639,6 +2610,106 @@ impl<'a> MessageWrite for Marks<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct MarksOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Marks<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl MarksOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Marks::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Marks<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct MarksOwned {
+                inner: core::pin::Pin<Box<MarksOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl MarksOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Marks<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Marks<'static>, &Marks<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Marks<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Marks<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for MarksOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for MarksOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: MarksOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for MarksOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Marks<'static>> for MarksOwned {
+                fn from(proto: Marks<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(MarksOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct Mark<'a> {
@@ -1679,9 +2750,108 @@ impl<'a> MessageWrite for Mark<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct MarkOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Mark<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl MarkOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Mark::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Mark<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct MarkOwned {
+                inner: core::pin::Pin<Box<MarkOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl MarkOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Mark<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Mark<'static>, &Mark<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Mark<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Mark<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for MarkOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for MarkOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: MarkOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for MarkOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Mark<'static>> for MarkOwned {
+                fn from(proto: Mark<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(MarkOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 pub mod mod_Mark {
     use serde::{Deserialize, Serialize};
-
 
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
@@ -1742,15 +2912,6 @@ impl<'a> From<&'a str> for Type {
         }
     }
 }
-
-
-#[test]
-fn test_to_serde_string(){
-    let token_enum = Type::Link;
-    println!("{:?}", serde_json::to_string(&token_enum));
-}
-
-
 
 }
 
@@ -1888,6 +3049,106 @@ impl<'a> MessageWrite for File<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct FileOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<File<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl FileOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = File::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, File<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct FileOwned {
+                inner: core::pin::Pin<Box<FileOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl FileOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a File<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&File<'static>, &File<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut File<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut File<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for FileOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for FileOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: FileOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for FileOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<File<'static>> for FileOwned {
+                fn from(proto: File<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(FileOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 pub mod mod_File {
     use serde::{Deserialize, Serialize};
 
@@ -2025,6 +3286,16 @@ impl<'a> MessageRead<'a> for Smartblock {
 
 impl MessageWrite for Smartblock { }
 
+
+            impl TryFrom<&[u8]> for Smartblock {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: &[u8]) -> Result<Self> {
+                    let mut reader = BytesReader::from_bytes(&buf);
+                    Ok(Smartblock::from_reader(&mut reader, &buf)?)
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct Dataview<'a> {
@@ -2089,6 +3360,106 @@ impl<'a> MessageWrite for Dataview<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct DataviewOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Dataview<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl DataviewOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Dataview::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Dataview<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct DataviewOwned {
+                inner: core::pin::Pin<Box<DataviewOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl DataviewOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Dataview<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Dataview<'static>, &Dataview<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Dataview<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Dataview<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for DataviewOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for DataviewOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: DataviewOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for DataviewOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Dataview<'static>> for DataviewOwned {
+                fn from(proto: Dataview<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(DataviewOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 pub mod mod_Dataview {
 
 use std::borrow::Cow;
@@ -2112,6 +3483,8 @@ pub struct View<'a> {
     pub pageLimit: i32,
     pub defaultTemplateId: Cow<'a, str>,
     pub defaultObjectTypeId: Cow<'a, str>,
+    pub endRelationKey: Cow<'a, str>,
+    pub wrapContent: bool,
 }
 
 impl<'a> MessageRead<'a> for View<'a> {
@@ -2134,6 +3507,8 @@ impl<'a> MessageRead<'a> for View<'a> {
                 Ok(104) => msg.pageLimit = r.read_int32(bytes)?,
                 Ok(114) => msg.defaultTemplateId = r.read_string(bytes).map(Cow::Borrowed)?,
                 Ok(122) => msg.defaultObjectTypeId = r.read_string(bytes).map(Cow::Borrowed)?,
+                Ok(130) => msg.endRelationKey = r.read_string(bytes).map(Cow::Borrowed)?,
+                Ok(136) => msg.wrapContent = r.read_bool(bytes)?,
                 Ok(t) => { r.read_unknown(bytes, t)?; }
                 Err(e) => return Err(e),
             }
@@ -2160,6 +3535,8 @@ impl<'a> MessageWrite for View<'a> {
         + if self.pageLimit == 0i32 { 0 } else { 1 + sizeof_varint(*(&self.pageLimit) as u64) }
         + if self.defaultTemplateId == "" { 0 } else { 1 + sizeof_len((&self.defaultTemplateId).len()) }
         + if self.defaultObjectTypeId == "" { 0 } else { 1 + sizeof_len((&self.defaultObjectTypeId).len()) }
+        + if self.endRelationKey == "" { 0 } else { 2 + sizeof_len((&self.endRelationKey).len()) }
+        + if self.wrapContent == false { 0 } else { 2 + sizeof_varint(*(&self.wrapContent) as u64) }
     }
 
     fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
@@ -2178,10 +3555,112 @@ impl<'a> MessageWrite for View<'a> {
         if self.pageLimit != 0i32 { w.write_with_tag(104, |w| w.write_int32(*&self.pageLimit))?; }
         if self.defaultTemplateId != "" { w.write_with_tag(114, |w| w.write_string(&**&self.defaultTemplateId))?; }
         if self.defaultObjectTypeId != "" { w.write_with_tag(122, |w| w.write_string(&**&self.defaultObjectTypeId))?; }
+        if self.endRelationKey != "" { w.write_with_tag(130, |w| w.write_string(&**&self.endRelationKey))?; }
+        if self.wrapContent != false { w.write_with_tag(136, |w| w.write_bool(*&self.wrapContent))?; }
         Ok(())
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct ViewOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<View<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl ViewOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = View::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, View<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct ViewOwned {
+                inner: core::pin::Pin<Box<ViewOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl ViewOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a View<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&View<'static>, &View<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut View<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut View<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for ViewOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for ViewOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: ViewOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for ViewOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<View<'static>> for ViewOwned {
+                fn from(proto: View<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(ViewOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 pub mod mod_View {
 
 
@@ -2326,6 +3805,106 @@ impl<'a> MessageWrite for Relation<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct RelationOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Relation<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl RelationOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Relation::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Relation<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct RelationOwned {
+                inner: core::pin::Pin<Box<RelationOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl RelationOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Relation<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Relation<'static>, &Relation<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Relation<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Relation<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for RelationOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for RelationOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: RelationOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for RelationOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Relation<'static>> for RelationOwned {
+                fn from(proto: Relation<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(RelationOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 pub mod mod_Relation {
 
 
@@ -2532,6 +4111,106 @@ impl<'a> MessageWrite for Sort<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct SortOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Sort<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl SortOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Sort::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Sort<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct SortOwned {
+                inner: core::pin::Pin<Box<SortOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl SortOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Sort<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Sort<'static>, &Sort<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Sort<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Sort<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for SortOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for SortOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: SortOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for SortOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Sort<'static>> for SortOwned {
+                fn from(proto: Sort<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(SortOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 pub mod mod_Sort {
 
 
@@ -2675,6 +4354,106 @@ impl<'a> MessageWrite for Filter<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct FilterOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Filter<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl FilterOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Filter::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Filter<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct FilterOwned {
+                inner: core::pin::Pin<Box<FilterOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl FilterOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Filter<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Filter<'static>, &Filter<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Filter<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Filter<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for FilterOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for FilterOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: FilterOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for FilterOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Filter<'static>> for FilterOwned {
+                fn from(proto: Filter<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(FilterOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 pub mod mod_Filter {
 
 
@@ -2807,6 +4586,9 @@ pub enum QuickOption {
     NextMonth = 9,
     NumberOfDaysAgo = 10,
     NumberOfDaysNow = 11,
+    LastYear = 12,
+    CurrentYear = 13,
+    NextYear = 14,
 }
 
 impl Default for QuickOption {
@@ -2830,6 +4612,9 @@ impl From<i32> for QuickOption {
             9 => QuickOption::NextMonth,
             10 => QuickOption::NumberOfDaysAgo,
             11 => QuickOption::NumberOfDaysNow,
+            12 => QuickOption::LastYear,
+            13 => QuickOption::CurrentYear,
+            14 => QuickOption::NextYear,
             _ => Self::default(),
         }
     }
@@ -2850,6 +4635,9 @@ impl<'a> From<&'a str> for QuickOption {
             "NextMonth" => QuickOption::NextMonth,
             "NumberOfDaysAgo" => QuickOption::NumberOfDaysAgo,
             "NumberOfDaysNow" => QuickOption::NumberOfDaysNow,
+            "LastYear" => QuickOption::LastYear,
+            "CurrentYear" => QuickOption::CurrentYear,
+            "NextYear" => QuickOption::NextYear,
             _ => Self::default(),
         }
     }
@@ -2893,6 +4681,106 @@ impl<'a> MessageWrite for GroupOrder<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct GroupOrderOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<GroupOrder<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl GroupOrderOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = GroupOrder::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, GroupOrder<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct GroupOrderOwned {
+                inner: core::pin::Pin<Box<GroupOrderOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl GroupOrderOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a GroupOrder<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&GroupOrder<'static>, &GroupOrder<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut GroupOrder<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut GroupOrder<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for GroupOrderOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for GroupOrderOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: GroupOrderOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for GroupOrderOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<GroupOrder<'static>> for GroupOrderOwned {
+                fn from(proto: GroupOrder<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(GroupOrderOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct ViewGroup<'a> {
@@ -2937,6 +4825,106 @@ impl<'a> MessageWrite for ViewGroup<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct ViewGroupOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<ViewGroup<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl ViewGroupOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = ViewGroup::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, ViewGroup<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct ViewGroupOwned {
+                inner: core::pin::Pin<Box<ViewGroupOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl ViewGroupOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a ViewGroup<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&ViewGroup<'static>, &ViewGroup<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut ViewGroup<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut ViewGroup<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for ViewGroupOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for ViewGroupOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: ViewGroupOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for ViewGroupOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<ViewGroup<'static>> for ViewGroupOwned {
+                fn from(proto: ViewGroup<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(ViewGroupOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct ObjectOrder<'a> {
@@ -2977,6 +4965,106 @@ impl<'a> MessageWrite for ObjectOrder<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct ObjectOrderOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<ObjectOrder<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl ObjectOrderOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = ObjectOrder::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, ObjectOrder<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct ObjectOrderOwned {
+                inner: core::pin::Pin<Box<ObjectOrderOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl ObjectOrderOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a ObjectOrder<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&ObjectOrder<'static>, &ObjectOrder<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut ObjectOrder<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut ObjectOrder<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for ObjectOrderOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for ObjectOrderOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: ObjectOrderOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for ObjectOrderOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<ObjectOrder<'static>> for ObjectOrderOwned {
+                fn from(proto: ObjectOrder<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(ObjectOrderOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct Group<'a> {
@@ -3025,6 +5113,106 @@ impl<'a> MessageWrite for Group<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct GroupOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Group<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl GroupOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Group::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Group<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct GroupOwned {
+                inner: core::pin::Pin<Box<GroupOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl GroupOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Group<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Group<'static>, &Group<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Group<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Group<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for GroupOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for GroupOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: GroupOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for GroupOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Group<'static>> for GroupOwned {
+                fn from(proto: Group<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(GroupOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 pub mod mod_Group {
 
 use super::*;
@@ -3078,6 +5266,106 @@ impl<'a> MessageWrite for Status<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct StatusOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Status<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl StatusOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Status::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Status<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct StatusOwned {
+                inner: core::pin::Pin<Box<StatusOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl StatusOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Status<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Status<'static>, &Status<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Status<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Status<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for StatusOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for StatusOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: StatusOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for StatusOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Status<'static>> for StatusOwned {
+                fn from(proto: Status<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(StatusOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct Tag<'a> {
@@ -3110,6 +5398,106 @@ impl<'a> MessageWrite for Tag<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct TagOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Tag<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl TagOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Tag::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Tag<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct TagOwned {
+                inner: core::pin::Pin<Box<TagOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl TagOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Tag<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Tag<'static>, &Tag<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Tag<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Tag<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for TagOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for TagOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: TagOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for TagOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Tag<'static>> for TagOwned {
+                fn from(proto: Tag<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(TagOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct Checkbox {
@@ -3142,6 +5530,16 @@ impl MessageWrite for Checkbox {
     }
 }
 
+
+            impl TryFrom<&[u8]> for Checkbox {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: &[u8]) -> Result<Self> {
+                    let mut reader = BytesReader::from_bytes(&buf);
+                    Ok(Checkbox::from_reader(&mut reader, &buf)?)
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct Date { }
@@ -3155,6 +5553,16 @@ impl<'a> MessageRead<'a> for Date {
 
 impl MessageWrite for Date { }
 
+
+            impl TryFrom<&[u8]> for Date {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: &[u8]) -> Result<Self> {
+                    let mut reader = BytesReader::from_bytes(&buf);
+                    Ok(Date::from_reader(&mut reader, &buf)?)
+                }
+            }
+            
 }
 
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -3189,6 +5597,106 @@ impl<'a> MessageWrite for Relation<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct RelationOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Relation<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl RelationOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Relation::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Relation<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct RelationOwned {
+                inner: core::pin::Pin<Box<RelationOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl RelationOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Relation<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Relation<'static>, &Relation<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Relation<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Relation<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for RelationOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for RelationOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: RelationOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for RelationOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Relation<'static>> for RelationOwned {
+                fn from(proto: Relation<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(RelationOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct Latex<'a> {
@@ -3225,9 +5733,108 @@ impl<'a> MessageWrite for Latex<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct LatexOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Latex<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl LatexOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Latex::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Latex<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct LatexOwned {
+                inner: core::pin::Pin<Box<LatexOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl LatexOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Latex<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Latex<'static>, &Latex<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Latex<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Latex<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for LatexOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for LatexOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: LatexOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for LatexOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Latex<'static>> for LatexOwned {
+                fn from(proto: Latex<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(LatexOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 pub mod mod_Latex {
     use serde::{Deserialize, Serialize};
-
 
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize,Deserialize)]
@@ -3255,6 +5862,8 @@ pub enum Processor {
     Graphviz = 20,
     Sketchfab = 21,
     Image = 22,
+    Drawio = 23,
+    Spotify = 24,
 }
 
 impl Default for Processor {
@@ -3289,6 +5898,8 @@ impl From<i32> for Processor {
             20 => Processor::Graphviz,
             21 => Processor::Sketchfab,
             22 => Processor::Image,
+            23 => Processor::Drawio,
+            24 => Processor::Spotify,
             _ => Self::default(),
         }
     }
@@ -3320,6 +5931,8 @@ impl<'a> From<&'a str> for Processor {
             "Graphviz" => Processor::Graphviz,
             "Sketchfab" => Processor::Sketchfab,
             "Image" => Processor::Image,
+            "Drawio" => Processor::Drawio,
+            "Spotify" => Processor::Spotify,
             _ => Self::default(),
         }
     }
@@ -3340,6 +5953,16 @@ impl<'a> MessageRead<'a> for TableOfContents {
 
 impl MessageWrite for TableOfContents { }
 
+
+            impl TryFrom<&[u8]> for TableOfContents {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: &[u8]) -> Result<Self> {
+                    let mut reader = BytesReader::from_bytes(&buf);
+                    Ok(TableOfContents::from_reader(&mut reader, &buf)?)
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct Table { }
@@ -3353,6 +5976,16 @@ impl<'a> MessageRead<'a> for Table {
 
 impl MessageWrite for Table { }
 
+
+            impl TryFrom<&[u8]> for Table {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: &[u8]) -> Result<Self> {
+                    let mut reader = BytesReader::from_bytes(&buf);
+                    Ok(Table::from_reader(&mut reader, &buf)?)
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct TableColumn { }
@@ -3366,6 +5999,16 @@ impl<'a> MessageRead<'a> for TableColumn {
 
 impl MessageWrite for TableColumn { }
 
+
+            impl TryFrom<&[u8]> for TableColumn {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: &[u8]) -> Result<Self> {
+                    let mut reader = BytesReader::from_bytes(&buf);
+                    Ok(TableColumn::from_reader(&mut reader, &buf)?)
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct TableRow {
@@ -3398,6 +6041,16 @@ impl MessageWrite for TableRow {
     }
 }
 
+
+            impl TryFrom<&[u8]> for TableRow {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: &[u8]) -> Result<Self> {
+                    let mut reader = BytesReader::from_bytes(&buf);
+                    Ok(TableRow::from_reader(&mut reader, &buf)?)
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct Widget<'a> {
@@ -3442,6 +6095,106 @@ impl<'a> MessageWrite for Widget<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct WidgetOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Widget<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl WidgetOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Widget::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Widget<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct WidgetOwned {
+                inner: core::pin::Pin<Box<WidgetOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl WidgetOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Widget<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Widget<'static>, &Widget<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Widget<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Widget<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for WidgetOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for WidgetOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: WidgetOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for WidgetOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Widget<'static>> for WidgetOwned {
+                fn from(proto: Widget<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(WidgetOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 pub mod mod_Widget {
 
 
@@ -3501,6 +6254,16 @@ impl<'a> MessageRead<'a> for Chat {
 
 impl MessageWrite for Chat { }
 
+
+            impl TryFrom<&[u8]> for Chat {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: &[u8]) -> Result<Self> {
+                    let mut reader = BytesReader::from_bytes(&buf);
+                    Ok(Chat::from_reader(&mut reader, &buf)?)
+                }
+            }
+            
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
@@ -3693,6 +6456,106 @@ impl<'a> MessageWrite for BlockMetaOnly<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct BlockMetaOnlyOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<BlockMetaOnly<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl BlockMetaOnlyOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = BlockMetaOnly::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, BlockMetaOnly<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct BlockMetaOnlyOwned {
+                inner: core::pin::Pin<Box<BlockMetaOnlyOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl BlockMetaOnlyOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a BlockMetaOnly<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&BlockMetaOnly<'static>, &BlockMetaOnly<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut BlockMetaOnly<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut BlockMetaOnly<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for BlockMetaOnlyOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for BlockMetaOnlyOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: BlockMetaOnlyOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for BlockMetaOnlyOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<BlockMetaOnly<'static>> for BlockMetaOnlyOwned {
+                fn from(proto: BlockMetaOnly<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(BlockMetaOnlyOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct Range {
@@ -3729,6 +6592,16 @@ impl MessageWrite for Range {
     }
 }
 
+
+            impl TryFrom<&[u8]> for Range {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: &[u8]) -> Result<Self> {
+                    let mut reader = BytesReader::from_bytes(&buf);
+                    Ok(Range::from_reader(&mut reader, &buf)?)
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct Account<'a> {
@@ -3773,6 +6646,106 @@ impl<'a> MessageWrite for Account<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct AccountOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Account<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl AccountOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Account::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Account<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct AccountOwned {
+                inner: core::pin::Pin<Box<AccountOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl AccountOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Account<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Account<'static>, &Account<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Account<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Account<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for AccountOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for AccountOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: AccountOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for AccountOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Account<'static>> for AccountOwned {
+                fn from(proto: Account<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(AccountOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 pub mod mod_Account {
 
 use std::borrow::Cow;
@@ -3826,6 +6799,106 @@ impl<'a> MessageWrite for Config<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct ConfigOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Config<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl ConfigOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Config::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Config<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct ConfigOwned {
+                inner: core::pin::Pin<Box<ConfigOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl ConfigOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Config<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Config<'static>, &Config<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Config<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Config<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for ConfigOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for ConfigOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: ConfigOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for ConfigOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Config<'static>> for ConfigOwned {
+                fn from(proto: Config<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(ConfigOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct Status {
@@ -3862,6 +6935,16 @@ impl MessageWrite for Status {
     }
 }
 
+
+            impl TryFrom<&[u8]> for Status {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: &[u8]) -> Result<Self> {
+                    let mut reader = BytesReader::from_bytes(&buf);
+                    Ok(Status::from_reader(&mut reader, &buf)?)
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct Info<'a> {
@@ -3870,6 +6953,7 @@ pub struct Info<'a> {
     pub profileObjectId: Cow<'a, str>,
     pub marketplaceWorkspaceId: Cow<'a, str>,
     pub workspaceObjectId: Cow<'a, str>,
+    pub spaceChatId: Cow<'a, str>,
     pub deviceId: Cow<'a, str>,
     pub accountSpaceId: Cow<'a, str>,
     pub widgetsId: Cow<'a, str>,
@@ -3881,6 +6965,7 @@ pub struct Info<'a> {
     pub analyticsId: Cow<'a, str>,
     pub networkId: Cow<'a, str>,
     pub ethereumAddress: Cow<'a, str>,
+    pub metaDataKey: Cow<'a, str>,
 }
 
 impl<'a> MessageRead<'a> for Info<'a> {
@@ -3893,6 +6978,7 @@ impl<'a> MessageRead<'a> for Info<'a> {
                 Ok(34) => msg.profileObjectId = r.read_string(bytes).map(Cow::Borrowed)?,
                 Ok(90) => msg.marketplaceWorkspaceId = r.read_string(bytes).map(Cow::Borrowed)?,
                 Ok(122) => msg.workspaceObjectId = r.read_string(bytes).map(Cow::Borrowed)?,
+                Ok(130) => msg.spaceChatId = r.read_string(bytes).map(Cow::Borrowed)?,
                 Ok(66) => msg.deviceId = r.read_string(bytes).map(Cow::Borrowed)?,
                 Ok(74) => msg.accountSpaceId = r.read_string(bytes).map(Cow::Borrowed)?,
                 Ok(82) => msg.widgetsId = r.read_string(bytes).map(Cow::Borrowed)?,
@@ -3904,6 +6990,7 @@ impl<'a> MessageRead<'a> for Info<'a> {
                 Ok(842) => msg.analyticsId = r.read_string(bytes).map(Cow::Borrowed)?,
                 Ok(850) => msg.networkId = r.read_string(bytes).map(Cow::Borrowed)?,
                 Ok(858) => msg.ethereumAddress = r.read_string(bytes).map(Cow::Borrowed)?,
+                Ok(866) => msg.metaDataKey = r.read_string(bytes).map(Cow::Borrowed)?,
                 Ok(t) => { r.read_unknown(bytes, t)?; }
                 Err(e) => return Err(e),
             }
@@ -3920,6 +7007,7 @@ impl<'a> MessageWrite for Info<'a> {
         + if self.profileObjectId == "" { 0 } else { 1 + sizeof_len((&self.profileObjectId).len()) }
         + if self.marketplaceWorkspaceId == "" { 0 } else { 1 + sizeof_len((&self.marketplaceWorkspaceId).len()) }
         + if self.workspaceObjectId == "" { 0 } else { 1 + sizeof_len((&self.workspaceObjectId).len()) }
+        + if self.spaceChatId == "" { 0 } else { 2 + sizeof_len((&self.spaceChatId).len()) }
         + if self.deviceId == "" { 0 } else { 1 + sizeof_len((&self.deviceId).len()) }
         + if self.accountSpaceId == "" { 0 } else { 1 + sizeof_len((&self.accountSpaceId).len()) }
         + if self.widgetsId == "" { 0 } else { 1 + sizeof_len((&self.widgetsId).len()) }
@@ -3931,6 +7019,7 @@ impl<'a> MessageWrite for Info<'a> {
         + if self.analyticsId == "" { 0 } else { 2 + sizeof_len((&self.analyticsId).len()) }
         + if self.networkId == "" { 0 } else { 2 + sizeof_len((&self.networkId).len()) }
         + if self.ethereumAddress == "" { 0 } else { 2 + sizeof_len((&self.ethereumAddress).len()) }
+        + if self.metaDataKey == "" { 0 } else { 2 + sizeof_len((&self.metaDataKey).len()) }
     }
 
     fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
@@ -3939,6 +7028,7 @@ impl<'a> MessageWrite for Info<'a> {
         if self.profileObjectId != "" { w.write_with_tag(34, |w| w.write_string(&**&self.profileObjectId))?; }
         if self.marketplaceWorkspaceId != "" { w.write_with_tag(90, |w| w.write_string(&**&self.marketplaceWorkspaceId))?; }
         if self.workspaceObjectId != "" { w.write_with_tag(122, |w| w.write_string(&**&self.workspaceObjectId))?; }
+        if self.spaceChatId != "" { w.write_with_tag(130, |w| w.write_string(&**&self.spaceChatId))?; }
         if self.deviceId != "" { w.write_with_tag(66, |w| w.write_string(&**&self.deviceId))?; }
         if self.accountSpaceId != "" { w.write_with_tag(74, |w| w.write_string(&**&self.accountSpaceId))?; }
         if self.widgetsId != "" { w.write_with_tag(82, |w| w.write_string(&**&self.widgetsId))?; }
@@ -3950,26 +7040,310 @@ impl<'a> MessageWrite for Info<'a> {
         if self.analyticsId != "" { w.write_with_tag(842, |w| w.write_string(&**&self.analyticsId))?; }
         if self.networkId != "" { w.write_with_tag(850, |w| w.write_string(&**&self.networkId))?; }
         if self.ethereumAddress != "" { w.write_with_tag(858, |w| w.write_string(&**&self.ethereumAddress))?; }
+        if self.metaDataKey != "" { w.write_with_tag(866, |w| w.write_string(&**&self.metaDataKey))?; }
         Ok(())
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct InfoOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Info<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl InfoOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Info::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Info<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct InfoOwned {
+                inner: core::pin::Pin<Box<InfoOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl InfoOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Info<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Info<'static>, &Info<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Info<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Info<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for InfoOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for InfoOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: InfoOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for InfoOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Info<'static>> for InfoOwned {
+                fn from(proto: Info<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(InfoOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
-pub struct Auth { }
+pub struct Auth {
+}
 
 impl<'a> MessageRead<'a> for Auth {
-    fn from_reader(r: &mut BytesReader, _: &[u8]) -> Result<Self> {
-        r.read_to_end();
-        Ok(Self::default())
+    fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
+        let mut msg = Self::default();
+        while !r.is_eof() {
+            match r.next_tag(bytes) {
+                Ok(t) => { r.read_unknown(bytes, t)?; }
+                Err(e) => return Err(e),
+            }
+        }
+        Ok(msg)
     }
 }
 
-impl MessageWrite for Auth { }
+impl MessageWrite for Auth {
+    fn get_size(&self) -> usize {
+        0
+    }
 
+    fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
+        Ok(())
+    }
+}
+
+
+            impl TryFrom<&[u8]> for Auth {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: &[u8]) -> Result<Self> {
+                    let mut reader = BytesReader::from_bytes(&buf);
+                    Ok(Auth::from_reader(&mut reader, &buf)?)
+                }
+            }
+            
 pub mod mod_Auth {
 
+use std::borrow::Cow;
+use super::*;
 
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Debug, Default, PartialEq, Clone)]
+pub struct AppInfo<'a> {
+    pub appHash: Cow<'a, str>,
+    pub appName: Cow<'a, str>,
+    pub appKey: Cow<'a, str>,
+    pub createdAt: i64,
+    pub expireAt: i64,
+    pub scope: model::mod_Account::mod_Auth::LocalApiScope,
+    pub isActive: bool,
+}
+
+impl<'a> MessageRead<'a> for AppInfo<'a> {
+    fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
+        let mut msg = Self::default();
+        while !r.is_eof() {
+            match r.next_tag(bytes) {
+                Ok(10) => msg.appHash = r.read_string(bytes).map(Cow::Borrowed)?,
+                Ok(18) => msg.appName = r.read_string(bytes).map(Cow::Borrowed)?,
+                Ok(34) => msg.appKey = r.read_string(bytes).map(Cow::Borrowed)?,
+                Ok(40) => msg.createdAt = r.read_int64(bytes)?,
+                Ok(48) => msg.expireAt = r.read_int64(bytes)?,
+                Ok(56) => msg.scope = r.read_enum(bytes)?,
+                Ok(64) => msg.isActive = r.read_bool(bytes)?,
+                Ok(t) => { r.read_unknown(bytes, t)?; }
+                Err(e) => return Err(e),
+            }
+        }
+        Ok(msg)
+    }
+}
+
+impl<'a> MessageWrite for AppInfo<'a> {
+    fn get_size(&self) -> usize {
+        0
+        + if self.appHash == "" { 0 } else { 1 + sizeof_len((&self.appHash).len()) }
+        + if self.appName == "" { 0 } else { 1 + sizeof_len((&self.appName).len()) }
+        + if self.appKey == "" { 0 } else { 1 + sizeof_len((&self.appKey).len()) }
+        + if self.createdAt == 0i64 { 0 } else { 1 + sizeof_varint(*(&self.createdAt) as u64) }
+        + if self.expireAt == 0i64 { 0 } else { 1 + sizeof_varint(*(&self.expireAt) as u64) }
+        + if self.scope == anytype::model::mod_Account::mod_Auth::LocalApiScope::Limited { 0 } else { 1 + sizeof_varint(*(&self.scope) as u64) }
+        + if self.isActive == false { 0 } else { 1 + sizeof_varint(*(&self.isActive) as u64) }
+    }
+
+    fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
+        if self.appHash != "" { w.write_with_tag(10, |w| w.write_string(&**&self.appHash))?; }
+        if self.appName != "" { w.write_with_tag(18, |w| w.write_string(&**&self.appName))?; }
+        if self.appKey != "" { w.write_with_tag(34, |w| w.write_string(&**&self.appKey))?; }
+        if self.createdAt != 0i64 { w.write_with_tag(40, |w| w.write_int64(*&self.createdAt))?; }
+        if self.expireAt != 0i64 { w.write_with_tag(48, |w| w.write_int64(*&self.expireAt))?; }
+        if self.scope != anytype::model::mod_Account::mod_Auth::LocalApiScope::Limited { w.write_with_tag(56, |w| w.write_enum(*&self.scope as i32))?; }
+        if self.isActive != false { w.write_with_tag(64, |w| w.write_bool(*&self.isActive))?; }
+        Ok(())
+    }
+}
+
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct AppInfoOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<AppInfo<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl AppInfoOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = AppInfo::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, AppInfo<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct AppInfoOwned {
+                inner: core::pin::Pin<Box<AppInfoOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl AppInfoOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a AppInfo<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&AppInfo<'static>, &AppInfo<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut AppInfo<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut AppInfo<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for AppInfoOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for AppInfoOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: AppInfoOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for AppInfoOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<AppInfo<'static>> for AppInfoOwned {
+                fn from(proto: AppInfo<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(AppInfoOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum LocalApiScope {
     Limited = 0,
@@ -4099,11 +7473,108 @@ impl<'a> MessageWrite for LinkPreview<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct LinkPreviewOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<LinkPreview<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl LinkPreviewOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = LinkPreview::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, LinkPreview<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct LinkPreviewOwned {
+                inner: core::pin::Pin<Box<LinkPreviewOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl LinkPreviewOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a LinkPreview<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&LinkPreview<'static>, &LinkPreview<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut LinkPreview<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut LinkPreview<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for LinkPreviewOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for LinkPreviewOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: LinkPreviewOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for LinkPreviewOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<LinkPreview<'static>> for LinkPreviewOwned {
+                fn from(proto: LinkPreview<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(LinkPreviewOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 pub mod mod_LinkPreview {
     use serde::{Deserialize, Serialize};
-
-
-
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
 pub enum Type {
     Unknown = 0,
@@ -4180,6 +7651,106 @@ impl<'a> MessageWrite for Restrictions<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct RestrictionsOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Restrictions<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl RestrictionsOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Restrictions::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Restrictions<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct RestrictionsOwned {
+                inner: core::pin::Pin<Box<RestrictionsOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl RestrictionsOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Restrictions<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Restrictions<'static>, &Restrictions<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Restrictions<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Restrictions<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for RestrictionsOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for RestrictionsOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: RestrictionsOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for RestrictionsOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Restrictions<'static>> for RestrictionsOwned {
+                fn from(proto: Restrictions<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(RestrictionsOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 pub mod mod_Restrictions {
 
 use std::borrow::Cow;
@@ -4221,6 +7792,106 @@ impl<'a> MessageWrite for DataviewRestrictions<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct DataviewRestrictionsOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<DataviewRestrictions<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl DataviewRestrictionsOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = DataviewRestrictions::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, DataviewRestrictions<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct DataviewRestrictionsOwned {
+                inner: core::pin::Pin<Box<DataviewRestrictionsOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl DataviewRestrictionsOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a DataviewRestrictions<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&DataviewRestrictions<'static>, &DataviewRestrictions<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut DataviewRestrictions<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut DataviewRestrictions<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for DataviewRestrictionsOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for DataviewRestrictionsOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: DataviewRestrictionsOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for DataviewRestrictionsOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<DataviewRestrictions<'static>> for DataviewRestrictionsOwned {
+                fn from(proto: DataviewRestrictions<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(DataviewRestrictionsOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum ObjectRestriction {
     None = 0,
@@ -4327,7 +7998,7 @@ pub struct Object {
 
 impl<'a> MessageRead<'a> for Object {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let msg = Self::default();
+        let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -4348,6 +8019,16 @@ impl MessageWrite for Object {
     }
 }
 
+
+            impl TryFrom<&[u8]> for Object {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: &[u8]) -> Result<Self> {
+                    let mut reader = BytesReader::from_bytes(&buf);
+                    Ok(Object::from_reader(&mut reader, &buf)?)
+                }
+            }
+            
 pub mod mod_Object {
 
 use std::borrow::Cow;
@@ -4393,6 +8074,106 @@ impl<'a> MessageWrite for ChangePayload<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct ChangePayloadOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<ChangePayload<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl ChangePayloadOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = ChangePayload::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, ChangePayload<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct ChangePayloadOwned {
+                inner: core::pin::Pin<Box<ChangePayloadOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl ChangePayloadOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a ChangePayload<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&ChangePayload<'static>, &ChangePayload<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut ChangePayload<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut ChangePayload<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for ChangePayloadOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for ChangePayloadOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: ChangePayloadOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for ChangePayloadOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<ChangePayload<'static>> for ChangePayloadOwned {
+                fn from(proto: ChangePayload<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(ChangePayloadOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 }
 
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -4427,6 +8208,106 @@ impl<'a> MessageWrite for SpaceObjectHeader<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct SpaceObjectHeaderOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<SpaceObjectHeader<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl SpaceObjectHeaderOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = SpaceObjectHeader::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, SpaceObjectHeader<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct SpaceObjectHeaderOwned {
+                inner: core::pin::Pin<Box<SpaceObjectHeaderOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl SpaceObjectHeaderOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a SpaceObjectHeader<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&SpaceObjectHeader<'static>, &SpaceObjectHeader<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut SpaceObjectHeader<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut SpaceObjectHeader<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for SpaceObjectHeaderOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for SpaceObjectHeaderOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: SpaceObjectHeaderOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for SpaceObjectHeaderOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<SpaceObjectHeader<'static>> for SpaceObjectHeaderOwned {
+                fn from(proto: SpaceObjectHeader<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(SpaceObjectHeaderOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct ObjectType<'a> {
@@ -4523,6 +8404,106 @@ impl<'a> MessageWrite for ObjectType<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct ObjectTypeOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<ObjectType<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl ObjectTypeOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = ObjectType::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, ObjectType<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct ObjectTypeOwned {
+                inner: core::pin::Pin<Box<ObjectTypeOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl ObjectTypeOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a ObjectType<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&ObjectType<'static>, &ObjectType<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut ObjectType<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut ObjectType<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for ObjectTypeOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for ObjectTypeOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: ObjectTypeOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for ObjectTypeOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<ObjectType<'static>> for ObjectTypeOwned {
+                fn from(proto: ObjectType<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(ObjectTypeOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 pub mod mod_ObjectType {
 
 
@@ -4549,9 +8530,12 @@ pub enum Layout {
     spaceView = 18,
     participant = 19,
     pdf = 20,
-    chat = 21,
+    chatDeprecated = 21,
     chatDerived = 22,
     tag = 23,
+    notification = 24,
+    missingObject = 25,
+    devices = 26,
 }
 
 impl Default for Layout {
@@ -4584,9 +8568,12 @@ impl From<i32> for Layout {
             18 => Layout::spaceView,
             19 => Layout::participant,
             20 => Layout::pdf,
-            21 => Layout::chat,
+            21 => Layout::chatDeprecated,
             22 => Layout::chatDerived,
             23 => Layout::tag,
+            24 => Layout::notification,
+            25 => Layout::missingObject,
+            26 => Layout::devices,
             _ => Self::default(),
         }
     }
@@ -4616,9 +8603,12 @@ impl<'a> From<&'a str> for Layout {
             "spaceView" => Layout::spaceView,
             "participant" => Layout::participant,
             "pdf" => Layout::pdf,
-            "chat" => Layout::chat,
+            "chatDeprecated" => Layout::chatDeprecated,
             "chatDerived" => Layout::chatDerived,
             "tag" => Layout::tag,
+            "notification" => Layout::notification,
+            "missingObject" => Layout::missingObject,
+            "devices" => Layout::devices,
             _ => Self::default(),
         }
     }
@@ -4666,6 +8656,106 @@ impl<'a> MessageWrite for Layout<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct LayoutOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Layout<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl LayoutOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Layout::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Layout<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct LayoutOwned {
+                inner: core::pin::Pin<Box<LayoutOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl LayoutOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Layout<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Layout<'static>, &Layout<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Layout<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Layout<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for LayoutOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for LayoutOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: LayoutOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for LayoutOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Layout<'static>> for LayoutOwned {
+                fn from(proto: Layout<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(LayoutOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct RelationWithValue<'a> {
@@ -4702,6 +8792,106 @@ impl<'a> MessageWrite for RelationWithValue<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct RelationWithValueOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<RelationWithValue<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl RelationWithValueOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = RelationWithValue::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, RelationWithValue<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct RelationWithValueOwned {
+                inner: core::pin::Pin<Box<RelationWithValueOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl RelationWithValueOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a RelationWithValue<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&RelationWithValue<'static>, &RelationWithValue<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut RelationWithValue<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut RelationWithValue<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for RelationWithValueOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for RelationWithValueOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: RelationWithValueOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for RelationWithValueOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<RelationWithValue<'static>> for RelationWithValueOwned {
+                fn from(proto: RelationWithValue<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(RelationWithValueOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct Relation<'a> {
@@ -4722,6 +8912,7 @@ pub struct Relation<'a> {
     pub scope: model::mod_Relation::Scope,
     pub creator: Cow<'a, str>,
     pub revision: i64,
+    pub includeTime: bool,
 }
 
 impl<'a> MessageRead<'a> for Relation<'a> {
@@ -4746,6 +8937,7 @@ impl<'a> MessageRead<'a> for Relation<'a> {
                 Ok(160) => msg.scope = r.read_enum(bytes)?,
                 Ok(170) => msg.creator = r.read_string(bytes).map(Cow::Borrowed)?,
                 Ok(176) => msg.revision = r.read_int64(bytes)?,
+                Ok(184) => msg.includeTime = r.read_bool(bytes)?,
                 Ok(t) => { r.read_unknown(bytes, t)?; }
                 Err(e) => return Err(e),
             }
@@ -4774,6 +8966,7 @@ impl<'a> MessageWrite for Relation<'a> {
         + if self.scope == anytype::model::mod_Relation::Scope::object { 0 } else { 2 + sizeof_varint(*(&self.scope) as u64) }
         + if self.creator == "" { 0 } else { 2 + sizeof_len((&self.creator).len()) }
         + if self.revision == 0i64 { 0 } else { 2 + sizeof_varint(*(&self.revision) as u64) }
+        + if self.includeTime == false { 0 } else { 2 + sizeof_varint(*(&self.includeTime) as u64) }
     }
 
     fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
@@ -4794,10 +8987,111 @@ impl<'a> MessageWrite for Relation<'a> {
         if self.scope != anytype::model::mod_Relation::Scope::object { w.write_with_tag(160, |w| w.write_enum(*&self.scope as i32))?; }
         if self.creator != "" { w.write_with_tag(170, |w| w.write_string(&**&self.creator))?; }
         if self.revision != 0i64 { w.write_with_tag(176, |w| w.write_int64(*&self.revision))?; }
+        if self.includeTime != false { w.write_with_tag(184, |w| w.write_bool(*&self.includeTime))?; }
         Ok(())
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct RelationOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Relation<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl RelationOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Relation::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Relation<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct RelationOwned {
+                inner: core::pin::Pin<Box<RelationOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl RelationOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Relation<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Relation<'static>, &Relation<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Relation<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Relation<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for RelationOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for RelationOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: RelationOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for RelationOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Relation<'static>> for RelationOwned {
+                fn from(proto: Relation<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(RelationOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 pub mod mod_Relation {
 
 use std::borrow::Cow;
@@ -4810,6 +9104,7 @@ pub struct Option_pb<'a> {
     pub text: Cow<'a, str>,
     pub color: Cow<'a, str>,
     pub relationKey: Cow<'a, str>,
+    pub orderId: Cow<'a, str>,
 }
 
 impl<'a> MessageRead<'a> for Option_pb<'a> {
@@ -4821,6 +9116,7 @@ impl<'a> MessageRead<'a> for Option_pb<'a> {
                 Ok(18) => msg.text = r.read_string(bytes).map(Cow::Borrowed)?,
                 Ok(26) => msg.color = r.read_string(bytes).map(Cow::Borrowed)?,
                 Ok(42) => msg.relationKey = r.read_string(bytes).map(Cow::Borrowed)?,
+                Ok(50) => msg.orderId = r.read_string(bytes).map(Cow::Borrowed)?,
                 Ok(t) => { r.read_unknown(bytes, t)?; }
                 Err(e) => return Err(e),
             }
@@ -4836,6 +9132,7 @@ impl<'a> MessageWrite for Option_pb<'a> {
         + if self.text == "" { 0 } else { 1 + sizeof_len((&self.text).len()) }
         + if self.color == "" { 0 } else { 1 + sizeof_len((&self.color).len()) }
         + if self.relationKey == "" { 0 } else { 1 + sizeof_len((&self.relationKey).len()) }
+        + if self.orderId == "" { 0 } else { 1 + sizeof_len((&self.orderId).len()) }
     }
 
     fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
@@ -4843,10 +9140,111 @@ impl<'a> MessageWrite for Option_pb<'a> {
         if self.text != "" { w.write_with_tag(18, |w| w.write_string(&**&self.text))?; }
         if self.color != "" { w.write_with_tag(26, |w| w.write_string(&**&self.color))?; }
         if self.relationKey != "" { w.write_with_tag(42, |w| w.write_string(&**&self.relationKey))?; }
+        if self.orderId != "" { w.write_with_tag(50, |w| w.write_string(&**&self.orderId))?; }
         Ok(())
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct Option_pbOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Option_pb<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl Option_pbOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Option_pb::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Option_pb<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct Option_pbOwned {
+                inner: core::pin::Pin<Box<Option_pbOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl Option_pbOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Option_pb<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Option_pb<'static>, &Option_pb<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Option_pb<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Option_pb<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for Option_pbOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for Option_pbOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: Option_pbOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for Option_pbOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Option_pb<'static>> for Option_pbOwned {
+                fn from(proto: Option_pb<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(Option_pbOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum Scope {
     object = 0,
@@ -4964,6 +9362,106 @@ impl<'a> MessageWrite for RelationLink<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct RelationLinkOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<RelationLink<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl RelationLinkOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = RelationLink::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, RelationLink<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct RelationLinkOwned {
+                inner: core::pin::Pin<Box<RelationLinkOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl RelationLinkOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a RelationLink<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&RelationLink<'static>, &RelationLink<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut RelationLink<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut RelationLink<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for RelationLinkOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for RelationLinkOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: RelationLinkOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for RelationLinkOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<RelationLink<'static>> for RelationLinkOwned {
+                fn from(proto: RelationLink<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(RelationLinkOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct Relations<'a> {
@@ -4996,6 +9494,106 @@ impl<'a> MessageWrite for Relations<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct RelationsOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Relations<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl RelationsOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Relations::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Relations<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct RelationsOwned {
+                inner: core::pin::Pin<Box<RelationsOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl RelationsOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Relations<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Relations<'static>, &Relations<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Relations<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Relations<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for RelationsOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for RelationsOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: RelationsOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for RelationsOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Relations<'static>> for RelationsOwned {
+                fn from(proto: Relations<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(RelationsOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct RelationOptions<'a> {
@@ -5028,6 +9626,106 @@ impl<'a> MessageWrite for RelationOptions<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct RelationOptionsOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<RelationOptions<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl RelationOptionsOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = RelationOptions::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, RelationOptions<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct RelationOptionsOwned {
+                inner: core::pin::Pin<Box<RelationOptionsOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl RelationOptionsOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a RelationOptions<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&RelationOptions<'static>, &RelationOptions<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut RelationOptions<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut RelationOptions<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for RelationOptionsOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for RelationOptionsOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: RelationOptionsOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for RelationOptionsOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<RelationOptions<'static>> for RelationOptionsOwned {
+                fn from(proto: RelationOptions<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(RelationOptionsOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct InternalFlag {
@@ -5060,6 +9758,16 @@ impl MessageWrite for InternalFlag {
     }
 }
 
+
+            impl TryFrom<&[u8]> for InternalFlag {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: &[u8]) -> Result<Self> {
+                    let mut reader = BytesReader::from_bytes(&buf);
+                    Ok(InternalFlag::from_reader(&mut reader, &buf)?)
+                }
+            }
+            
 pub mod mod_InternalFlag {
 
 
@@ -5167,6 +9875,106 @@ impl<'a> MessageWrite for ObjectView<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct ObjectViewOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<ObjectView<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl ObjectViewOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = ObjectView::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, ObjectView<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct ObjectViewOwned {
+                inner: core::pin::Pin<Box<ObjectViewOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl ObjectViewOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a ObjectView<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&ObjectView<'static>, &ObjectView<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut ObjectView<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut ObjectView<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for ObjectViewOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for ObjectViewOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: ObjectViewOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for ObjectViewOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<ObjectView<'static>> for ObjectViewOwned {
+                fn from(proto: ObjectView<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(ObjectViewOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 pub mod mod_ObjectView {
 
 use std::borrow::Cow;
@@ -5212,6 +10020,106 @@ impl<'a> MessageWrite for DetailsSet<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct DetailsSetOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<DetailsSet<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl DetailsSetOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = DetailsSet::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, DetailsSet<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct DetailsSetOwned {
+                inner: core::pin::Pin<Box<DetailsSetOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl DetailsSetOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a DetailsSet<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&DetailsSet<'static>, &DetailsSet<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut DetailsSet<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut DetailsSet<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for DetailsSetOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for DetailsSetOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: DetailsSetOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for DetailsSetOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<DetailsSet<'static>> for DetailsSetOwned {
+                fn from(proto: DetailsSet<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(DetailsSetOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct RelationWithValuePerObject<'a> {
@@ -5248,6 +10156,106 @@ impl<'a> MessageWrite for RelationWithValuePerObject<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct RelationWithValuePerObjectOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<RelationWithValuePerObject<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl RelationWithValuePerObjectOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = RelationWithValuePerObject::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, RelationWithValuePerObject<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct RelationWithValuePerObjectOwned {
+                inner: core::pin::Pin<Box<RelationWithValuePerObjectOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl RelationWithValuePerObjectOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a RelationWithValuePerObject<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&RelationWithValuePerObject<'static>, &RelationWithValuePerObject<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut RelationWithValuePerObject<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut RelationWithValuePerObject<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for RelationWithValuePerObjectOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for RelationWithValuePerObjectOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: RelationWithValuePerObjectOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for RelationWithValuePerObjectOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<RelationWithValuePerObject<'static>> for RelationWithValuePerObjectOwned {
+                fn from(proto: RelationWithValuePerObject<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(RelationWithValuePerObjectOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct HistorySize {
@@ -5284,6 +10292,16 @@ impl MessageWrite for HistorySize {
     }
 }
 
+
+            impl TryFrom<&[u8]> for HistorySize {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: &[u8]) -> Result<Self> {
+                    let mut reader = BytesReader::from_bytes(&buf);
+                    Ok(HistorySize::from_reader(&mut reader, &buf)?)
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct BlockParticipant<'a> {
@@ -5320,6 +10338,106 @@ impl<'a> MessageWrite for BlockParticipant<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct BlockParticipantOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<BlockParticipant<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl BlockParticipantOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = BlockParticipant::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, BlockParticipant<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct BlockParticipantOwned {
+                inner: core::pin::Pin<Box<BlockParticipantOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl BlockParticipantOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a BlockParticipant<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&BlockParticipant<'static>, &BlockParticipant<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut BlockParticipant<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut BlockParticipant<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for BlockParticipantOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for BlockParticipantOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: BlockParticipantOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for BlockParticipantOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<BlockParticipant<'static>> for BlockParticipantOwned {
+                fn from(proto: BlockParticipant<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(BlockParticipantOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 }
 
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -5358,6 +10476,106 @@ impl<'a> MessageWrite for ParticipantPermissionChange<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct ParticipantPermissionChangeOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<ParticipantPermissionChange<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl ParticipantPermissionChangeOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = ParticipantPermissionChange::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, ParticipantPermissionChange<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct ParticipantPermissionChangeOwned {
+                inner: core::pin::Pin<Box<ParticipantPermissionChangeOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl ParticipantPermissionChangeOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a ParticipantPermissionChange<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&ParticipantPermissionChange<'static>, &ParticipantPermissionChange<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut ParticipantPermissionChange<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut ParticipantPermissionChange<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for ParticipantPermissionChangeOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for ParticipantPermissionChangeOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: ParticipantPermissionChangeOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for ParticipantPermissionChangeOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<ParticipantPermissionChange<'static>> for ParticipantPermissionChangeOwned {
+                fn from(proto: ParticipantPermissionChange<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(ParticipantPermissionChangeOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct Metadata<'a> {
@@ -5393,6 +10611,106 @@ impl<'a> MessageWrite for Metadata<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct MetadataOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Metadata<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl MetadataOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Metadata::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Metadata<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct MetadataOwned {
+                inner: core::pin::Pin<Box<MetadataOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl MetadataOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Metadata<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Metadata<'static>, &Metadata<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Metadata<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Metadata<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for MetadataOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for MetadataOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: MetadataOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for MetadataOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Metadata<'static>> for MetadataOwned {
+                fn from(proto: Metadata<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(MetadataOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 pub mod mod_Metadata {
 
 use super::*;
@@ -5404,7 +10722,7 @@ pub struct Payload {
 
 impl<'a> MessageRead<'a> for Payload {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let msg = Self::default();
+        let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -5425,6 +10743,16 @@ impl MessageWrite for Payload {
     }
 }
 
+
+            impl TryFrom<&[u8]> for Payload {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: &[u8]) -> Result<Self> {
+                    let mut reader = BytesReader::from_bytes(&buf);
+                    Ok(Payload::from_reader(&mut reader, &buf)?)
+                }
+            }
+            
 pub mod mod_Payload {
 
 use std::borrow::Cow;
@@ -5462,6 +10790,106 @@ impl<'a> MessageWrite for IdentityPayload<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct IdentityPayloadOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<IdentityPayload<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl IdentityPayloadOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = IdentityPayload::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, IdentityPayload<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct IdentityPayloadOwned {
+                inner: core::pin::Pin<Box<IdentityPayloadOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl IdentityPayloadOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a IdentityPayload<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&IdentityPayload<'static>, &IdentityPayload<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut IdentityPayload<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut IdentityPayload<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for IdentityPayloadOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for IdentityPayloadOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: IdentityPayloadOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for IdentityPayloadOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<IdentityPayload<'static>> for IdentityPayloadOwned {
+                fn from(proto: IdentityPayload<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(IdentityPayloadOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -5564,6 +10992,106 @@ impl<'a> MessageWrite for Notification<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct NotificationOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Notification<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl NotificationOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Notification::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Notification<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct NotificationOwned {
+                inner: core::pin::Pin<Box<NotificationOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl NotificationOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Notification<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Notification<'static>, &Notification<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Notification<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Notification<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for NotificationOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for NotificationOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: NotificationOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for NotificationOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Notification<'static>> for NotificationOwned {
+                fn from(proto: Notification<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(NotificationOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 pub mod mod_Notification {
 
 use std::borrow::Cow;
@@ -5621,6 +11149,106 @@ impl<'a> MessageWrite for Import<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct ImportOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Import<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl ImportOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Import::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Import<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct ImportOwned {
+                inner: core::pin::Pin<Box<ImportOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl ImportOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Import<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Import<'static>, &Import<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Import<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Import<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for ImportOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for ImportOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: ImportOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for ImportOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Import<'static>> for ImportOwned {
+                fn from(proto: Import<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(ImportOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct Export {
@@ -5657,6 +11285,16 @@ impl MessageWrite for Export {
     }
 }
 
+
+            impl TryFrom<&[u8]> for Export {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: &[u8]) -> Result<Self> {
+                    let mut reader = BytesReader::from_bytes(&buf);
+                    Ok(Export::from_reader(&mut reader, &buf)?)
+                }
+            }
+            
 pub mod mod_Export {
 
 
@@ -5745,6 +11383,106 @@ impl<'a> MessageWrite for GalleryImport<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct GalleryImportOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<GalleryImport<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl GalleryImportOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = GalleryImport::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, GalleryImport<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct GalleryImportOwned {
+                inner: core::pin::Pin<Box<GalleryImportOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl GalleryImportOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a GalleryImport<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&GalleryImport<'static>, &GalleryImport<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut GalleryImport<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut GalleryImport<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for GalleryImportOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for GalleryImportOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: GalleryImportOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for GalleryImportOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<GalleryImport<'static>> for GalleryImportOwned {
+                fn from(proto: GalleryImport<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(GalleryImportOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct RequestToJoin<'a> {
@@ -5793,6 +11531,106 @@ impl<'a> MessageWrite for RequestToJoin<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct RequestToJoinOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<RequestToJoin<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl RequestToJoinOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = RequestToJoin::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, RequestToJoin<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct RequestToJoinOwned {
+                inner: core::pin::Pin<Box<RequestToJoinOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl RequestToJoinOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a RequestToJoin<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&RequestToJoin<'static>, &RequestToJoin<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut RequestToJoin<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut RequestToJoin<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for RequestToJoinOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for RequestToJoinOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: RequestToJoinOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for RequestToJoinOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<RequestToJoin<'static>> for RequestToJoinOwned {
+                fn from(proto: RequestToJoin<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(RequestToJoinOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct Test { }
@@ -5806,6 +11644,16 @@ impl<'a> MessageRead<'a> for Test {
 
 impl MessageWrite for Test { }
 
+
+            impl TryFrom<&[u8]> for Test {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: &[u8]) -> Result<Self> {
+                    let mut reader = BytesReader::from_bytes(&buf);
+                    Ok(Test::from_reader(&mut reader, &buf)?)
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct ParticipantRequestApproved<'a> {
@@ -5846,6 +11694,106 @@ impl<'a> MessageWrite for ParticipantRequestApproved<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct ParticipantRequestApprovedOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<ParticipantRequestApproved<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl ParticipantRequestApprovedOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = ParticipantRequestApproved::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, ParticipantRequestApproved<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct ParticipantRequestApprovedOwned {
+                inner: core::pin::Pin<Box<ParticipantRequestApprovedOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl ParticipantRequestApprovedOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a ParticipantRequestApproved<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&ParticipantRequestApproved<'static>, &ParticipantRequestApproved<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut ParticipantRequestApproved<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut ParticipantRequestApproved<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for ParticipantRequestApprovedOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for ParticipantRequestApprovedOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: ParticipantRequestApprovedOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for ParticipantRequestApprovedOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<ParticipantRequestApproved<'static>> for ParticipantRequestApprovedOwned {
+                fn from(proto: ParticipantRequestApproved<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(ParticipantRequestApprovedOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct RequestToLeave<'a> {
@@ -5894,6 +11842,106 @@ impl<'a> MessageWrite for RequestToLeave<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct RequestToLeaveOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<RequestToLeave<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl RequestToLeaveOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = RequestToLeave::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, RequestToLeave<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct RequestToLeaveOwned {
+                inner: core::pin::Pin<Box<RequestToLeaveOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl RequestToLeaveOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a RequestToLeave<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&RequestToLeave<'static>, &RequestToLeave<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut RequestToLeave<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut RequestToLeave<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for RequestToLeaveOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for RequestToLeaveOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: RequestToLeaveOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for RequestToLeaveOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<RequestToLeave<'static>> for RequestToLeaveOwned {
+                fn from(proto: RequestToLeave<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(RequestToLeaveOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct ParticipantRemove<'a> {
@@ -5942,6 +11990,106 @@ impl<'a> MessageWrite for ParticipantRemove<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct ParticipantRemoveOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<ParticipantRemove<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl ParticipantRemoveOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = ParticipantRemove::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, ParticipantRemove<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct ParticipantRemoveOwned {
+                inner: core::pin::Pin<Box<ParticipantRemoveOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl ParticipantRemoveOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a ParticipantRemove<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&ParticipantRemove<'static>, &ParticipantRemove<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut ParticipantRemove<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut ParticipantRemove<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for ParticipantRemoveOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for ParticipantRemoveOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: ParticipantRemoveOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for ParticipantRemoveOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<ParticipantRemove<'static>> for ParticipantRemoveOwned {
+                fn from(proto: ParticipantRemove<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(ParticipantRemoveOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct ParticipantRequestDecline<'a> {
@@ -5978,6 +12126,106 @@ impl<'a> MessageWrite for ParticipantRequestDecline<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct ParticipantRequestDeclineOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<ParticipantRequestDecline<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl ParticipantRequestDeclineOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = ParticipantRequestDecline::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, ParticipantRequestDecline<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct ParticipantRequestDeclineOwned {
+                inner: core::pin::Pin<Box<ParticipantRequestDeclineOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl ParticipantRequestDeclineOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a ParticipantRequestDecline<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&ParticipantRequestDecline<'static>, &ParticipantRequestDecline<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut ParticipantRequestDecline<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut ParticipantRequestDecline<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for ParticipantRequestDeclineOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for ParticipantRequestDeclineOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: ParticipantRequestDeclineOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for ParticipantRequestDeclineOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<ParticipantRequestDecline<'static>> for ParticipantRequestDeclineOwned {
+                fn from(proto: ParticipantRequestDecline<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(ParticipantRequestDeclineOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct ParticipantPermissionsChange<'a> {
@@ -6018,6 +12266,106 @@ impl<'a> MessageWrite for ParticipantPermissionsChange<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct ParticipantPermissionsChangeOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<ParticipantPermissionsChange<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl ParticipantPermissionsChangeOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = ParticipantPermissionsChange::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, ParticipantPermissionsChange<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct ParticipantPermissionsChangeOwned {
+                inner: core::pin::Pin<Box<ParticipantPermissionsChangeOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl ParticipantPermissionsChangeOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a ParticipantPermissionsChange<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&ParticipantPermissionsChange<'static>, &ParticipantPermissionsChange<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut ParticipantPermissionsChange<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut ParticipantPermissionsChange<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for ParticipantPermissionsChangeOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for ParticipantPermissionsChangeOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: ParticipantPermissionsChangeOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for ParticipantPermissionsChangeOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<ParticipantPermissionsChange<'static>> for ParticipantPermissionsChangeOwned {
+                fn from(proto: ParticipantPermissionsChange<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(ParticipantPermissionsChangeOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum Status {
     Created = 0,
@@ -6121,6 +12469,16 @@ impl<'a> MessageRead<'a> for Export {
 
 impl MessageWrite for Export { }
 
+
+            impl TryFrom<&[u8]> for Export {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: &[u8]) -> Result<Self> {
+                    let mut reader = BytesReader::from_bytes(&buf);
+                    Ok(Export::from_reader(&mut reader, &buf)?)
+                }
+            }
+            
 pub mod mod_Export {
 
 
@@ -6183,6 +12541,16 @@ impl<'a> MessageRead<'a> for Import {
 
 impl MessageWrite for Import { }
 
+
+            impl TryFrom<&[u8]> for Import {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: &[u8]) -> Result<Self> {
+                    let mut reader = BytesReader::from_bytes(&buf);
+                    Ok(Import::from_reader(&mut reader, &buf)?)
+                }
+            }
+            
 pub mod mod_Import {
 
 
@@ -6195,6 +12563,7 @@ pub enum Type {
     Html = 4,
     Txt = 5,
     Csv = 6,
+    Obsidian = 7,
 }
 
 impl Default for Type {
@@ -6213,6 +12582,7 @@ impl From<i32> for Type {
             4 => Type::Html,
             5 => Type::Txt,
             6 => Type::Csv,
+            7 => Type::Obsidian,
             _ => Self::default(),
         }
     }
@@ -6228,6 +12598,7 @@ impl<'a> From<&'a str> for Type {
             "Html" => Type::Html,
             "Txt" => Type::Txt,
             "Csv" => Type::Csv,
+            "Obsidian" => Type::Obsidian,
             _ => Self::default(),
         }
     }
@@ -6342,17 +12713,121 @@ impl<'a> MessageWrite for Invite<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct InviteOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Invite<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl InviteOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Invite::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Invite<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct InviteOwned {
+                inner: core::pin::Pin<Box<InviteOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl InviteOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Invite<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Invite<'static>, &Invite<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Invite<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Invite<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for InviteOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for InviteOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: InviteOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for InviteOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Invite<'static>> for InviteOwned {
+                fn from(proto: Invite<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(InviteOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct InvitePayload<'a> {
     pub creatorIdentity: Cow<'a, str>,
     pub creatorName: Cow<'a, str>,
+    pub creatorIconCid: Cow<'a, str>,
+    pub creatorIconEncryptionKeys: Vec<model::FileEncryptionKey<'a>>,
     pub aclKey: Cow<'a, [u8]>,
     pub spaceId: Cow<'a, str>,
     pub spaceName: Cow<'a, str>,
     pub spaceIconCid: Cow<'a, str>,
+    pub spaceIconOption: u32,
+    pub spaceUxType: u32,
     pub spaceIconEncryptionKeys: Vec<model::FileEncryptionKey<'a>>,
-    pub inviteType: model::mod_InvitePayload::InviteType,
+    pub inviteType: model::InviteType,
     pub guestKey: Cow<'a, [u8]>,
 }
 
@@ -6363,10 +12838,14 @@ impl<'a> MessageRead<'a> for InvitePayload<'a> {
             match r.next_tag(bytes) {
                 Ok(10) => msg.creatorIdentity = r.read_string(bytes).map(Cow::Borrowed)?,
                 Ok(18) => msg.creatorName = r.read_string(bytes).map(Cow::Borrowed)?,
+                Ok(98) => msg.creatorIconCid = r.read_string(bytes).map(Cow::Borrowed)?,
+                Ok(106) => msg.creatorIconEncryptionKeys.push(r.read_message::<model::FileEncryptionKey>(bytes)?),
                 Ok(26) => msg.aclKey = r.read_bytes(bytes).map(Cow::Borrowed)?,
                 Ok(34) => msg.spaceId = r.read_string(bytes).map(Cow::Borrowed)?,
                 Ok(42) => msg.spaceName = r.read_string(bytes).map(Cow::Borrowed)?,
                 Ok(50) => msg.spaceIconCid = r.read_string(bytes).map(Cow::Borrowed)?,
+                Ok(80) => msg.spaceIconOption = r.read_uint32(bytes)?,
+                Ok(88) => msg.spaceUxType = r.read_uint32(bytes)?,
                 Ok(58) => msg.spaceIconEncryptionKeys.push(r.read_message::<model::FileEncryptionKey>(bytes)?),
                 Ok(64) => msg.inviteType = r.read_enum(bytes)?,
                 Ok(74) => msg.guestKey = r.read_bytes(bytes).map(Cow::Borrowed)?,
@@ -6383,66 +12862,137 @@ impl<'a> MessageWrite for InvitePayload<'a> {
         0
         + if self.creatorIdentity == "" { 0 } else { 1 + sizeof_len((&self.creatorIdentity).len()) }
         + if self.creatorName == "" { 0 } else { 1 + sizeof_len((&self.creatorName).len()) }
+        + if self.creatorIconCid == "" { 0 } else { 1 + sizeof_len((&self.creatorIconCid).len()) }
+        + self.creatorIconEncryptionKeys.iter().map(|s| 1 + sizeof_len((s).get_size())).sum::<usize>()
         + if self.aclKey == Cow::Borrowed(b"") { 0 } else { 1 + sizeof_len((&self.aclKey).len()) }
         + if self.spaceId == "" { 0 } else { 1 + sizeof_len((&self.spaceId).len()) }
         + if self.spaceName == "" { 0 } else { 1 + sizeof_len((&self.spaceName).len()) }
         + if self.spaceIconCid == "" { 0 } else { 1 + sizeof_len((&self.spaceIconCid).len()) }
+        + if self.spaceIconOption == 0u32 { 0 } else { 1 + sizeof_varint(*(&self.spaceIconOption) as u64) }
+        + if self.spaceUxType == 0u32 { 0 } else { 1 + sizeof_varint(*(&self.spaceUxType) as u64) }
         + self.spaceIconEncryptionKeys.iter().map(|s| 1 + sizeof_len((s).get_size())).sum::<usize>()
-        + if self.inviteType == anytype::model::mod_InvitePayload::InviteType::JoinAsMember { 0 } else { 1 + sizeof_varint(*(&self.inviteType) as u64) }
+        + if self.inviteType == anytype::model::InviteType::Member { 0 } else { 1 + sizeof_varint(*(&self.inviteType) as u64) }
         + if self.guestKey == Cow::Borrowed(b"") { 0 } else { 1 + sizeof_len((&self.guestKey).len()) }
     }
 
     fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
         if self.creatorIdentity != "" { w.write_with_tag(10, |w| w.write_string(&**&self.creatorIdentity))?; }
         if self.creatorName != "" { w.write_with_tag(18, |w| w.write_string(&**&self.creatorName))?; }
+        if self.creatorIconCid != "" { w.write_with_tag(98, |w| w.write_string(&**&self.creatorIconCid))?; }
+        for s in &self.creatorIconEncryptionKeys { w.write_with_tag(106, |w| w.write_message(s))?; }
         if self.aclKey != Cow::Borrowed(b"") { w.write_with_tag(26, |w| w.write_bytes(&**&self.aclKey))?; }
         if self.spaceId != "" { w.write_with_tag(34, |w| w.write_string(&**&self.spaceId))?; }
         if self.spaceName != "" { w.write_with_tag(42, |w| w.write_string(&**&self.spaceName))?; }
         if self.spaceIconCid != "" { w.write_with_tag(50, |w| w.write_string(&**&self.spaceIconCid))?; }
+        if self.spaceIconOption != 0u32 { w.write_with_tag(80, |w| w.write_uint32(*&self.spaceIconOption))?; }
+        if self.spaceUxType != 0u32 { w.write_with_tag(88, |w| w.write_uint32(*&self.spaceUxType))?; }
         for s in &self.spaceIconEncryptionKeys { w.write_with_tag(58, |w| w.write_message(s))?; }
-        if self.inviteType != anytype::model::mod_InvitePayload::InviteType::JoinAsMember { w.write_with_tag(64, |w| w.write_enum(*&self.inviteType as i32))?; }
+        if self.inviteType != anytype::model::InviteType::Member { w.write_with_tag(64, |w| w.write_enum(*&self.inviteType as i32))?; }
         if self.guestKey != Cow::Borrowed(b"") { w.write_with_tag(74, |w| w.write_bytes(&**&self.guestKey))?; }
         Ok(())
     }
 }
 
-pub mod mod_InvitePayload {
 
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct InvitePayloadOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<InvitePayload<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
-pub enum InviteType {
-    JoinAsMember = 0,
-    JoinAsGuest = 1,
-}
+            impl InvitePayloadOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
 
-impl Default for InviteType {
-    fn default() -> Self {
-        InviteType::JoinAsMember
-    }
-}
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = InvitePayload::from_reader(&mut reader, &pinned.buf)?;
 
-impl From<i32> for InviteType {
-    fn from(i: i32) -> Self {
-        match i {
-            0 => InviteType::JoinAsMember,
-            1 => InviteType::JoinAsGuest,
-            _ => Self::default(),
-        }
-    }
-}
+                    unsafe {
+                        let proto = core::mem::transmute::<_, InvitePayload<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
 
-impl<'a> From<&'a str> for InviteType {
-    fn from(s: &'a str) -> Self {
-        match s {
-            "JoinAsMember" => InviteType::JoinAsMember,
-            "JoinAsGuest" => InviteType::JoinAsGuest,
-            _ => Self::default(),
-        }
-    }
-}
+            pub struct InvitePayloadOwned {
+                inner: core::pin::Pin<Box<InvitePayloadOwnedInner>>,
+            }
 
-}
+            #[allow(dead_code)]
+            impl InvitePayloadOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
 
+                pub fn proto<'a>(&'a self) -> &'a InvitePayload<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&InvitePayload<'static>, &InvitePayload<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut InvitePayload<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut InvitePayload<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for InvitePayloadOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for InvitePayloadOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: InvitePayloadOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for InvitePayloadOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<InvitePayload<'static>> for InvitePayloadOwned {
+                fn from(proto: InvitePayload<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(InvitePayloadOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct IdentityProfile<'a> {
@@ -6495,6 +13045,242 @@ impl<'a> MessageWrite for IdentityProfile<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct IdentityProfileOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<IdentityProfile<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl IdentityProfileOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = IdentityProfile::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, IdentityProfile<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct IdentityProfileOwned {
+                inner: core::pin::Pin<Box<IdentityProfileOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl IdentityProfileOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a IdentityProfile<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&IdentityProfile<'static>, &IdentityProfile<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut IdentityProfile<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut IdentityProfile<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for IdentityProfileOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for IdentityProfileOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: IdentityProfileOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for IdentityProfileOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<IdentityProfile<'static>> for IdentityProfileOwned {
+                fn from(proto: IdentityProfile<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(IdentityProfileOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Debug, Default, PartialEq, Clone)]
+pub struct IdentityProfileWithKey<'a> {
+    pub identityProfile: Option<model::IdentityProfile<'a>>,
+    pub requestMetadata: Cow<'a, [u8]>,
+}
+
+impl<'a> MessageRead<'a> for IdentityProfileWithKey<'a> {
+    fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
+        let mut msg = Self::default();
+        while !r.is_eof() {
+            match r.next_tag(bytes) {
+                Ok(10) => msg.identityProfile = Some(r.read_message::<model::IdentityProfile>(bytes)?),
+                Ok(18) => msg.requestMetadata = r.read_bytes(bytes).map(Cow::Borrowed)?,
+                Ok(t) => { r.read_unknown(bytes, t)?; }
+                Err(e) => return Err(e),
+            }
+        }
+        Ok(msg)
+    }
+}
+
+impl<'a> MessageWrite for IdentityProfileWithKey<'a> {
+    fn get_size(&self) -> usize {
+        0
+        + self.identityProfile.as_ref().map_or(0, |m| 1 + sizeof_len((m).get_size()))
+        + if self.requestMetadata == Cow::Borrowed(b"") { 0 } else { 1 + sizeof_len((&self.requestMetadata).len()) }
+    }
+
+    fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
+        if let Some(ref s) = self.identityProfile { w.write_with_tag(10, |w| w.write_message(s))?; }
+        if self.requestMetadata != Cow::Borrowed(b"") { w.write_with_tag(18, |w| w.write_bytes(&**&self.requestMetadata))?; }
+        Ok(())
+    }
+}
+
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct IdentityProfileWithKeyOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<IdentityProfileWithKey<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl IdentityProfileWithKeyOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = IdentityProfileWithKey::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, IdentityProfileWithKey<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct IdentityProfileWithKeyOwned {
+                inner: core::pin::Pin<Box<IdentityProfileWithKeyOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl IdentityProfileWithKeyOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a IdentityProfileWithKey<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&IdentityProfileWithKey<'static>, &IdentityProfileWithKey<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut IdentityProfileWithKey<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut IdentityProfileWithKey<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for IdentityProfileWithKeyOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for IdentityProfileWithKeyOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: IdentityProfileWithKeyOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for IdentityProfileWithKeyOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<IdentityProfileWithKey<'static>> for IdentityProfileWithKeyOwned {
+                fn from(proto: IdentityProfileWithKey<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(IdentityProfileWithKeyOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct FileInfo<'a> {
@@ -6531,6 +13317,106 @@ impl<'a> MessageWrite for FileInfo<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct FileInfoOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<FileInfo<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl FileInfoOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = FileInfo::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, FileInfo<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct FileInfoOwned {
+                inner: core::pin::Pin<Box<FileInfoOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl FileInfoOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a FileInfo<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&FileInfo<'static>, &FileInfo<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut FileInfo<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut FileInfo<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for FileInfoOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for FileInfoOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: FileInfoOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for FileInfoOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<FileInfo<'static>> for FileInfoOwned {
+                fn from(proto: FileInfo<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(FileInfoOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct FileEncryptionKey<'a> {
@@ -6567,6 +13453,106 @@ impl<'a> MessageWrite for FileEncryptionKey<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct FileEncryptionKeyOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<FileEncryptionKey<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl FileEncryptionKeyOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = FileEncryptionKey::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, FileEncryptionKey<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct FileEncryptionKeyOwned {
+                inner: core::pin::Pin<Box<FileEncryptionKeyOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl FileEncryptionKeyOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a FileEncryptionKey<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&FileEncryptionKey<'static>, &FileEncryptionKey<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut FileEncryptionKey<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut FileEncryptionKey<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for FileEncryptionKeyOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for FileEncryptionKeyOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: FileEncryptionKeyOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for FileEncryptionKeyOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<FileEncryptionKey<'static>> for FileEncryptionKeyOwned {
+                fn from(proto: FileEncryptionKey<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(FileEncryptionKeyOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct ManifestInfo<'a> {
@@ -6643,6 +13629,106 @@ impl<'a> MessageWrite for ManifestInfo<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct ManifestInfoOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<ManifestInfo<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl ManifestInfoOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = ManifestInfo::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, ManifestInfo<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct ManifestInfoOwned {
+                inner: core::pin::Pin<Box<ManifestInfoOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl ManifestInfoOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a ManifestInfo<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&ManifestInfo<'static>, &ManifestInfo<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut ManifestInfo<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut ManifestInfo<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for ManifestInfoOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for ManifestInfoOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: ManifestInfoOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for ManifestInfoOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<ManifestInfo<'static>> for ManifestInfoOwned {
+                fn from(proto: ManifestInfo<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(ManifestInfoOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct Membership<'a> {
@@ -6711,6 +13797,106 @@ impl<'a> MessageWrite for Membership<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct MembershipOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Membership<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl MembershipOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Membership::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Membership<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct MembershipOwned {
+                inner: core::pin::Pin<Box<MembershipOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl MembershipOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Membership<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Membership<'static>, &Membership<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Membership<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Membership<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for MembershipOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for MembershipOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: MembershipOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for MembershipOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Membership<'static>> for MembershipOwned {
+                fn from(proto: Membership<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(MembershipOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 pub mod mod_Membership {
 
 
@@ -6850,6 +14036,7 @@ pub struct MembershipTierData<'a> {
     pub iosManageUrl: Cow<'a, str>,
     pub androidProductId: Cow<'a, str>,
     pub androidManageUrl: Cow<'a, str>,
+    pub offer: Cow<'a, str>,
 }
 
 impl<'a> MessageRead<'a> for MembershipTierData<'a> {
@@ -6874,6 +14061,7 @@ impl<'a> MessageRead<'a> for MembershipTierData<'a> {
                 Ok(130) => msg.iosManageUrl = r.read_string(bytes).map(Cow::Borrowed)?,
                 Ok(138) => msg.androidProductId = r.read_string(bytes).map(Cow::Borrowed)?,
                 Ok(146) => msg.androidManageUrl = r.read_string(bytes).map(Cow::Borrowed)?,
+                Ok(154) => msg.offer = r.read_string(bytes).map(Cow::Borrowed)?,
                 Ok(t) => { r.read_unknown(bytes, t)?; }
                 Err(e) => return Err(e),
             }
@@ -6902,6 +14090,7 @@ impl<'a> MessageWrite for MembershipTierData<'a> {
         + if self.iosManageUrl == "" { 0 } else { 2 + sizeof_len((&self.iosManageUrl).len()) }
         + if self.androidProductId == "" { 0 } else { 2 + sizeof_len((&self.androidProductId).len()) }
         + if self.androidManageUrl == "" { 0 } else { 2 + sizeof_len((&self.androidManageUrl).len()) }
+        + if self.offer == "" { 0 } else { 2 + sizeof_len((&self.offer).len()) }
     }
 
     fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
@@ -6922,10 +14111,111 @@ impl<'a> MessageWrite for MembershipTierData<'a> {
         if self.iosManageUrl != "" { w.write_with_tag(130, |w| w.write_string(&**&self.iosManageUrl))?; }
         if self.androidProductId != "" { w.write_with_tag(138, |w| w.write_string(&**&self.androidProductId))?; }
         if self.androidManageUrl != "" { w.write_with_tag(146, |w| w.write_string(&**&self.androidManageUrl))?; }
+        if self.offer != "" { w.write_with_tag(154, |w| w.write_string(&**&self.offer))?; }
         Ok(())
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct MembershipTierDataOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<MembershipTierData<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl MembershipTierDataOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = MembershipTierData::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, MembershipTierData<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct MembershipTierDataOwned {
+                inner: core::pin::Pin<Box<MembershipTierDataOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl MembershipTierDataOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a MembershipTierData<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&MembershipTierData<'static>, &MembershipTierData<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut MembershipTierData<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut MembershipTierData<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for MembershipTierDataOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for MembershipTierDataOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: MembershipTierDataOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for MembershipTierDataOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<MembershipTierData<'static>> for MembershipTierDataOwned {
+                fn from(proto: MembershipTierData<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(MembershipTierDataOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 pub mod mod_MembershipTierData {
 
 
@@ -6977,6 +14267,1358 @@ impl<'a> From<&'a str> for PeriodType {
 
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
+pub struct MembershipV2 {
+}
+
+impl<'a> MessageRead<'a> for MembershipV2 {
+    fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
+        let mut msg = Self::default();
+        while !r.is_eof() {
+            match r.next_tag(bytes) {
+                Ok(t) => { r.read_unknown(bytes, t)?; }
+                Err(e) => return Err(e),
+            }
+        }
+        Ok(msg)
+    }
+}
+
+impl MessageWrite for MembershipV2 {
+    fn get_size(&self) -> usize {
+        0
+    }
+
+    fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
+        Ok(())
+    }
+}
+
+
+            impl TryFrom<&[u8]> for MembershipV2 {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: &[u8]) -> Result<Self> {
+                    let mut reader = BytesReader::from_bytes(&buf);
+                    Ok(MembershipV2::from_reader(&mut reader, &buf)?)
+                }
+            }
+            
+pub mod mod_MembershipV2 {
+
+use std::borrow::Cow;
+use super::*;
+
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Debug, Default, PartialEq, Clone)]
+pub struct Amount<'a> {
+    pub currency: Cow<'a, str>,
+    pub amountCents: i64,
+}
+
+impl<'a> MessageRead<'a> for Amount<'a> {
+    fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
+        let mut msg = Self::default();
+        while !r.is_eof() {
+            match r.next_tag(bytes) {
+                Ok(10) => msg.currency = r.read_string(bytes).map(Cow::Borrowed)?,
+                Ok(16) => msg.amountCents = r.read_int64(bytes)?,
+                Ok(t) => { r.read_unknown(bytes, t)?; }
+                Err(e) => return Err(e),
+            }
+        }
+        Ok(msg)
+    }
+}
+
+impl<'a> MessageWrite for Amount<'a> {
+    fn get_size(&self) -> usize {
+        0
+        + if self.currency == "" { 0 } else { 1 + sizeof_len((&self.currency).len()) }
+        + if self.amountCents == 0i64 { 0 } else { 1 + sizeof_varint(*(&self.amountCents) as u64) }
+    }
+
+    fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
+        if self.currency != "" { w.write_with_tag(10, |w| w.write_string(&**&self.currency))?; }
+        if self.amountCents != 0i64 { w.write_with_tag(16, |w| w.write_int64(*&self.amountCents))?; }
+        Ok(())
+    }
+}
+
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct AmountOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Amount<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl AmountOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Amount::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Amount<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct AmountOwned {
+                inner: core::pin::Pin<Box<AmountOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl AmountOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Amount<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Amount<'static>, &Amount<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Amount<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Amount<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for AmountOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for AmountOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: AmountOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for AmountOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Amount<'static>> for AmountOwned {
+                fn from(proto: Amount<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(AmountOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Debug, Default, PartialEq, Clone)]
+pub struct Invoice<'a> {
+    pub date: u64,
+    pub total: Option<model::mod_MembershipV2::Amount<'a>>,
+}
+
+impl<'a> MessageRead<'a> for Invoice<'a> {
+    fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
+        let mut msg = Self::default();
+        while !r.is_eof() {
+            match r.next_tag(bytes) {
+                Ok(8) => msg.date = r.read_uint64(bytes)?,
+                Ok(18) => msg.total = Some(r.read_message::<model::mod_MembershipV2::Amount>(bytes)?),
+                Ok(t) => { r.read_unknown(bytes, t)?; }
+                Err(e) => return Err(e),
+            }
+        }
+        Ok(msg)
+    }
+}
+
+impl<'a> MessageWrite for Invoice<'a> {
+    fn get_size(&self) -> usize {
+        0
+        + if self.date == 0u64 { 0 } else { 1 + sizeof_varint(*(&self.date) as u64) }
+        + self.total.as_ref().map_or(0, |m| 1 + sizeof_len((m).get_size()))
+    }
+
+    fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
+        if self.date != 0u64 { w.write_with_tag(8, |w| w.write_uint64(*&self.date))?; }
+        if let Some(ref s) = self.total { w.write_with_tag(18, |w| w.write_message(s))?; }
+        Ok(())
+    }
+}
+
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct InvoiceOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Invoice<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl InvoiceOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Invoice::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Invoice<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct InvoiceOwned {
+                inner: core::pin::Pin<Box<InvoiceOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl InvoiceOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Invoice<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Invoice<'static>, &Invoice<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Invoice<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Invoice<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for InvoiceOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for InvoiceOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: InvoiceOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for InvoiceOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Invoice<'static>> for InvoiceOwned {
+                fn from(proto: Invoice<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(InvoiceOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Debug, Default, PartialEq, Clone)]
+pub struct Features {
+    pub storageBytes: u64,
+    pub spaceReaders: u32,
+    pub spaceWriters: u32,
+    pub sharedSpaces: u32,
+    pub teamSeats: u32,
+    pub anyNameCount: u32,
+    pub anyNameMinLen: u32,
+    pub privateSpaces: u32,
+}
+
+impl<'a> MessageRead<'a> for Features {
+    fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
+        let mut msg = Self::default();
+        while !r.is_eof() {
+            match r.next_tag(bytes) {
+                Ok(8) => msg.storageBytes = r.read_uint64(bytes)?,
+                Ok(16) => msg.spaceReaders = r.read_uint32(bytes)?,
+                Ok(24) => msg.spaceWriters = r.read_uint32(bytes)?,
+                Ok(32) => msg.sharedSpaces = r.read_uint32(bytes)?,
+                Ok(40) => msg.teamSeats = r.read_uint32(bytes)?,
+                Ok(48) => msg.anyNameCount = r.read_uint32(bytes)?,
+                Ok(56) => msg.anyNameMinLen = r.read_uint32(bytes)?,
+                Ok(64) => msg.privateSpaces = r.read_uint32(bytes)?,
+                Ok(t) => { r.read_unknown(bytes, t)?; }
+                Err(e) => return Err(e),
+            }
+        }
+        Ok(msg)
+    }
+}
+
+impl MessageWrite for Features {
+    fn get_size(&self) -> usize {
+        0
+        + if self.storageBytes == 0u64 { 0 } else { 1 + sizeof_varint(*(&self.storageBytes) as u64) }
+        + if self.spaceReaders == 0u32 { 0 } else { 1 + sizeof_varint(*(&self.spaceReaders) as u64) }
+        + if self.spaceWriters == 0u32 { 0 } else { 1 + sizeof_varint(*(&self.spaceWriters) as u64) }
+        + if self.sharedSpaces == 0u32 { 0 } else { 1 + sizeof_varint(*(&self.sharedSpaces) as u64) }
+        + if self.teamSeats == 0u32 { 0 } else { 1 + sizeof_varint(*(&self.teamSeats) as u64) }
+        + if self.anyNameCount == 0u32 { 0 } else { 1 + sizeof_varint(*(&self.anyNameCount) as u64) }
+        + if self.anyNameMinLen == 0u32 { 0 } else { 1 + sizeof_varint(*(&self.anyNameMinLen) as u64) }
+        + if self.privateSpaces == 0u32 { 0 } else { 1 + sizeof_varint(*(&self.privateSpaces) as u64) }
+    }
+
+    fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
+        if self.storageBytes != 0u64 { w.write_with_tag(8, |w| w.write_uint64(*&self.storageBytes))?; }
+        if self.spaceReaders != 0u32 { w.write_with_tag(16, |w| w.write_uint32(*&self.spaceReaders))?; }
+        if self.spaceWriters != 0u32 { w.write_with_tag(24, |w| w.write_uint32(*&self.spaceWriters))?; }
+        if self.sharedSpaces != 0u32 { w.write_with_tag(32, |w| w.write_uint32(*&self.sharedSpaces))?; }
+        if self.teamSeats != 0u32 { w.write_with_tag(40, |w| w.write_uint32(*&self.teamSeats))?; }
+        if self.anyNameCount != 0u32 { w.write_with_tag(48, |w| w.write_uint32(*&self.anyNameCount))?; }
+        if self.anyNameMinLen != 0u32 { w.write_with_tag(56, |w| w.write_uint32(*&self.anyNameMinLen))?; }
+        if self.privateSpaces != 0u32 { w.write_with_tag(64, |w| w.write_uint32(*&self.privateSpaces))?; }
+        Ok(())
+    }
+}
+
+
+            impl TryFrom<&[u8]> for Features {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: &[u8]) -> Result<Self> {
+                    let mut reader = BytesReader::from_bytes(&buf);
+                    Ok(Features::from_reader(&mut reader, &buf)?)
+                }
+            }
+            
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Debug, Default, PartialEq, Clone)]
+pub struct Product<'a> {
+    pub id: Cow<'a, str>,
+    pub name: Cow<'a, str>,
+    pub description: Cow<'a, str>,
+    pub isTopLevel: bool,
+    pub isHidden: bool,
+    pub isIntro: bool,
+    pub isUpgradeable: bool,
+    pub pricesYearly: Vec<model::mod_MembershipV2::Amount<'a>>,
+    pub pricesMonthly: Vec<model::mod_MembershipV2::Amount<'a>>,
+    pub colorStr: Cow<'a, str>,
+    pub offer: Cow<'a, str>,
+    pub features: Option<model::mod_MembershipV2::Features>,
+}
+
+impl<'a> MessageRead<'a> for Product<'a> {
+    fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
+        let mut msg = Self::default();
+        while !r.is_eof() {
+            match r.next_tag(bytes) {
+                Ok(10) => msg.id = r.read_string(bytes).map(Cow::Borrowed)?,
+                Ok(18) => msg.name = r.read_string(bytes).map(Cow::Borrowed)?,
+                Ok(26) => msg.description = r.read_string(bytes).map(Cow::Borrowed)?,
+                Ok(32) => msg.isTopLevel = r.read_bool(bytes)?,
+                Ok(40) => msg.isHidden = r.read_bool(bytes)?,
+                Ok(48) => msg.isIntro = r.read_bool(bytes)?,
+                Ok(56) => msg.isUpgradeable = r.read_bool(bytes)?,
+                Ok(66) => msg.pricesYearly.push(r.read_message::<model::mod_MembershipV2::Amount>(bytes)?),
+                Ok(74) => msg.pricesMonthly.push(r.read_message::<model::mod_MembershipV2::Amount>(bytes)?),
+                Ok(82) => msg.colorStr = r.read_string(bytes).map(Cow::Borrowed)?,
+                Ok(90) => msg.offer = r.read_string(bytes).map(Cow::Borrowed)?,
+                Ok(98) => msg.features = Some(r.read_message::<model::mod_MembershipV2::Features>(bytes)?),
+                Ok(t) => { r.read_unknown(bytes, t)?; }
+                Err(e) => return Err(e),
+            }
+        }
+        Ok(msg)
+    }
+}
+
+impl<'a> MessageWrite for Product<'a> {
+    fn get_size(&self) -> usize {
+        0
+        + if self.id == "" { 0 } else { 1 + sizeof_len((&self.id).len()) }
+        + if self.name == "" { 0 } else { 1 + sizeof_len((&self.name).len()) }
+        + if self.description == "" { 0 } else { 1 + sizeof_len((&self.description).len()) }
+        + if self.isTopLevel == false { 0 } else { 1 + sizeof_varint(*(&self.isTopLevel) as u64) }
+        + if self.isHidden == false { 0 } else { 1 + sizeof_varint(*(&self.isHidden) as u64) }
+        + if self.isIntro == false { 0 } else { 1 + sizeof_varint(*(&self.isIntro) as u64) }
+        + if self.isUpgradeable == false { 0 } else { 1 + sizeof_varint(*(&self.isUpgradeable) as u64) }
+        + self.pricesYearly.iter().map(|s| 1 + sizeof_len((s).get_size())).sum::<usize>()
+        + self.pricesMonthly.iter().map(|s| 1 + sizeof_len((s).get_size())).sum::<usize>()
+        + if self.colorStr == "" { 0 } else { 1 + sizeof_len((&self.colorStr).len()) }
+        + if self.offer == "" { 0 } else { 1 + sizeof_len((&self.offer).len()) }
+        + self.features.as_ref().map_or(0, |m| 1 + sizeof_len((m).get_size()))
+    }
+
+    fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
+        if self.id != "" { w.write_with_tag(10, |w| w.write_string(&**&self.id))?; }
+        if self.name != "" { w.write_with_tag(18, |w| w.write_string(&**&self.name))?; }
+        if self.description != "" { w.write_with_tag(26, |w| w.write_string(&**&self.description))?; }
+        if self.isTopLevel != false { w.write_with_tag(32, |w| w.write_bool(*&self.isTopLevel))?; }
+        if self.isHidden != false { w.write_with_tag(40, |w| w.write_bool(*&self.isHidden))?; }
+        if self.isIntro != false { w.write_with_tag(48, |w| w.write_bool(*&self.isIntro))?; }
+        if self.isUpgradeable != false { w.write_with_tag(56, |w| w.write_bool(*&self.isUpgradeable))?; }
+        for s in &self.pricesYearly { w.write_with_tag(66, |w| w.write_message(s))?; }
+        for s in &self.pricesMonthly { w.write_with_tag(74, |w| w.write_message(s))?; }
+        if self.colorStr != "" { w.write_with_tag(82, |w| w.write_string(&**&self.colorStr))?; }
+        if self.offer != "" { w.write_with_tag(90, |w| w.write_string(&**&self.offer))?; }
+        if let Some(ref s) = self.features { w.write_with_tag(98, |w| w.write_message(s))?; }
+        Ok(())
+    }
+}
+
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct ProductOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Product<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl ProductOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Product::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Product<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct ProductOwned {
+                inner: core::pin::Pin<Box<ProductOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl ProductOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Product<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Product<'static>, &Product<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Product<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Product<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for ProductOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for ProductOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: ProductOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for ProductOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Product<'static>> for ProductOwned {
+                fn from(proto: Product<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(ProductOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Debug, Default, PartialEq, Clone)]
+pub struct PurchaseInfo {
+    pub dateStarted: u64,
+    pub dateEnds: u64,
+    pub isAutoRenew: bool,
+    pub period: model::mod_MembershipV2::Period,
+}
+
+impl<'a> MessageRead<'a> for PurchaseInfo {
+    fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
+        let mut msg = Self::default();
+        while !r.is_eof() {
+            match r.next_tag(bytes) {
+                Ok(8) => msg.dateStarted = r.read_uint64(bytes)?,
+                Ok(16) => msg.dateEnds = r.read_uint64(bytes)?,
+                Ok(24) => msg.isAutoRenew = r.read_bool(bytes)?,
+                Ok(32) => msg.period = r.read_enum(bytes)?,
+                Ok(t) => { r.read_unknown(bytes, t)?; }
+                Err(e) => return Err(e),
+            }
+        }
+        Ok(msg)
+    }
+}
+
+impl MessageWrite for PurchaseInfo {
+    fn get_size(&self) -> usize {
+        0
+        + if self.dateStarted == 0u64 { 0 } else { 1 + sizeof_varint(*(&self.dateStarted) as u64) }
+        + if self.dateEnds == 0u64 { 0 } else { 1 + sizeof_varint(*(&self.dateEnds) as u64) }
+        + if self.isAutoRenew == false { 0 } else { 1 + sizeof_varint(*(&self.isAutoRenew) as u64) }
+        + if self.period == anytype::model::mod_MembershipV2::Period::Unlimited { 0 } else { 1 + sizeof_varint(*(&self.period) as u64) }
+    }
+
+    fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
+        if self.dateStarted != 0u64 { w.write_with_tag(8, |w| w.write_uint64(*&self.dateStarted))?; }
+        if self.dateEnds != 0u64 { w.write_with_tag(16, |w| w.write_uint64(*&self.dateEnds))?; }
+        if self.isAutoRenew != false { w.write_with_tag(24, |w| w.write_bool(*&self.isAutoRenew))?; }
+        if self.period != anytype::model::mod_MembershipV2::Period::Unlimited { w.write_with_tag(32, |w| w.write_enum(*&self.period as i32))?; }
+        Ok(())
+    }
+}
+
+
+            impl TryFrom<&[u8]> for PurchaseInfo {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: &[u8]) -> Result<Self> {
+                    let mut reader = BytesReader::from_bytes(&buf);
+                    Ok(PurchaseInfo::from_reader(&mut reader, &buf)?)
+                }
+            }
+            
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Debug, Default, PartialEq, Clone)]
+pub struct ProductStatus {
+    pub status: model::mod_MembershipV2::mod_ProductStatus::Status,
+}
+
+impl<'a> MessageRead<'a> for ProductStatus {
+    fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
+        let mut msg = Self::default();
+        while !r.is_eof() {
+            match r.next_tag(bytes) {
+                Ok(8) => msg.status = r.read_enum(bytes)?,
+                Ok(t) => { r.read_unknown(bytes, t)?; }
+                Err(e) => return Err(e),
+            }
+        }
+        Ok(msg)
+    }
+}
+
+impl MessageWrite for ProductStatus {
+    fn get_size(&self) -> usize {
+        0
+        + if self.status == anytype::model::mod_MembershipV2::mod_ProductStatus::Status::StatusUnknown { 0 } else { 1 + sizeof_varint(*(&self.status) as u64) }
+    }
+
+    fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
+        if self.status != anytype::model::mod_MembershipV2::mod_ProductStatus::Status::StatusUnknown { w.write_with_tag(8, |w| w.write_enum(*&self.status as i32))?; }
+        Ok(())
+    }
+}
+
+
+            impl TryFrom<&[u8]> for ProductStatus {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: &[u8]) -> Result<Self> {
+                    let mut reader = BytesReader::from_bytes(&buf);
+                    Ok(ProductStatus::from_reader(&mut reader, &buf)?)
+                }
+            }
+            
+pub mod mod_ProductStatus {
+
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+pub enum Status {
+    StatusUnknown = 0,
+    StatusPending = 1,
+    StatusActive = 2,
+    StatusPendingRequiresAnyNameAllocation = 3,
+}
+
+impl Default for Status {
+    fn default() -> Self {
+        Status::StatusUnknown
+    }
+}
+
+impl From<i32> for Status {
+    fn from(i: i32) -> Self {
+        match i {
+            0 => Status::StatusUnknown,
+            1 => Status::StatusPending,
+            2 => Status::StatusActive,
+            3 => Status::StatusPendingRequiresAnyNameAllocation,
+            _ => Self::default(),
+        }
+    }
+}
+
+impl<'a> From<&'a str> for Status {
+    fn from(s: &'a str) -> Self {
+        match s {
+            "StatusUnknown" => Status::StatusUnknown,
+            "StatusPending" => Status::StatusPending,
+            "StatusActive" => Status::StatusActive,
+            "StatusPendingRequiresAnyNameAllocation" => Status::StatusPendingRequiresAnyNameAllocation,
+            _ => Self::default(),
+        }
+    }
+}
+
+}
+
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Debug, Default, PartialEq, Clone)]
+pub struct PurchasedProduct<'a> {
+    pub product: Option<model::mod_MembershipV2::Product<'a>>,
+    pub purchaseInfo: Option<model::mod_MembershipV2::PurchaseInfo>,
+    pub productStatus: Option<model::mod_MembershipV2::ProductStatus>,
+}
+
+impl<'a> MessageRead<'a> for PurchasedProduct<'a> {
+    fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
+        let mut msg = Self::default();
+        while !r.is_eof() {
+            match r.next_tag(bytes) {
+                Ok(10) => msg.product = Some(r.read_message::<model::mod_MembershipV2::Product>(bytes)?),
+                Ok(18) => msg.purchaseInfo = Some(r.read_message::<model::mod_MembershipV2::PurchaseInfo>(bytes)?),
+                Ok(26) => msg.productStatus = Some(r.read_message::<model::mod_MembershipV2::ProductStatus>(bytes)?),
+                Ok(t) => { r.read_unknown(bytes, t)?; }
+                Err(e) => return Err(e),
+            }
+        }
+        Ok(msg)
+    }
+}
+
+impl<'a> MessageWrite for PurchasedProduct<'a> {
+    fn get_size(&self) -> usize {
+        0
+        + self.product.as_ref().map_or(0, |m| 1 + sizeof_len((m).get_size()))
+        + self.purchaseInfo.as_ref().map_or(0, |m| 1 + sizeof_len((m).get_size()))
+        + self.productStatus.as_ref().map_or(0, |m| 1 + sizeof_len((m).get_size()))
+    }
+
+    fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
+        if let Some(ref s) = self.product { w.write_with_tag(10, |w| w.write_message(s))?; }
+        if let Some(ref s) = self.purchaseInfo { w.write_with_tag(18, |w| w.write_message(s))?; }
+        if let Some(ref s) = self.productStatus { w.write_with_tag(26, |w| w.write_message(s))?; }
+        Ok(())
+    }
+}
+
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct PurchasedProductOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<PurchasedProduct<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl PurchasedProductOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = PurchasedProduct::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, PurchasedProduct<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct PurchasedProductOwned {
+                inner: core::pin::Pin<Box<PurchasedProductOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl PurchasedProductOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a PurchasedProduct<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&PurchasedProduct<'static>, &PurchasedProduct<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut PurchasedProduct<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut PurchasedProduct<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for PurchasedProductOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for PurchasedProductOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: PurchasedProductOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for PurchasedProductOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<PurchasedProduct<'static>> for PurchasedProductOwned {
+                fn from(proto: PurchasedProduct<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(PurchasedProductOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Debug, Default, PartialEq, Clone)]
+pub struct CartProduct<'a> {
+    pub product: Option<model::mod_MembershipV2::Product<'a>>,
+    pub isYearly: bool,
+    pub remove: bool,
+}
+
+impl<'a> MessageRead<'a> for CartProduct<'a> {
+    fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
+        let mut msg = Self::default();
+        while !r.is_eof() {
+            match r.next_tag(bytes) {
+                Ok(10) => msg.product = Some(r.read_message::<model::mod_MembershipV2::Product>(bytes)?),
+                Ok(16) => msg.isYearly = r.read_bool(bytes)?,
+                Ok(24) => msg.remove = r.read_bool(bytes)?,
+                Ok(t) => { r.read_unknown(bytes, t)?; }
+                Err(e) => return Err(e),
+            }
+        }
+        Ok(msg)
+    }
+}
+
+impl<'a> MessageWrite for CartProduct<'a> {
+    fn get_size(&self) -> usize {
+        0
+        + self.product.as_ref().map_or(0, |m| 1 + sizeof_len((m).get_size()))
+        + if self.isYearly == false { 0 } else { 1 + sizeof_varint(*(&self.isYearly) as u64) }
+        + if self.remove == false { 0 } else { 1 + sizeof_varint(*(&self.remove) as u64) }
+    }
+
+    fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
+        if let Some(ref s) = self.product { w.write_with_tag(10, |w| w.write_message(s))?; }
+        if self.isYearly != false { w.write_with_tag(16, |w| w.write_bool(*&self.isYearly))?; }
+        if self.remove != false { w.write_with_tag(24, |w| w.write_bool(*&self.remove))?; }
+        Ok(())
+    }
+}
+
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct CartProductOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<CartProduct<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl CartProductOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = CartProduct::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, CartProduct<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct CartProductOwned {
+                inner: core::pin::Pin<Box<CartProductOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl CartProductOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a CartProduct<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&CartProduct<'static>, &CartProduct<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut CartProduct<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut CartProduct<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for CartProductOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for CartProductOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: CartProductOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for CartProductOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<CartProduct<'static>> for CartProductOwned {
+                fn from(proto: CartProduct<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(CartProductOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Debug, Default, PartialEq, Clone)]
+pub struct Cart<'a> {
+    pub products: Vec<model::mod_MembershipV2::CartProduct<'a>>,
+    pub total: Option<model::mod_MembershipV2::Amount<'a>>,
+    pub totalNextInvoice: Option<model::mod_MembershipV2::Amount<'a>>,
+    pub nextInvoiceDate: u64,
+}
+
+impl<'a> MessageRead<'a> for Cart<'a> {
+    fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
+        let mut msg = Self::default();
+        while !r.is_eof() {
+            match r.next_tag(bytes) {
+                Ok(10) => msg.products.push(r.read_message::<model::mod_MembershipV2::CartProduct>(bytes)?),
+                Ok(18) => msg.total = Some(r.read_message::<model::mod_MembershipV2::Amount>(bytes)?),
+                Ok(26) => msg.totalNextInvoice = Some(r.read_message::<model::mod_MembershipV2::Amount>(bytes)?),
+                Ok(32) => msg.nextInvoiceDate = r.read_uint64(bytes)?,
+                Ok(t) => { r.read_unknown(bytes, t)?; }
+                Err(e) => return Err(e),
+            }
+        }
+        Ok(msg)
+    }
+}
+
+impl<'a> MessageWrite for Cart<'a> {
+    fn get_size(&self) -> usize {
+        0
+        + self.products.iter().map(|s| 1 + sizeof_len((s).get_size())).sum::<usize>()
+        + self.total.as_ref().map_or(0, |m| 1 + sizeof_len((m).get_size()))
+        + self.totalNextInvoice.as_ref().map_or(0, |m| 1 + sizeof_len((m).get_size()))
+        + if self.nextInvoiceDate == 0u64 { 0 } else { 1 + sizeof_varint(*(&self.nextInvoiceDate) as u64) }
+    }
+
+    fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
+        for s in &self.products { w.write_with_tag(10, |w| w.write_message(s))?; }
+        if let Some(ref s) = self.total { w.write_with_tag(18, |w| w.write_message(s))?; }
+        if let Some(ref s) = self.totalNextInvoice { w.write_with_tag(26, |w| w.write_message(s))?; }
+        if self.nextInvoiceDate != 0u64 { w.write_with_tag(32, |w| w.write_uint64(*&self.nextInvoiceDate))?; }
+        Ok(())
+    }
+}
+
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct CartOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Cart<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl CartOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Cart::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Cart<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct CartOwned {
+                inner: core::pin::Pin<Box<CartOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl CartOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Cart<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Cart<'static>, &Cart<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Cart<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Cart<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for CartOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for CartOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: CartOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for CartOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Cart<'static>> for CartOwned {
+                fn from(proto: Cart<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(CartOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Debug, Default, PartialEq, Clone)]
+pub struct Data<'a> {
+    pub products: Vec<model::mod_MembershipV2::PurchasedProduct<'a>>,
+    pub nextInvoice: Option<model::mod_MembershipV2::Invoice<'a>>,
+    pub teamOwnerID: Cow<'a, str>,
+    pub paymentProvider: model::mod_MembershipV2::PaymentProvider,
+}
+
+impl<'a> MessageRead<'a> for Data<'a> {
+    fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
+        let mut msg = Self::default();
+        while !r.is_eof() {
+            match r.next_tag(bytes) {
+                Ok(10) => msg.products.push(r.read_message::<model::mod_MembershipV2::PurchasedProduct>(bytes)?),
+                Ok(18) => msg.nextInvoice = Some(r.read_message::<model::mod_MembershipV2::Invoice>(bytes)?),
+                Ok(26) => msg.teamOwnerID = r.read_string(bytes).map(Cow::Borrowed)?,
+                Ok(32) => msg.paymentProvider = r.read_enum(bytes)?,
+                Ok(t) => { r.read_unknown(bytes, t)?; }
+                Err(e) => return Err(e),
+            }
+        }
+        Ok(msg)
+    }
+}
+
+impl<'a> MessageWrite for Data<'a> {
+    fn get_size(&self) -> usize {
+        0
+        + self.products.iter().map(|s| 1 + sizeof_len((s).get_size())).sum::<usize>()
+        + self.nextInvoice.as_ref().map_or(0, |m| 1 + sizeof_len((m).get_size()))
+        + if self.teamOwnerID == "" { 0 } else { 1 + sizeof_len((&self.teamOwnerID).len()) }
+        + if self.paymentProvider == anytype::model::mod_MembershipV2::PaymentProvider::None { 0 } else { 1 + sizeof_varint(*(&self.paymentProvider) as u64) }
+    }
+
+    fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
+        for s in &self.products { w.write_with_tag(10, |w| w.write_message(s))?; }
+        if let Some(ref s) = self.nextInvoice { w.write_with_tag(18, |w| w.write_message(s))?; }
+        if self.teamOwnerID != "" { w.write_with_tag(26, |w| w.write_string(&**&self.teamOwnerID))?; }
+        if self.paymentProvider != anytype::model::mod_MembershipV2::PaymentProvider::None { w.write_with_tag(32, |w| w.write_enum(*&self.paymentProvider as i32))?; }
+        Ok(())
+    }
+}
+
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct DataOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Data<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl DataOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Data::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Data<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct DataOwned {
+                inner: core::pin::Pin<Box<DataOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl DataOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Data<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Data<'static>, &Data<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Data<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Data<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for DataOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for DataOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: DataOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for DataOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Data<'static>> for DataOwned {
+                fn from(proto: Data<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(DataOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+pub enum PaymentProvider {
+    None = 0,
+    Stripe = 1,
+    Crypto = 2,
+    BillingPortal = 3,
+    AppStore = 4,
+    GooglePlay = 5,
+}
+
+impl Default for PaymentProvider {
+    fn default() -> Self {
+        PaymentProvider::None
+    }
+}
+
+impl From<i32> for PaymentProvider {
+    fn from(i: i32) -> Self {
+        match i {
+            0 => PaymentProvider::None,
+            1 => PaymentProvider::Stripe,
+            2 => PaymentProvider::Crypto,
+            3 => PaymentProvider::BillingPortal,
+            4 => PaymentProvider::AppStore,
+            5 => PaymentProvider::GooglePlay,
+            _ => Self::default(),
+        }
+    }
+}
+
+impl<'a> From<&'a str> for PaymentProvider {
+    fn from(s: &'a str) -> Self {
+        match s {
+            "None" => PaymentProvider::None,
+            "Stripe" => PaymentProvider::Stripe,
+            "Crypto" => PaymentProvider::Crypto,
+            "BillingPortal" => PaymentProvider::BillingPortal,
+            "AppStore" => PaymentProvider::AppStore,
+            "GooglePlay" => PaymentProvider::GooglePlay,
+            _ => Self::default(),
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+pub enum Period {
+    Unlimited = 0,
+    Monthly = 1,
+    Yearly = 2,
+    ThreeYears = 3,
+}
+
+impl Default for Period {
+    fn default() -> Self {
+        Period::Unlimited
+    }
+}
+
+impl From<i32> for Period {
+    fn from(i: i32) -> Self {
+        match i {
+            0 => Period::Unlimited,
+            1 => Period::Monthly,
+            2 => Period::Yearly,
+            3 => Period::ThreeYears,
+            _ => Self::default(),
+        }
+    }
+}
+
+impl<'a> From<&'a str> for Period {
+    fn from(s: &'a str) -> Self {
+        match s {
+            "Unlimited" => Period::Unlimited,
+            "Monthly" => Period::Monthly,
+            "Yearly" => Period::Yearly,
+            "ThreeYears" => Period::ThreeYears,
+            _ => Self::default(),
+        }
+    }
+}
+
+}
+
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Debug, Default, PartialEq, Clone)]
 pub struct Detail<'a> {
     pub key: Cow<'a, str>,
     pub value: Option<google::protobuf::Value<'a>>,
@@ -7011,6 +15653,106 @@ impl<'a> MessageWrite for Detail<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct DetailOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Detail<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl DetailOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Detail::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Detail<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct DetailOwned {
+                inner: core::pin::Pin<Box<DetailOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl DetailOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Detail<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Detail<'static>, &Detail<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Detail<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Detail<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for DetailOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for DetailOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: DetailOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for DetailOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Detail<'static>> for DetailOwned {
+                fn from(proto: Detail<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(DetailOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct DeviceInfo<'a> {
@@ -7059,12 +15801,113 @@ impl<'a> MessageWrite for DeviceInfo<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct DeviceInfoOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<DeviceInfo<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl DeviceInfoOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = DeviceInfo::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, DeviceInfo<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct DeviceInfoOwned {
+                inner: core::pin::Pin<Box<DeviceInfoOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl DeviceInfoOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a DeviceInfo<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&DeviceInfo<'static>, &DeviceInfo<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut DeviceInfo<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut DeviceInfo<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for DeviceInfoOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for DeviceInfoOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: DeviceInfoOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for DeviceInfoOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<DeviceInfo<'static>> for DeviceInfoOwned {
+                fn from(proto: DeviceInfo<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(DeviceInfoOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct ChatState<'a> {
     pub messages: Option<model::mod_ChatState::UnreadState<'a>>,
     pub mentions: Option<model::mod_ChatState::UnreadState<'a>>,
     pub lastStateId: Cow<'a, str>,
+    pub order: i64,
 }
 
 impl<'a> MessageRead<'a> for ChatState<'a> {
@@ -7075,6 +15918,7 @@ impl<'a> MessageRead<'a> for ChatState<'a> {
                 Ok(10) => msg.messages = Some(r.read_message::<model::mod_ChatState::UnreadState>(bytes)?),
                 Ok(18) => msg.mentions = Some(r.read_message::<model::mod_ChatState::UnreadState>(bytes)?),
                 Ok(26) => msg.lastStateId = r.read_string(bytes).map(Cow::Borrowed)?,
+                Ok(32) => msg.order = r.read_int64(bytes)?,
                 Ok(t) => { r.read_unknown(bytes, t)?; }
                 Err(e) => return Err(e),
             }
@@ -7089,16 +15933,118 @@ impl<'a> MessageWrite for ChatState<'a> {
         + self.messages.as_ref().map_or(0, |m| 1 + sizeof_len((m).get_size()))
         + self.mentions.as_ref().map_or(0, |m| 1 + sizeof_len((m).get_size()))
         + if self.lastStateId == "" { 0 } else { 1 + sizeof_len((&self.lastStateId).len()) }
+        + if self.order == 0i64 { 0 } else { 1 + sizeof_varint(*(&self.order) as u64) }
     }
 
     fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
         if let Some(ref s) = self.messages { w.write_with_tag(10, |w| w.write_message(s))?; }
         if let Some(ref s) = self.mentions { w.write_with_tag(18, |w| w.write_message(s))?; }
         if self.lastStateId != "" { w.write_with_tag(26, |w| w.write_string(&**&self.lastStateId))?; }
+        if self.order != 0i64 { w.write_with_tag(32, |w| w.write_int64(*&self.order))?; }
         Ok(())
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct ChatStateOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<ChatState<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl ChatStateOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = ChatState::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, ChatState<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct ChatStateOwned {
+                inner: core::pin::Pin<Box<ChatStateOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl ChatStateOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a ChatState<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&ChatState<'static>, &ChatState<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut ChatState<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut ChatState<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for ChatStateOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for ChatStateOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: ChatStateOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for ChatStateOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<ChatState<'static>> for ChatStateOwned {
+                fn from(proto: ChatState<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(ChatStateOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 pub mod mod_ChatState {
 
 use std::borrow::Cow;
@@ -7140,6 +16086,106 @@ impl<'a> MessageWrite for UnreadState<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct UnreadStateOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<UnreadState<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl UnreadStateOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = UnreadState::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, UnreadState<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct UnreadStateOwned {
+                inner: core::pin::Pin<Box<UnreadStateOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl UnreadStateOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a UnreadState<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&UnreadState<'static>, &UnreadState<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut UnreadState<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut UnreadState<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for UnreadStateOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for UnreadStateOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: UnreadStateOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for UnreadStateOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<UnreadState<'static>> for UnreadStateOwned {
+                fn from(proto: UnreadState<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(UnreadStateOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 }
 
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -7157,6 +16203,8 @@ pub struct ChatMessage<'a> {
     pub reactions: Option<model::mod_ChatMessage::Reactions<'a>>,
     pub read: bool,
     pub mentionRead: bool,
+    pub hasMention: bool,
+    pub synced: bool,
 }
 
 impl<'a> MessageRead<'a> for ChatMessage<'a> {
@@ -7176,6 +16224,8 @@ impl<'a> MessageRead<'a> for ChatMessage<'a> {
                 Ok(66) => msg.reactions = Some(r.read_message::<model::mod_ChatMessage::Reactions>(bytes)?),
                 Ok(80) => msg.read = r.read_bool(bytes)?,
                 Ok(96) => msg.mentionRead = r.read_bool(bytes)?,
+                Ok(112) => msg.hasMention = r.read_bool(bytes)?,
+                Ok(104) => msg.synced = r.read_bool(bytes)?,
                 Ok(t) => { r.read_unknown(bytes, t)?; }
                 Err(e) => return Err(e),
             }
@@ -7199,6 +16249,8 @@ impl<'a> MessageWrite for ChatMessage<'a> {
         + self.reactions.as_ref().map_or(0, |m| 1 + sizeof_len((m).get_size()))
         + if self.read == false { 0 } else { 1 + sizeof_varint(*(&self.read) as u64) }
         + if self.mentionRead == false { 0 } else { 1 + sizeof_varint(*(&self.mentionRead) as u64) }
+        + if self.hasMention == false { 0 } else { 1 + sizeof_varint(*(&self.hasMention) as u64) }
+        + if self.synced == false { 0 } else { 1 + sizeof_varint(*(&self.synced) as u64) }
     }
 
     fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
@@ -7214,10 +16266,112 @@ impl<'a> MessageWrite for ChatMessage<'a> {
         if let Some(ref s) = self.reactions { w.write_with_tag(66, |w| w.write_message(s))?; }
         if self.read != false { w.write_with_tag(80, |w| w.write_bool(*&self.read))?; }
         if self.mentionRead != false { w.write_with_tag(96, |w| w.write_bool(*&self.mentionRead))?; }
+        if self.hasMention != false { w.write_with_tag(112, |w| w.write_bool(*&self.hasMention))?; }
+        if self.synced != false { w.write_with_tag(104, |w| w.write_bool(*&self.synced))?; }
         Ok(())
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct ChatMessageOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<ChatMessage<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl ChatMessageOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = ChatMessage::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, ChatMessage<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct ChatMessageOwned {
+                inner: core::pin::Pin<Box<ChatMessageOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl ChatMessageOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a ChatMessage<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&ChatMessage<'static>, &ChatMessage<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut ChatMessage<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut ChatMessage<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for ChatMessageOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for ChatMessageOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: ChatMessageOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for ChatMessageOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<ChatMessage<'static>> for ChatMessageOwned {
+                fn from(proto: ChatMessage<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(ChatMessageOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 pub mod mod_ChatMessage {
 
 use std::borrow::Cow;
@@ -7265,6 +16419,106 @@ impl<'a> MessageWrite for MessageContent<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct MessageContentOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<MessageContent<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl MessageContentOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = MessageContent::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, MessageContent<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct MessageContentOwned {
+                inner: core::pin::Pin<Box<MessageContentOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl MessageContentOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a MessageContent<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&MessageContent<'static>, &MessageContent<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut MessageContent<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut MessageContent<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for MessageContentOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for MessageContentOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: MessageContentOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for MessageContentOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<MessageContent<'static>> for MessageContentOwned {
+                fn from(proto: MessageContent<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(MessageContentOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct Attachment<'a> {
@@ -7301,6 +16555,106 @@ impl<'a> MessageWrite for Attachment<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct AttachmentOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Attachment<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl AttachmentOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Attachment::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Attachment<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct AttachmentOwned {
+                inner: core::pin::Pin<Box<AttachmentOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl AttachmentOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Attachment<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Attachment<'static>, &Attachment<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Attachment<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Attachment<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for AttachmentOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for AttachmentOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: AttachmentOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for AttachmentOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Attachment<'static>> for AttachmentOwned {
+                fn from(proto: Attachment<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(AttachmentOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 pub mod mod_Attachment {
 
 
@@ -7376,6 +16730,106 @@ impl<'a> MessageWrite for Reactions<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct ReactionsOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Reactions<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl ReactionsOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Reactions::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Reactions<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct ReactionsOwned {
+                inner: core::pin::Pin<Box<ReactionsOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl ReactionsOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Reactions<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Reactions<'static>, &Reactions<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Reactions<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Reactions<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for ReactionsOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for ReactionsOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: ReactionsOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for ReactionsOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Reactions<'static>> for ReactionsOwned {
+                fn from(proto: Reactions<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(ReactionsOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 pub mod mod_Reactions {
 
 use std::borrow::Cow;
@@ -7413,6 +16867,107 @@ impl<'a> MessageWrite for IdentityList<'a> {
     }
 }
 
+
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct IdentityListOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<IdentityList<'static>>,
+                _pin: core::marker::PhantomPinned,
+            }
+
+            impl IdentityListOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = IdentityList::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, IdentityList<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct IdentityListOwned {
+                inner: core::pin::Pin<Box<IdentityListOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl IdentityListOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a IdentityList<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&IdentityList<'static>, &IdentityList<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut IdentityList<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut IdentityList<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for IdentityListOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for IdentityListOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: IdentityListOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for IdentityListOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<IdentityList<'static>> for IdentityListOwned {
+                fn from(proto: IdentityList<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(IdentityListOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
+            
 }
 
 }
+

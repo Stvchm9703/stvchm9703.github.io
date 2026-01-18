@@ -1,8 +1,8 @@
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 
-use crate::jupyter_notbook::model::{Cell, CodeCell, JupyterNotebookRoot};
-use crate::jupyter_notbook::util::resolve_jupyter_cell_output;
+use crate::jupyter_notebook::model::{Cell, CodeCell, JupyterNotebookRoot};
+use crate::jupyter_notebook::util::resolve_jupyter_cell_output;
 
 use super::mark::Mark;
 use super::text::{TextComponentAttr, TextStyle};
@@ -21,7 +21,7 @@ pub struct JupyterComponentAttr {
     pub cell_number: usize,
     pub cell: Option<JupyterCell>,
 }
-pub type JupyterCell = crate::jupyter_notbook::model::Cell;
+pub type JupyterCell = crate::jupyter_notebook::model::Cell;
 static CUSTOM_COMPONENT_JUPYTER: lazy_regex::Lazy<Regex> = lazy_regex::lazy_regex!(
     r"^/custom_component:jupyter:\((?P<file_name>[\w\-/\\\.]+\.[\w]+):(?P<cell_num>\d+)\)/$"i
 );

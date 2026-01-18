@@ -25,7 +25,6 @@ use crate::proto::anytype;
 
 // Automatically generated rust module for 'changes.proto' file
 
-
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum ModifyOp {
     Set = 0,
@@ -70,11 +69,12 @@ impl<'a> From<&'a str> for ModifyOp {
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct Change<'a> {
-    pub content: Vec<anytype::mod_Change::Content<'a>>,
-    pub snapshot: Option<anytype::mod_Change::Snapshot<'a>>,
-    pub fileKeys: Vec<anytype::mod_Change::FileKeys<'a>>,
+    pub content: Vec<mod_Change::Content<'a>>,
+    pub snapshot: Option<mod_Change::Snapshot<'a>>,
+    pub fileKeys: Vec<mod_Change::FileKeys<'a>>,
     pub timestamp: i64,
     pub version: u32,
+    pub changeType: u32,
 }
 
 impl<'a> MessageRead<'a> for Change<'a> {
@@ -82,11 +82,12 @@ impl<'a> MessageRead<'a> for Change<'a> {
         let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
-                Ok(26) => msg.content.push(r.read_message::<anytype::mod_Change::Content>(bytes)?),
-                Ok(34) => msg.snapshot = Some(r.read_message::<anytype::mod_Change::Snapshot>(bytes)?),
-                Ok(50) => msg.fileKeys.push(r.read_message::<anytype::mod_Change::FileKeys>(bytes)?),
+                Ok(26) => msg.content.push(r.read_message::<mod_Change::Content>(bytes)?),
+                Ok(34) => msg.snapshot = Some(r.read_message::<mod_Change::Snapshot>(bytes)?),
+                Ok(50) => msg.fileKeys.push(r.read_message::<mod_Change::FileKeys>(bytes)?),
                 Ok(56) => msg.timestamp = r.read_int64(bytes)?,
                 Ok(64) => msg.version = r.read_uint32(bytes)?,
+                Ok(72) => msg.changeType = r.read_uint32(bytes)?,
                 Ok(t) => { r.read_unknown(bytes, t)?; }
                 Err(e) => return Err(e),
             }
@@ -103,6 +104,7 @@ impl<'a> MessageWrite for Change<'a> {
         + self.fileKeys.iter().map(|s| 1 + sizeof_len((s).get_size())).sum::<usize>()
         + if self.timestamp == 0i64 { 0 } else { 1 + sizeof_varint(*(&self.timestamp) as u64) }
         + if self.version == 0u32 { 0 } else { 1 + sizeof_varint(*(&self.version) as u64) }
+        + if self.changeType == 0u32 { 0 } else { 1 + sizeof_varint(*(&self.changeType) as u64) }
     }
 
     fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
@@ -111,6 +113,7 @@ impl<'a> MessageWrite for Change<'a> {
         for s in &self.fileKeys { w.write_with_tag(50, |w| w.write_message(s))?; }
         if self.timestamp != 0i64 { w.write_with_tag(56, |w| w.write_int64(*&self.timestamp))?; }
         if self.version != 0u32 { w.write_with_tag(64, |w| w.write_uint32(*&self.version))?; }
+        if self.changeType != 0u32 { w.write_with_tag(72, |w| w.write_uint32(*&self.changeType))?; }
         Ok(())
     }
 }
@@ -127,7 +130,7 @@ use super::*;
 pub struct Snapshot<'a> {
     pub logHeads: KVMap<Cow<'a, str>, Cow<'a, str>>,
     pub data: Option<anytype::model::SmartBlockSnapshotBase<'a>>,
-    pub fileKeys: Vec<anytype::mod_Change::FileKeys<'a>>,
+    pub fileKeys: Vec<mod_Change::FileKeys<'a>>,
 }
 
 impl<'a> MessageRead<'a> for Snapshot<'a> {
@@ -140,7 +143,7 @@ impl<'a> MessageRead<'a> for Snapshot<'a> {
                     msg.logHeads.insert(key, value);
                 }
                 Ok(18) => msg.data = Some(r.read_message::<anytype::model::SmartBlockSnapshotBase>(bytes)?),
-                Ok(26) => msg.fileKeys.push(r.read_message::<anytype::mod_Change::FileKeys>(bytes)?),
+                Ok(26) => msg.fileKeys.push(r.read_message::<mod_Change::FileKeys>(bytes)?),
                 Ok(t) => { r.read_unknown(bytes, t)?; }
                 Err(e) => return Err(e),
             }
@@ -207,7 +210,7 @@ impl<'a> MessageWrite for FileKeys<'a> {
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct Content<'a> {
-    pub value: anytype::mod_Change::mod_Content::OneOfvalue<'a>,
+    pub value: mod_Change::mod_Content::OneOfvalue<'a>,
 }
 
 impl<'a> MessageRead<'a> for Content<'a> {
@@ -215,26 +218,26 @@ impl<'a> MessageRead<'a> for Content<'a> {
         let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
-                Ok(10) => msg.value = anytype::mod_Change::mod_Content::OneOfvalue::blockCreate(r.read_message::<anytype::mod_Change::BlockCreate>(bytes)?),
-                Ok(18) => msg.value = anytype::mod_Change::mod_Content::OneOfvalue::blockUpdate(r.read_message::<anytype::mod_Change::BlockUpdate>(bytes)?),
-                Ok(26) => msg.value = anytype::mod_Change::mod_Content::OneOfvalue::blockRemove(r.read_message::<anytype::mod_Change::BlockRemove>(bytes)?),
-                Ok(34) => msg.value = anytype::mod_Change::mod_Content::OneOfvalue::blockMove(r.read_message::<anytype::mod_Change::BlockMove>(bytes)?),
-                Ok(42) => msg.value = anytype::mod_Change::mod_Content::OneOfvalue::blockDuplicate(r.read_message::<anytype::mod_Change::BlockDuplicate>(bytes)?),
-                Ok(402) => msg.value = anytype::mod_Change::mod_Content::OneOfvalue::relationAdd(r.read_message::<anytype::mod_Change::RelationAdd>(bytes)?),
-                Ok(410) => msg.value = anytype::mod_Change::mod_Content::OneOfvalue::relationRemove(r.read_message::<anytype::mod_Change::RelationRemove>(bytes)?),
-                Ok(802) => msg.value = anytype::mod_Change::mod_Content::OneOfvalue::detailsSet(r.read_message::<anytype::mod_Change::DetailsSet>(bytes)?),
-                Ok(810) => msg.value = anytype::mod_Change::mod_Content::OneOfvalue::detailsUnset(r.read_message::<anytype::mod_Change::DetailsUnset>(bytes)?),
-                Ok(842) => msg.value = anytype::mod_Change::mod_Content::OneOfvalue::objectTypeAdd(r.read_message::<anytype::mod_Change::ObjectTypeAdd>(bytes)?),
-                Ok(850) => msg.value = anytype::mod_Change::mod_Content::OneOfvalue::objectTypeRemove(r.read_message::<anytype::mod_Change::ObjectTypeRemove>(bytes)?),
-                Ok(858) => msg.value = anytype::mod_Change::mod_Content::OneOfvalue::storeKeySet(r.read_message::<anytype::mod_Change::StoreKeySet>(bytes)?),
-                Ok(866) => msg.value = anytype::mod_Change::mod_Content::OneOfvalue::storeKeyUnset(r.read_message::<anytype::mod_Change::StoreKeyUnset>(bytes)?),
-                Ok(874) => msg.value = anytype::mod_Change::mod_Content::OneOfvalue::storeSliceUpdate(r.read_message::<anytype::mod_Change::StoreSliceUpdate>(bytes)?),
-                Ok(882) => msg.value = anytype::mod_Change::mod_Content::OneOfvalue::originalCreatedTimestampSet(r.read_message::<anytype::mod_Change::OriginalCreatedTimestampSet>(bytes)?),
-                Ok(890) => msg.value = anytype::mod_Change::mod_Content::OneOfvalue::setFileInfo(r.read_message::<anytype::mod_Change::SetFileInfo>(bytes)?),
-                Ok(898) => msg.value = anytype::mod_Change::mod_Content::OneOfvalue::notificationCreate(r.read_message::<anytype::mod_Change::NotificationCreate>(bytes)?),
-                Ok(906) => msg.value = anytype::mod_Change::mod_Content::OneOfvalue::notificationUpdate(r.read_message::<anytype::mod_Change::NotificationUpdate>(bytes)?),
-                Ok(914) => msg.value = anytype::mod_Change::mod_Content::OneOfvalue::deviceAdd(r.read_message::<anytype::mod_Change::DeviceAdd>(bytes)?),
-                Ok(922) => msg.value = anytype::mod_Change::mod_Content::OneOfvalue::deviceUpdate(r.read_message::<anytype::mod_Change::DeviceUpdate>(bytes)?),
+                Ok(10) => msg.value = mod_Change::mod_Content::OneOfvalue::blockCreate(r.read_message::<mod_Change::BlockCreate>(bytes)?),
+                Ok(18) => msg.value = mod_Change::mod_Content::OneOfvalue::blockUpdate(r.read_message::<mod_Change::BlockUpdate>(bytes)?),
+                Ok(26) => msg.value = mod_Change::mod_Content::OneOfvalue::blockRemove(r.read_message::<mod_Change::BlockRemove>(bytes)?),
+                Ok(34) => msg.value = mod_Change::mod_Content::OneOfvalue::blockMove(r.read_message::<mod_Change::BlockMove>(bytes)?),
+                Ok(42) => msg.value = mod_Change::mod_Content::OneOfvalue::blockDuplicate(r.read_message::<mod_Change::BlockDuplicate>(bytes)?),
+                Ok(402) => msg.value = mod_Change::mod_Content::OneOfvalue::relationAdd(r.read_message::<mod_Change::RelationAdd>(bytes)?),
+                Ok(410) => msg.value = mod_Change::mod_Content::OneOfvalue::relationRemove(r.read_message::<mod_Change::RelationRemove>(bytes)?),
+                Ok(802) => msg.value = mod_Change::mod_Content::OneOfvalue::detailsSet(r.read_message::<mod_Change::DetailsSet>(bytes)?),
+                Ok(810) => msg.value = mod_Change::mod_Content::OneOfvalue::detailsUnset(r.read_message::<mod_Change::DetailsUnset>(bytes)?),
+                Ok(842) => msg.value = mod_Change::mod_Content::OneOfvalue::objectTypeAdd(r.read_message::<mod_Change::ObjectTypeAdd>(bytes)?),
+                Ok(850) => msg.value = mod_Change::mod_Content::OneOfvalue::objectTypeRemove(r.read_message::<mod_Change::ObjectTypeRemove>(bytes)?),
+                Ok(858) => msg.value = mod_Change::mod_Content::OneOfvalue::storeKeySet(r.read_message::<mod_Change::StoreKeySet>(bytes)?),
+                Ok(866) => msg.value = mod_Change::mod_Content::OneOfvalue::storeKeyUnset(r.read_message::<mod_Change::StoreKeyUnset>(bytes)?),
+                Ok(874) => msg.value = mod_Change::mod_Content::OneOfvalue::storeSliceUpdate(r.read_message::<mod_Change::StoreSliceUpdate>(bytes)?),
+                Ok(882) => msg.value = mod_Change::mod_Content::OneOfvalue::originalCreatedTimestampSet(r.read_message::<mod_Change::OriginalCreatedTimestampSet>(bytes)?),
+                Ok(890) => msg.value = mod_Change::mod_Content::OneOfvalue::setFileInfo(r.read_message::<mod_Change::SetFileInfo>(bytes)?),
+                Ok(898) => msg.value = mod_Change::mod_Content::OneOfvalue::notificationCreate(r.read_message::<mod_Change::NotificationCreate>(bytes)?),
+                Ok(906) => msg.value = mod_Change::mod_Content::OneOfvalue::notificationUpdate(r.read_message::<mod_Change::NotificationUpdate>(bytes)?),
+                Ok(914) => msg.value = mod_Change::mod_Content::OneOfvalue::deviceAdd(r.read_message::<mod_Change::DeviceAdd>(bytes)?),
+                Ok(922) => msg.value = mod_Change::mod_Content::OneOfvalue::deviceUpdate(r.read_message::<mod_Change::DeviceUpdate>(bytes)?),
                 Ok(t) => { r.read_unknown(bytes, t)?; }
                 Err(e) => return Err(e),
             }
@@ -247,51 +250,51 @@ impl<'a> MessageWrite for Content<'a> {
     fn get_size(&self) -> usize {
         0
         + match self.value {
-            anytype::mod_Change::mod_Content::OneOfvalue::blockCreate(ref m) => 1 + sizeof_len((m).get_size()),
-            anytype::mod_Change::mod_Content::OneOfvalue::blockUpdate(ref m) => 1 + sizeof_len((m).get_size()),
-            anytype::mod_Change::mod_Content::OneOfvalue::blockRemove(ref m) => 1 + sizeof_len((m).get_size()),
-            anytype::mod_Change::mod_Content::OneOfvalue::blockMove(ref m) => 1 + sizeof_len((m).get_size()),
-            anytype::mod_Change::mod_Content::OneOfvalue::blockDuplicate(ref m) => 1 + sizeof_len((m).get_size()),
-            anytype::mod_Change::mod_Content::OneOfvalue::relationAdd(ref m) => 2 + sizeof_len((m).get_size()),
-            anytype::mod_Change::mod_Content::OneOfvalue::relationRemove(ref m) => 2 + sizeof_len((m).get_size()),
-            anytype::mod_Change::mod_Content::OneOfvalue::detailsSet(ref m) => 2 + sizeof_len((m).get_size()),
-            anytype::mod_Change::mod_Content::OneOfvalue::detailsUnset(ref m) => 2 + sizeof_len((m).get_size()),
-            anytype::mod_Change::mod_Content::OneOfvalue::objectTypeAdd(ref m) => 2 + sizeof_len((m).get_size()),
-            anytype::mod_Change::mod_Content::OneOfvalue::objectTypeRemove(ref m) => 2 + sizeof_len((m).get_size()),
-            anytype::mod_Change::mod_Content::OneOfvalue::storeKeySet(ref m) => 2 + sizeof_len((m).get_size()),
-            anytype::mod_Change::mod_Content::OneOfvalue::storeKeyUnset(ref m) => 2 + sizeof_len((m).get_size()),
-            anytype::mod_Change::mod_Content::OneOfvalue::storeSliceUpdate(ref m) => 2 + sizeof_len((m).get_size()),
-            anytype::mod_Change::mod_Content::OneOfvalue::originalCreatedTimestampSet(ref m) => 2 + sizeof_len((m).get_size()),
-            anytype::mod_Change::mod_Content::OneOfvalue::setFileInfo(ref m) => 2 + sizeof_len((m).get_size()),
-            anytype::mod_Change::mod_Content::OneOfvalue::notificationCreate(ref m) => 2 + sizeof_len((m).get_size()),
-            anytype::mod_Change::mod_Content::OneOfvalue::notificationUpdate(ref m) => 2 + sizeof_len((m).get_size()),
-            anytype::mod_Change::mod_Content::OneOfvalue::deviceAdd(ref m) => 2 + sizeof_len((m).get_size()),
-            anytype::mod_Change::mod_Content::OneOfvalue::deviceUpdate(ref m) => 2 + sizeof_len((m).get_size()),
-            anytype::mod_Change::mod_Content::OneOfvalue::None => 0,
+            mod_Change::mod_Content::OneOfvalue::blockCreate(ref m) => 1 + sizeof_len((m).get_size()),
+            mod_Change::mod_Content::OneOfvalue::blockUpdate(ref m) => 1 + sizeof_len((m).get_size()),
+            mod_Change::mod_Content::OneOfvalue::blockRemove(ref m) => 1 + sizeof_len((m).get_size()),
+            mod_Change::mod_Content::OneOfvalue::blockMove(ref m) => 1 + sizeof_len((m).get_size()),
+            mod_Change::mod_Content::OneOfvalue::blockDuplicate(ref m) => 1 + sizeof_len((m).get_size()),
+            mod_Change::mod_Content::OneOfvalue::relationAdd(ref m) => 2 + sizeof_len((m).get_size()),
+            mod_Change::mod_Content::OneOfvalue::relationRemove(ref m) => 2 + sizeof_len((m).get_size()),
+            mod_Change::mod_Content::OneOfvalue::detailsSet(ref m) => 2 + sizeof_len((m).get_size()),
+            mod_Change::mod_Content::OneOfvalue::detailsUnset(ref m) => 2 + sizeof_len((m).get_size()),
+            mod_Change::mod_Content::OneOfvalue::objectTypeAdd(ref m) => 2 + sizeof_len((m).get_size()),
+            mod_Change::mod_Content::OneOfvalue::objectTypeRemove(ref m) => 2 + sizeof_len((m).get_size()),
+            mod_Change::mod_Content::OneOfvalue::storeKeySet(ref m) => 2 + sizeof_len((m).get_size()),
+            mod_Change::mod_Content::OneOfvalue::storeKeyUnset(ref m) => 2 + sizeof_len((m).get_size()),
+            mod_Change::mod_Content::OneOfvalue::storeSliceUpdate(ref m) => 2 + sizeof_len((m).get_size()),
+            mod_Change::mod_Content::OneOfvalue::originalCreatedTimestampSet(ref m) => 2 + sizeof_len((m).get_size()),
+            mod_Change::mod_Content::OneOfvalue::setFileInfo(ref m) => 2 + sizeof_len((m).get_size()),
+            mod_Change::mod_Content::OneOfvalue::notificationCreate(ref m) => 2 + sizeof_len((m).get_size()),
+            mod_Change::mod_Content::OneOfvalue::notificationUpdate(ref m) => 2 + sizeof_len((m).get_size()),
+            mod_Change::mod_Content::OneOfvalue::deviceAdd(ref m) => 2 + sizeof_len((m).get_size()),
+            mod_Change::mod_Content::OneOfvalue::deviceUpdate(ref m) => 2 + sizeof_len((m).get_size()),
+            mod_Change::mod_Content::OneOfvalue::None => 0,
     }    }
 
     fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
-        match self.value {            anytype::mod_Change::mod_Content::OneOfvalue::blockCreate(ref m) => { w.write_with_tag(10, |w| w.write_message(m))? },
-            anytype::mod_Change::mod_Content::OneOfvalue::blockUpdate(ref m) => { w.write_with_tag(18, |w| w.write_message(m))? },
-            anytype::mod_Change::mod_Content::OneOfvalue::blockRemove(ref m) => { w.write_with_tag(26, |w| w.write_message(m))? },
-            anytype::mod_Change::mod_Content::OneOfvalue::blockMove(ref m) => { w.write_with_tag(34, |w| w.write_message(m))? },
-            anytype::mod_Change::mod_Content::OneOfvalue::blockDuplicate(ref m) => { w.write_with_tag(42, |w| w.write_message(m))? },
-            anytype::mod_Change::mod_Content::OneOfvalue::relationAdd(ref m) => { w.write_with_tag(402, |w| w.write_message(m))? },
-            anytype::mod_Change::mod_Content::OneOfvalue::relationRemove(ref m) => { w.write_with_tag(410, |w| w.write_message(m))? },
-            anytype::mod_Change::mod_Content::OneOfvalue::detailsSet(ref m) => { w.write_with_tag(802, |w| w.write_message(m))? },
-            anytype::mod_Change::mod_Content::OneOfvalue::detailsUnset(ref m) => { w.write_with_tag(810, |w| w.write_message(m))? },
-            anytype::mod_Change::mod_Content::OneOfvalue::objectTypeAdd(ref m) => { w.write_with_tag(842, |w| w.write_message(m))? },
-            anytype::mod_Change::mod_Content::OneOfvalue::objectTypeRemove(ref m) => { w.write_with_tag(850, |w| w.write_message(m))? },
-            anytype::mod_Change::mod_Content::OneOfvalue::storeKeySet(ref m) => { w.write_with_tag(858, |w| w.write_message(m))? },
-            anytype::mod_Change::mod_Content::OneOfvalue::storeKeyUnset(ref m) => { w.write_with_tag(866, |w| w.write_message(m))? },
-            anytype::mod_Change::mod_Content::OneOfvalue::storeSliceUpdate(ref m) => { w.write_with_tag(874, |w| w.write_message(m))? },
-            anytype::mod_Change::mod_Content::OneOfvalue::originalCreatedTimestampSet(ref m) => { w.write_with_tag(882, |w| w.write_message(m))? },
-            anytype::mod_Change::mod_Content::OneOfvalue::setFileInfo(ref m) => { w.write_with_tag(890, |w| w.write_message(m))? },
-            anytype::mod_Change::mod_Content::OneOfvalue::notificationCreate(ref m) => { w.write_with_tag(898, |w| w.write_message(m))? },
-            anytype::mod_Change::mod_Content::OneOfvalue::notificationUpdate(ref m) => { w.write_with_tag(906, |w| w.write_message(m))? },
-            anytype::mod_Change::mod_Content::OneOfvalue::deviceAdd(ref m) => { w.write_with_tag(914, |w| w.write_message(m))? },
-            anytype::mod_Change::mod_Content::OneOfvalue::deviceUpdate(ref m) => { w.write_with_tag(922, |w| w.write_message(m))? },
-            anytype::mod_Change::mod_Content::OneOfvalue::None => {},
+        match self.value {            mod_Change::mod_Content::OneOfvalue::blockCreate(ref m) => { w.write_with_tag(10, |w| w.write_message(m))? },
+            mod_Change::mod_Content::OneOfvalue::blockUpdate(ref m) => { w.write_with_tag(18, |w| w.write_message(m))? },
+            mod_Change::mod_Content::OneOfvalue::blockRemove(ref m) => { w.write_with_tag(26, |w| w.write_message(m))? },
+            mod_Change::mod_Content::OneOfvalue::blockMove(ref m) => { w.write_with_tag(34, |w| w.write_message(m))? },
+            mod_Change::mod_Content::OneOfvalue::blockDuplicate(ref m) => { w.write_with_tag(42, |w| w.write_message(m))? },
+            mod_Change::mod_Content::OneOfvalue::relationAdd(ref m) => { w.write_with_tag(402, |w| w.write_message(m))? },
+            mod_Change::mod_Content::OneOfvalue::relationRemove(ref m) => { w.write_with_tag(410, |w| w.write_message(m))? },
+            mod_Change::mod_Content::OneOfvalue::detailsSet(ref m) => { w.write_with_tag(802, |w| w.write_message(m))? },
+            mod_Change::mod_Content::OneOfvalue::detailsUnset(ref m) => { w.write_with_tag(810, |w| w.write_message(m))? },
+            mod_Change::mod_Content::OneOfvalue::objectTypeAdd(ref m) => { w.write_with_tag(842, |w| w.write_message(m))? },
+            mod_Change::mod_Content::OneOfvalue::objectTypeRemove(ref m) => { w.write_with_tag(850, |w| w.write_message(m))? },
+            mod_Change::mod_Content::OneOfvalue::storeKeySet(ref m) => { w.write_with_tag(858, |w| w.write_message(m))? },
+            mod_Change::mod_Content::OneOfvalue::storeKeyUnset(ref m) => { w.write_with_tag(866, |w| w.write_message(m))? },
+            mod_Change::mod_Content::OneOfvalue::storeSliceUpdate(ref m) => { w.write_with_tag(874, |w| w.write_message(m))? },
+            mod_Change::mod_Content::OneOfvalue::originalCreatedTimestampSet(ref m) => { w.write_with_tag(882, |w| w.write_message(m))? },
+            mod_Change::mod_Content::OneOfvalue::setFileInfo(ref m) => { w.write_with_tag(890, |w| w.write_message(m))? },
+            mod_Change::mod_Content::OneOfvalue::notificationCreate(ref m) => { w.write_with_tag(898, |w| w.write_message(m))? },
+            mod_Change::mod_Content::OneOfvalue::notificationUpdate(ref m) => { w.write_with_tag(906, |w| w.write_message(m))? },
+            mod_Change::mod_Content::OneOfvalue::deviceAdd(ref m) => { w.write_with_tag(914, |w| w.write_message(m))? },
+            mod_Change::mod_Content::OneOfvalue::deviceUpdate(ref m) => { w.write_with_tag(922, |w| w.write_message(m))? },
+            mod_Change::mod_Content::OneOfvalue::None => {},
     }        Ok(())
     }
 }
@@ -302,26 +305,26 @@ use super::*;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum OneOfvalue<'a> {
-    blockCreate(anytype::mod_Change::BlockCreate<'a>),
-    blockUpdate(anytype::mod_Change::BlockUpdate<'a>),
-    blockRemove(anytype::mod_Change::BlockRemove<'a>),
-    blockMove(anytype::mod_Change::BlockMove<'a>),
-    blockDuplicate(anytype::mod_Change::BlockDuplicate<'a>),
-    relationAdd(anytype::mod_Change::RelationAdd<'a>),
-    relationRemove(anytype::mod_Change::RelationRemove<'a>),
-    detailsSet(anytype::mod_Change::DetailsSet<'a>),
-    detailsUnset(anytype::mod_Change::DetailsUnset<'a>),
-    objectTypeAdd(anytype::mod_Change::ObjectTypeAdd<'a>),
-    objectTypeRemove(anytype::mod_Change::ObjectTypeRemove<'a>),
-    storeKeySet(anytype::mod_Change::StoreKeySet<'a>),
-    storeKeyUnset(anytype::mod_Change::StoreKeyUnset<'a>),
-    storeSliceUpdate(anytype::mod_Change::StoreSliceUpdate<'a>),
-    originalCreatedTimestampSet(anytype::mod_Change::OriginalCreatedTimestampSet),
-    setFileInfo(anytype::mod_Change::SetFileInfo<'a>),
-    notificationCreate(anytype::mod_Change::NotificationCreate<'a>),
-    notificationUpdate(anytype::mod_Change::NotificationUpdate<'a>),
-    deviceAdd(anytype::mod_Change::DeviceAdd<'a>),
-    deviceUpdate(anytype::mod_Change::DeviceUpdate<'a>),
+    blockCreate(mod_Change::BlockCreate<'a>),
+    blockUpdate(mod_Change::BlockUpdate<'a>),
+    blockRemove(mod_Change::BlockRemove<'a>),
+    blockMove(mod_Change::BlockMove<'a>),
+    blockDuplicate(mod_Change::BlockDuplicate<'a>),
+    relationAdd(mod_Change::RelationAdd<'a>),
+    relationRemove(mod_Change::RelationRemove<'a>),
+    detailsSet(mod_Change::DetailsSet<'a>),
+    detailsUnset(mod_Change::DetailsUnset<'a>),
+    objectTypeAdd(mod_Change::ObjectTypeAdd<'a>),
+    objectTypeRemove(mod_Change::ObjectTypeRemove<'a>),
+    storeKeySet(mod_Change::StoreKeySet<'a>),
+    storeKeyUnset(mod_Change::StoreKeyUnset<'a>),
+    storeSliceUpdate(mod_Change::StoreSliceUpdate<'a>),
+    originalCreatedTimestampSet(mod_Change::OriginalCreatedTimestampSet),
+    setFileInfo(mod_Change::SetFileInfo<'a>),
+    notificationCreate(mod_Change::NotificationCreate<'a>),
+    notificationUpdate(mod_Change::NotificationUpdate<'a>),
+    deviceAdd(mod_Change::DeviceAdd<'a>),
+    deviceUpdate(mod_Change::DeviceUpdate<'a>),
     None,
 }
 
@@ -793,7 +796,7 @@ impl<'a> MessageWrite for StoreKeyUnset<'a> {
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct StoreSliceUpdate<'a> {
     pub key: Cow<'a, str>,
-    pub operation: anytype::mod_Change::mod_StoreSliceUpdate::OneOfoperation<'a>,
+    pub operation: mod_Change::mod_StoreSliceUpdate::OneOfoperation<'a>,
 }
 
 impl<'a> MessageRead<'a> for StoreSliceUpdate<'a> {
@@ -802,9 +805,9 @@ impl<'a> MessageRead<'a> for StoreSliceUpdate<'a> {
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(10) => msg.key = r.read_string(bytes).map(Cow::Borrowed)?,
-                Ok(18) => msg.operation = anytype::mod_Change::mod_StoreSliceUpdate::OneOfoperation::add(r.read_message::<anytype::mod_Change::mod_StoreSliceUpdate::Add>(bytes)?),
-                Ok(26) => msg.operation = anytype::mod_Change::mod_StoreSliceUpdate::OneOfoperation::remove(r.read_message::<anytype::mod_Change::mod_StoreSliceUpdate::Remove>(bytes)?),
-                Ok(34) => msg.operation = anytype::mod_Change::mod_StoreSliceUpdate::OneOfoperation::move_pb(r.read_message::<anytype::mod_Change::mod_StoreSliceUpdate::Move>(bytes)?),
+                Ok(18) => msg.operation = mod_Change::mod_StoreSliceUpdate::OneOfoperation::add(r.read_message::<mod_Change::mod_StoreSliceUpdate::Add>(bytes)?),
+                Ok(26) => msg.operation = mod_Change::mod_StoreSliceUpdate::OneOfoperation::remove(r.read_message::<mod_Change::mod_StoreSliceUpdate::Remove>(bytes)?),
+                Ok(34) => msg.operation = mod_Change::mod_StoreSliceUpdate::OneOfoperation::move_pb(r.read_message::<mod_Change::mod_StoreSliceUpdate::Move>(bytes)?),
                 Ok(t) => { r.read_unknown(bytes, t)?; }
                 Err(e) => return Err(e),
             }
@@ -818,18 +821,18 @@ impl<'a> MessageWrite for StoreSliceUpdate<'a> {
         0
         + if self.key == "" { 0 } else { 1 + sizeof_len((&self.key).len()) }
         + match self.operation {
-            anytype::mod_Change::mod_StoreSliceUpdate::OneOfoperation::add(ref m) => 1 + sizeof_len((m).get_size()),
-            anytype::mod_Change::mod_StoreSliceUpdate::OneOfoperation::remove(ref m) => 1 + sizeof_len((m).get_size()),
-            anytype::mod_Change::mod_StoreSliceUpdate::OneOfoperation::move_pb(ref m) => 1 + sizeof_len((m).get_size()),
-            anytype::mod_Change::mod_StoreSliceUpdate::OneOfoperation::None => 0,
+            mod_Change::mod_StoreSliceUpdate::OneOfoperation::add(ref m) => 1 + sizeof_len((m).get_size()),
+            mod_Change::mod_StoreSliceUpdate::OneOfoperation::remove(ref m) => 1 + sizeof_len((m).get_size()),
+            mod_Change::mod_StoreSliceUpdate::OneOfoperation::move_pb(ref m) => 1 + sizeof_len((m).get_size()),
+            mod_Change::mod_StoreSliceUpdate::OneOfoperation::None => 0,
     }    }
 
     fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
         if self.key != "" { w.write_with_tag(10, |w| w.write_string(&**&self.key))?; }
-        match self.operation {            anytype::mod_Change::mod_StoreSliceUpdate::OneOfoperation::add(ref m) => { w.write_with_tag(18, |w| w.write_message(m))? },
-            anytype::mod_Change::mod_StoreSliceUpdate::OneOfoperation::remove(ref m) => { w.write_with_tag(26, |w| w.write_message(m))? },
-            anytype::mod_Change::mod_StoreSliceUpdate::OneOfoperation::move_pb(ref m) => { w.write_with_tag(34, |w| w.write_message(m))? },
-            anytype::mod_Change::mod_StoreSliceUpdate::OneOfoperation::None => {},
+        match self.operation {            mod_Change::mod_StoreSliceUpdate::OneOfoperation::add(ref m) => { w.write_with_tag(18, |w| w.write_message(m))? },
+            mod_Change::mod_StoreSliceUpdate::OneOfoperation::remove(ref m) => { w.write_with_tag(26, |w| w.write_message(m))? },
+            mod_Change::mod_StoreSliceUpdate::OneOfoperation::move_pb(ref m) => { w.write_with_tag(34, |w| w.write_message(m))? },
+            mod_Change::mod_StoreSliceUpdate::OneOfoperation::None => {},
     }        Ok(())
     }
 }
@@ -945,9 +948,9 @@ impl<'a> MessageWrite for Move<'a> {
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum OneOfoperation<'a> {
-    add(anytype::mod_Change::mod_StoreSliceUpdate::Add<'a>),
-    remove(anytype::mod_Change::mod_StoreSliceUpdate::Remove<'a>),
-    move_pb(anytype::mod_Change::mod_StoreSliceUpdate::Move<'a>),
+    add(mod_Change::mod_StoreSliceUpdate::Add<'a>),
+    remove(mod_Change::mod_StoreSliceUpdate::Remove<'a>),
+    move_pb(mod_Change::mod_StoreSliceUpdate::Move<'a>),
     None,
 }
 
@@ -1164,10 +1167,11 @@ impl<'a> MessageWrite for DeviceUpdate<'a> {
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct ChangeNoSnapshot<'a> {
-    pub content: Vec<anytype::mod_Change::Content<'a>>,
-    pub fileKeys: Vec<anytype::mod_Change::FileKeys<'a>>,
+    pub content: Vec<mod_Change::Content<'a>>,
+    pub fileKeys: Vec<mod_Change::FileKeys<'a>>,
     pub timestamp: i64,
     pub version: u32,
+    pub changeType: u32,
 }
 
 impl<'a> MessageRead<'a> for ChangeNoSnapshot<'a> {
@@ -1175,10 +1179,11 @@ impl<'a> MessageRead<'a> for ChangeNoSnapshot<'a> {
         let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
-                Ok(26) => msg.content.push(r.read_message::<anytype::mod_Change::Content>(bytes)?),
-                Ok(50) => msg.fileKeys.push(r.read_message::<anytype::mod_Change::FileKeys>(bytes)?),
+                Ok(26) => msg.content.push(r.read_message::<mod_Change::Content>(bytes)?),
+                Ok(50) => msg.fileKeys.push(r.read_message::<mod_Change::FileKeys>(bytes)?),
                 Ok(56) => msg.timestamp = r.read_int64(bytes)?,
                 Ok(64) => msg.version = r.read_uint32(bytes)?,
+                Ok(72) => msg.changeType = r.read_uint32(bytes)?,
                 Ok(t) => { r.read_unknown(bytes, t)?; }
                 Err(e) => return Err(e),
             }
@@ -1194,6 +1199,7 @@ impl<'a> MessageWrite for ChangeNoSnapshot<'a> {
         + self.fileKeys.iter().map(|s| 1 + sizeof_len((s).get_size())).sum::<usize>()
         + if self.timestamp == 0i64 { 0 } else { 1 + sizeof_varint(*(&self.timestamp) as u64) }
         + if self.version == 0u32 { 0 } else { 1 + sizeof_varint(*(&self.version) as u64) }
+        + if self.changeType == 0u32 { 0 } else { 1 + sizeof_varint(*(&self.changeType) as u64) }
     }
 
     fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
@@ -1201,6 +1207,7 @@ impl<'a> MessageWrite for ChangeNoSnapshot<'a> {
         for s in &self.fileKeys { w.write_with_tag(50, |w| w.write_message(s))?; }
         if self.timestamp != 0i64 { w.write_with_tag(56, |w| w.write_int64(*&self.timestamp))?; }
         if self.version != 0u32 { w.write_with_tag(64, |w| w.write_uint32(*&self.version))?; }
+        if self.changeType != 0u32 { w.write_with_tag(72, |w| w.write_uint32(*&self.changeType))?; }
         Ok(())
     }
 }
@@ -1208,7 +1215,7 @@ impl<'a> MessageWrite for ChangeNoSnapshot<'a> {
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct StoreChange<'a> {
-    pub changeSet: Vec<anytype::StoreChangeContent<'a>>,
+    pub changeSet: Vec<StoreChangeContent<'a>>,
 }
 
 impl<'a> MessageRead<'a> for StoreChange<'a> {
@@ -1216,7 +1223,7 @@ impl<'a> MessageRead<'a> for StoreChange<'a> {
         let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
-                Ok(10) => msg.changeSet.push(r.read_message::<anytype::StoreChangeContent>(bytes)?),
+                Ok(10) => msg.changeSet.push(r.read_message::<StoreChangeContent>(bytes)?),
                 Ok(t) => { r.read_unknown(bytes, t)?; }
                 Err(e) => return Err(e),
             }
@@ -1240,7 +1247,7 @@ impl<'a> MessageWrite for StoreChange<'a> {
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct StoreChangeContent<'a> {
-    pub change: anytype::mod_StoreChangeContent::OneOfchange<'a>,
+    pub change: mod_StoreChangeContent::OneOfchange<'a>,
 }
 
 impl<'a> MessageRead<'a> for StoreChangeContent<'a> {
@@ -1248,9 +1255,9 @@ impl<'a> MessageRead<'a> for StoreChangeContent<'a> {
         let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
-                Ok(10) => msg.change = anytype::mod_StoreChangeContent::OneOfchange::create(r.read_message::<anytype::DocumentCreate>(bytes)?),
-                Ok(18) => msg.change = anytype::mod_StoreChangeContent::OneOfchange::modify(r.read_message::<anytype::DocumentModify>(bytes)?),
-                Ok(26) => msg.change = anytype::mod_StoreChangeContent::OneOfchange::delete(r.read_message::<anytype::DocumentDelete>(bytes)?),
+                Ok(10) => msg.change = mod_StoreChangeContent::OneOfchange::create(r.read_message::<DocumentCreate>(bytes)?),
+                Ok(18) => msg.change = mod_StoreChangeContent::OneOfchange::modify(r.read_message::<DocumentModify>(bytes)?),
+                Ok(26) => msg.change = mod_StoreChangeContent::OneOfchange::delete(r.read_message::<DocumentDelete>(bytes)?),
                 Ok(t) => { r.read_unknown(bytes, t)?; }
                 Err(e) => return Err(e),
             }
@@ -1263,17 +1270,17 @@ impl<'a> MessageWrite for StoreChangeContent<'a> {
     fn get_size(&self) -> usize {
         0
         + match self.change {
-            anytype::mod_StoreChangeContent::OneOfchange::create(ref m) => 1 + sizeof_len((m).get_size()),
-            anytype::mod_StoreChangeContent::OneOfchange::modify(ref m) => 1 + sizeof_len((m).get_size()),
-            anytype::mod_StoreChangeContent::OneOfchange::delete(ref m) => 1 + sizeof_len((m).get_size()),
-            anytype::mod_StoreChangeContent::OneOfchange::None => 0,
+            mod_StoreChangeContent::OneOfchange::create(ref m) => 1 + sizeof_len((m).get_size()),
+            mod_StoreChangeContent::OneOfchange::modify(ref m) => 1 + sizeof_len((m).get_size()),
+            mod_StoreChangeContent::OneOfchange::delete(ref m) => 1 + sizeof_len((m).get_size()),
+            mod_StoreChangeContent::OneOfchange::None => 0,
     }    }
 
     fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
-        match self.change {            anytype::mod_StoreChangeContent::OneOfchange::create(ref m) => { w.write_with_tag(10, |w| w.write_message(m))? },
-            anytype::mod_StoreChangeContent::OneOfchange::modify(ref m) => { w.write_with_tag(18, |w| w.write_message(m))? },
-            anytype::mod_StoreChangeContent::OneOfchange::delete(ref m) => { w.write_with_tag(26, |w| w.write_message(m))? },
-            anytype::mod_StoreChangeContent::OneOfchange::None => {},
+        match self.change {            mod_StoreChangeContent::OneOfchange::create(ref m) => { w.write_with_tag(10, |w| w.write_message(m))? },
+            mod_StoreChangeContent::OneOfchange::modify(ref m) => { w.write_with_tag(18, |w| w.write_message(m))? },
+            mod_StoreChangeContent::OneOfchange::delete(ref m) => { w.write_with_tag(26, |w| w.write_message(m))? },
+            mod_StoreChangeContent::OneOfchange::None => {},
     }        Ok(())
     }
 }
@@ -1284,9 +1291,9 @@ use super::*;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum OneOfchange<'a> {
-    create(anytype::DocumentCreate<'a>),
-    modify(anytype::DocumentModify<'a>),
-    delete(anytype::DocumentDelete<'a>),
+    create(DocumentCreate<'a>),
+    modify(DocumentModify<'a>),
+    delete(DocumentDelete<'a>),
     None,
 }
 
@@ -1343,7 +1350,7 @@ impl<'a> MessageWrite for DocumentCreate<'a> {
 pub struct DocumentModify<'a> {
     pub collection: Cow<'a, str>,
     pub documentId: Cow<'a, str>,
-    pub keys: Vec<anytype::KeyModify<'a>>,
+    pub keys: Vec<KeyModify<'a>>,
 }
 
 impl<'a> MessageRead<'a> for DocumentModify<'a> {
@@ -1353,7 +1360,7 @@ impl<'a> MessageRead<'a> for DocumentModify<'a> {
             match r.next_tag(bytes) {
                 Ok(10) => msg.collection = r.read_string(bytes).map(Cow::Borrowed)?,
                 Ok(18) => msg.documentId = r.read_string(bytes).map(Cow::Borrowed)?,
-                Ok(34) => msg.keys.push(r.read_message::<anytype::KeyModify>(bytes)?),
+                Ok(34) => msg.keys.push(r.read_message::<KeyModify>(bytes)?),
                 Ok(t) => { r.read_unknown(bytes, t)?; }
                 Err(e) => return Err(e),
             }
@@ -1382,7 +1389,7 @@ impl<'a> MessageWrite for DocumentModify<'a> {
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct KeyModify<'a> {
     pub keyPath: Vec<Cow<'a, str>>,
-    pub modifyOp: anytype::ModifyOp,
+    pub modifyOp: ModifyOp,
     pub modifyValue: Cow<'a, str>,
 }
 
@@ -1457,6 +1464,10 @@ impl<'a> MessageWrite for DocumentDelete<'a> {
 
 
 
+/// end-of changes.proto
+
+
+/// from anytype.proto
 
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
@@ -1504,6 +1515,7 @@ pub struct Profile<'a> {
     pub profileId: Cow<'a, str>,
     pub analyticsId: Cow<'a, str>,
     pub startingPage: Cow<'a, str>,
+    pub widgets: Vec<anytype::WidgetBlock<'a>>,
 }
 
 impl<'a> MessageRead<'a> for Profile<'a> {
@@ -1518,6 +1530,7 @@ impl<'a> MessageRead<'a> for Profile<'a> {
                 Ok(50) => msg.profileId = r.read_string(bytes).map(Cow::Borrowed)?,
                 Ok(58) => msg.analyticsId = r.read_string(bytes).map(Cow::Borrowed)?,
                 Ok(66) => msg.startingPage = r.read_string(bytes).map(Cow::Borrowed)?,
+                Ok(74) => msg.widgets.push(r.read_message::<anytype::WidgetBlock>(bytes)?),
                 Ok(t) => { r.read_unknown(bytes, t)?; }
                 Err(e) => return Err(e),
             }
@@ -1536,6 +1549,7 @@ impl<'a> MessageWrite for Profile<'a> {
         + if self.profileId == "" { 0 } else { 1 + sizeof_len((&self.profileId).len()) }
         + if self.analyticsId == "" { 0 } else { 1 + sizeof_len((&self.analyticsId).len()) }
         + if self.startingPage == "" { 0 } else { 1 + sizeof_len((&self.startingPage).len()) }
+        + self.widgets.iter().map(|s| 1 + sizeof_len((s).get_size())).sum::<usize>()
     }
 
     fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
@@ -1546,17 +1560,57 @@ impl<'a> MessageWrite for Profile<'a> {
         if self.profileId != "" { w.write_with_tag(50, |w| w.write_string(&**&self.profileId))?; }
         if self.analyticsId != "" { w.write_with_tag(58, |w| w.write_string(&**&self.analyticsId))?; }
         if self.startingPage != "" { w.write_with_tag(66, |w| w.write_string(&**&self.startingPage))?; }
+        for s in &self.widgets { w.write_with_tag(74, |w| w.write_message(s))?; }
         Ok(())
     }
 }
 
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Debug, Default, PartialEq, Clone)]
+pub struct WidgetBlock<'a> {
+    pub layout: anytype::model::mod_Block::mod_Content::mod_Widget::Layout,
+    pub targetObjectId: Cow<'a, str>,
+    pub objectLimit: i32,
+}
 
+impl<'a> MessageRead<'a> for WidgetBlock<'a> {
+    fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
+        let mut msg = Self::default();
+        while !r.is_eof() {
+            match r.next_tag(bytes) {
+                Ok(8) => msg.layout = r.read_enum(bytes)?,
+                Ok(18) => msg.targetObjectId = r.read_string(bytes).map(Cow::Borrowed)?,
+                Ok(24) => msg.objectLimit = r.read_int32(bytes)?,
+                Ok(t) => { r.read_unknown(bytes, t)?; }
+                Err(e) => return Err(e),
+            }
+        }
+        Ok(msg)
+    }
+}
 
+impl<'a> MessageWrite for WidgetBlock<'a> {
+    fn get_size(&self) -> usize {
+        0
+        + if self.layout == anytype::model::mod_Block::mod_Content::mod_Widget::Layout::Link { 0 } else { 1 + sizeof_varint(*(&self.layout) as u64) }
+        + if self.targetObjectId == "" { 0 } else { 1 + sizeof_len((&self.targetObjectId).len()) }
+        + if self.objectLimit == 0i32 { 0 } else { 1 + sizeof_varint(*(&self.objectLimit) as u64) }
+    }
 
+    fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
+        if self.layout != anytype::model::mod_Block::mod_Content::mod_Widget::Layout::Link { w.write_with_tag(8, |w| w.write_enum(*&self.layout as i32))?; }
+        if self.targetObjectId != "" { w.write_with_tag(18, |w| w.write_string(&**&self.targetObjectId))?; }
+        if self.objectLimit != 0i32 { w.write_with_tag(24, |w| w.write_int32(*&self.objectLimit))?; }
+        Ok(())
+    }
+}
+
+/// end-of anytype.proto
 
 
 
 // Automatically generated rust module for 'events.proto' file
+
 
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
@@ -1688,8 +1742,8 @@ impl<'a> MessageRead<'a> for Message<'a> {
                 Ok(922) => msg.value = mod_Event::mod_Message::OneOfvalue::notificationUpdate(r.read_message::<mod_Event::mod_Notification::Update>(bytes)?),
                 Ok(930) => msg.value = mod_Event::mod_Message::OneOfvalue::payloadBroadcast(r.read_message::<mod_Event::mod_Payload::Broadcast>(bytes)?),
                 Ok(938) => msg.value = mod_Event::mod_Message::OneOfvalue::membershipUpdate(r.read_message::<mod_Event::mod_Membership::Update>(bytes)?),
+                Ok(1098) => msg.value = mod_Event::mod_Message::OneOfvalue::membershipTiersUpdate(r.read_message::<mod_Event::mod_Membership::TiersUpdate>(bytes)?),
                 Ok(954) => msg.value = mod_Event::mod_Message::OneOfvalue::spaceSyncStatusUpdate(r.read_message::<mod_Event::mod_Space::mod_SyncStatus::Update>(bytes)?),
-                Ok(978) => msg.value = mod_Event::mod_Message::OneOfvalue::spaceAutoWidgetAdded(r.read_message::<mod_Event::mod_Space::AutoWidgetAdded>(bytes)?),
                 Ok(962) => msg.value = mod_Event::mod_Message::OneOfvalue::p2pStatusUpdate(r.read_message::<mod_Event::mod_P2PStatus::Update>(bytes)?),
                 Ok(970) => msg.value = mod_Event::mod_Message::OneOfvalue::importFinish(r.read_message::<mod_Event::mod_Import::Finish>(bytes)?),
                 Ok(1026) => msg.value = mod_Event::mod_Message::OneOfvalue::chatAdd(r.read_message::<mod_Event::mod_Chat::Add>(bytes)?),
@@ -1697,8 +1751,11 @@ impl<'a> MessageRead<'a> for Message<'a> {
                 Ok(1042) => msg.value = mod_Event::mod_Message::OneOfvalue::chatUpdateReactions(r.read_message::<mod_Event::mod_Chat::UpdateReactions>(bytes)?),
                 Ok(1074) => msg.value = mod_Event::mod_Message::OneOfvalue::chatUpdateMessageReadStatus(r.read_message::<mod_Event::mod_Chat::UpdateMessageReadStatus>(bytes)?),
                 Ok(1082) => msg.value = mod_Event::mod_Message::OneOfvalue::chatUpdateMentionReadStatus(r.read_message::<mod_Event::mod_Chat::UpdateMentionReadStatus>(bytes)?),
+                Ok(1090) => msg.value = mod_Event::mod_Message::OneOfvalue::chatUpdateMessageSyncStatus(r.read_message::<mod_Event::mod_Chat::UpdateMessageSyncStatus>(bytes)?),
                 Ok(1050) => msg.value = mod_Event::mod_Message::OneOfvalue::chatDelete(r.read_message::<mod_Event::mod_Chat::Delete>(bytes)?),
                 Ok(1066) => msg.value = mod_Event::mod_Message::OneOfvalue::chatStateUpdate(r.read_message::<mod_Event::mod_Chat::UpdateState>(bytes)?),
+                Ok(1106) => msg.value = mod_Event::mod_Message::OneOfvalue::membershipV2Update(r.read_message::<mod_Event::mod_MembershipV2::Update>(bytes)?),
+                Ok(1114) => msg.value = mod_Event::mod_Message::OneOfvalue::membershipV2ProductsUpdate(r.read_message::<mod_Event::mod_MembershipV2::ProductsUpdate>(bytes)?),
                 Ok(t) => { r.read_unknown(bytes, t)?; }
                 Err(e) => return Err(e),
             }
@@ -1780,8 +1837,8 @@ impl<'a> MessageWrite for Message<'a> {
             mod_Event::mod_Message::OneOfvalue::notificationUpdate(ref m) => 2 + sizeof_len((m).get_size()),
             mod_Event::mod_Message::OneOfvalue::payloadBroadcast(ref m) => 2 + sizeof_len((m).get_size()),
             mod_Event::mod_Message::OneOfvalue::membershipUpdate(ref m) => 2 + sizeof_len((m).get_size()),
+            mod_Event::mod_Message::OneOfvalue::membershipTiersUpdate(ref m) => 2 + sizeof_len((m).get_size()),
             mod_Event::mod_Message::OneOfvalue::spaceSyncStatusUpdate(ref m) => 2 + sizeof_len((m).get_size()),
-            mod_Event::mod_Message::OneOfvalue::spaceAutoWidgetAdded(ref m) => 2 + sizeof_len((m).get_size()),
             mod_Event::mod_Message::OneOfvalue::p2pStatusUpdate(ref m) => 2 + sizeof_len((m).get_size()),
             mod_Event::mod_Message::OneOfvalue::importFinish(ref m) => 2 + sizeof_len((m).get_size()),
             mod_Event::mod_Message::OneOfvalue::chatAdd(ref m) => 2 + sizeof_len((m).get_size()),
@@ -1789,8 +1846,11 @@ impl<'a> MessageWrite for Message<'a> {
             mod_Event::mod_Message::OneOfvalue::chatUpdateReactions(ref m) => 2 + sizeof_len((m).get_size()),
             mod_Event::mod_Message::OneOfvalue::chatUpdateMessageReadStatus(ref m) => 2 + sizeof_len((m).get_size()),
             mod_Event::mod_Message::OneOfvalue::chatUpdateMentionReadStatus(ref m) => 2 + sizeof_len((m).get_size()),
+            mod_Event::mod_Message::OneOfvalue::chatUpdateMessageSyncStatus(ref m) => 2 + sizeof_len((m).get_size()),
             mod_Event::mod_Message::OneOfvalue::chatDelete(ref m) => 2 + sizeof_len((m).get_size()),
             mod_Event::mod_Message::OneOfvalue::chatStateUpdate(ref m) => 2 + sizeof_len((m).get_size()),
+            mod_Event::mod_Message::OneOfvalue::membershipV2Update(ref m) => 2 + sizeof_len((m).get_size()),
+            mod_Event::mod_Message::OneOfvalue::membershipV2ProductsUpdate(ref m) => 2 + sizeof_len((m).get_size()),
             mod_Event::mod_Message::OneOfvalue::None => 0,
     }    }
 
@@ -1864,8 +1924,8 @@ impl<'a> MessageWrite for Message<'a> {
             mod_Event::mod_Message::OneOfvalue::notificationUpdate(ref m) => { w.write_with_tag(922, |w| w.write_message(m))? },
             mod_Event::mod_Message::OneOfvalue::payloadBroadcast(ref m) => { w.write_with_tag(930, |w| w.write_message(m))? },
             mod_Event::mod_Message::OneOfvalue::membershipUpdate(ref m) => { w.write_with_tag(938, |w| w.write_message(m))? },
+            mod_Event::mod_Message::OneOfvalue::membershipTiersUpdate(ref m) => { w.write_with_tag(1098, |w| w.write_message(m))? },
             mod_Event::mod_Message::OneOfvalue::spaceSyncStatusUpdate(ref m) => { w.write_with_tag(954, |w| w.write_message(m))? },
-            mod_Event::mod_Message::OneOfvalue::spaceAutoWidgetAdded(ref m) => { w.write_with_tag(978, |w| w.write_message(m))? },
             mod_Event::mod_Message::OneOfvalue::p2pStatusUpdate(ref m) => { w.write_with_tag(962, |w| w.write_message(m))? },
             mod_Event::mod_Message::OneOfvalue::importFinish(ref m) => { w.write_with_tag(970, |w| w.write_message(m))? },
             mod_Event::mod_Message::OneOfvalue::chatAdd(ref m) => { w.write_with_tag(1026, |w| w.write_message(m))? },
@@ -1873,8 +1933,11 @@ impl<'a> MessageWrite for Message<'a> {
             mod_Event::mod_Message::OneOfvalue::chatUpdateReactions(ref m) => { w.write_with_tag(1042, |w| w.write_message(m))? },
             mod_Event::mod_Message::OneOfvalue::chatUpdateMessageReadStatus(ref m) => { w.write_with_tag(1074, |w| w.write_message(m))? },
             mod_Event::mod_Message::OneOfvalue::chatUpdateMentionReadStatus(ref m) => { w.write_with_tag(1082, |w| w.write_message(m))? },
+            mod_Event::mod_Message::OneOfvalue::chatUpdateMessageSyncStatus(ref m) => { w.write_with_tag(1090, |w| w.write_message(m))? },
             mod_Event::mod_Message::OneOfvalue::chatDelete(ref m) => { w.write_with_tag(1050, |w| w.write_message(m))? },
             mod_Event::mod_Message::OneOfvalue::chatStateUpdate(ref m) => { w.write_with_tag(1066, |w| w.write_message(m))? },
+            mod_Event::mod_Message::OneOfvalue::membershipV2Update(ref m) => { w.write_with_tag(1106, |w| w.write_message(m))? },
+            mod_Event::mod_Message::OneOfvalue::membershipV2ProductsUpdate(ref m) => { w.write_with_tag(1114, |w| w.write_message(m))? },
             mod_Event::mod_Message::OneOfvalue::None => {},
     }        Ok(())
     }
@@ -1954,8 +2017,8 @@ pub enum OneOfvalue<'a> {
     notificationUpdate(mod_Event::mod_Notification::Update<'a>),
     payloadBroadcast(mod_Event::mod_Payload::Broadcast<'a>),
     membershipUpdate(mod_Event::mod_Membership::Update<'a>),
+    membershipTiersUpdate(mod_Event::mod_Membership::TiersUpdate<'a>),
     spaceSyncStatusUpdate(mod_Event::mod_Space::mod_SyncStatus::Update<'a>),
-    spaceAutoWidgetAdded(mod_Event::mod_Space::AutoWidgetAdded<'a>),
     p2pStatusUpdate(mod_Event::mod_P2PStatus::Update<'a>),
     importFinish(mod_Event::mod_Import::Finish<'a>),
     chatAdd(mod_Event::mod_Chat::Add<'a>),
@@ -1963,8 +2026,11 @@ pub enum OneOfvalue<'a> {
     chatUpdateReactions(mod_Event::mod_Chat::UpdateReactions<'a>),
     chatUpdateMessageReadStatus(mod_Event::mod_Chat::UpdateMessageReadStatus<'a>),
     chatUpdateMentionReadStatus(mod_Event::mod_Chat::UpdateMentionReadStatus<'a>),
+    chatUpdateMessageSyncStatus(mod_Event::mod_Chat::UpdateMessageSyncStatus<'a>),
     chatDelete(mod_Event::mod_Chat::Delete<'a>),
     chatStateUpdate(mod_Event::mod_Chat::UpdateState<'a>),
+    membershipV2Update(mod_Event::mod_MembershipV2::Update<'a>),
+    membershipV2ProductsUpdate(mod_Event::mod_MembershipV2::ProductsUpdate<'a>),
     None,
 }
 
@@ -1983,7 +2049,7 @@ pub struct Chat {
 
 impl<'a> MessageRead<'a> for Chat {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let msg = Self::default();
+        let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -2259,6 +2325,46 @@ impl<'a> MessageWrite for UpdateMentionReadStatus<'a> {
 
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
+pub struct UpdateMessageSyncStatus<'a> {
+    pub ids: Vec<Cow<'a, str>>,
+    pub isSynced: bool,
+    pub subIds: Vec<Cow<'a, str>>,
+}
+
+impl<'a> MessageRead<'a> for UpdateMessageSyncStatus<'a> {
+    fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
+        let mut msg = Self::default();
+        while !r.is_eof() {
+            match r.next_tag(bytes) {
+                Ok(10) => msg.ids.push(r.read_string(bytes).map(Cow::Borrowed)?),
+                Ok(16) => msg.isSynced = r.read_bool(bytes)?,
+                Ok(26) => msg.subIds.push(r.read_string(bytes).map(Cow::Borrowed)?),
+                Ok(t) => { r.read_unknown(bytes, t)?; }
+                Err(e) => return Err(e),
+            }
+        }
+        Ok(msg)
+    }
+}
+
+impl<'a> MessageWrite for UpdateMessageSyncStatus<'a> {
+    fn get_size(&self) -> usize {
+        0
+        + self.ids.iter().map(|s| 1 + sizeof_len((s).len())).sum::<usize>()
+        + if self.isSynced == false { 0 } else { 1 + sizeof_varint(*(&self.isSynced) as u64) }
+        + self.subIds.iter().map(|s| 1 + sizeof_len((s).len())).sum::<usize>()
+    }
+
+    fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
+        for s in &self.ids { w.write_with_tag(10, |w| w.write_string(&**s))?; }
+        if self.isSynced != false { w.write_with_tag(16, |w| w.write_bool(*&self.isSynced))?; }
+        for s in &self.subIds { w.write_with_tag(26, |w| w.write_string(&**s))?; }
+        Ok(())
+    }
+}
+
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Debug, Default, PartialEq, Clone)]
 pub struct UpdateState<'a> {
     pub state: Option<anytype::model::ChatState<'a>>,
     pub subIds: Vec<Cow<'a, str>>,
@@ -2302,7 +2408,7 @@ pub struct Account {
 
 impl<'a> MessageRead<'a> for Account {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let msg = Self::default();
+        let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -2407,7 +2513,7 @@ pub struct Config {
 
 impl<'a> MessageRead<'a> for Config {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let msg = Self::default();
+        let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -2556,6 +2662,7 @@ use super::*;
 pub struct ClientInfo<'a> {
     pub processName: Cow<'a, str>,
     pub processPath: Cow<'a, str>,
+    pub name: Cow<'a, str>,
     pub signatureVerified: bool,
 }
 
@@ -2566,6 +2673,7 @@ impl<'a> MessageRead<'a> for ClientInfo<'a> {
             match r.next_tag(bytes) {
                 Ok(10) => msg.processName = r.read_string(bytes).map(Cow::Borrowed)?,
                 Ok(18) => msg.processPath = r.read_string(bytes).map(Cow::Borrowed)?,
+                Ok(34) => msg.name = r.read_string(bytes).map(Cow::Borrowed)?,
                 Ok(24) => msg.signatureVerified = r.read_bool(bytes)?,
                 Ok(t) => { r.read_unknown(bytes, t)?; }
                 Err(e) => return Err(e),
@@ -2580,12 +2688,14 @@ impl<'a> MessageWrite for ClientInfo<'a> {
         0
         + if self.processName == "" { 0 } else { 1 + sizeof_len((&self.processName).len()) }
         + if self.processPath == "" { 0 } else { 1 + sizeof_len((&self.processPath).len()) }
+        + if self.name == "" { 0 } else { 1 + sizeof_len((&self.name).len()) }
         + if self.signatureVerified == false { 0 } else { 1 + sizeof_varint(*(&self.signatureVerified) as u64) }
     }
 
     fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
         if self.processName != "" { w.write_with_tag(10, |w| w.write_string(&**&self.processName))?; }
         if self.processPath != "" { w.write_with_tag(18, |w| w.write_string(&**&self.processPath))?; }
+        if self.name != "" { w.write_with_tag(34, |w| w.write_string(&**&self.name))?; }
         if self.signatureVerified != false { w.write_with_tag(24, |w| w.write_bool(*&self.signatureVerified))?; }
         Ok(())
     }
@@ -2634,7 +2744,7 @@ pub struct Object {
 
 impl<'a> MessageRead<'a> for Object {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let msg = Self::default();
+        let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -2667,7 +2777,7 @@ pub struct Details {
 
 impl<'a> MessageRead<'a> for Details {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let msg = Self::default();
+        let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -2865,7 +2975,7 @@ pub struct Subscription {
 
 impl<'a> MessageRead<'a> for Subscription {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let msg = Self::default();
+        let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -3100,7 +3210,7 @@ pub struct Relations {
 
 impl<'a> MessageRead<'a> for Relations {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let msg = Self::default();
+        let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -3239,7 +3349,7 @@ pub struct Restrictions {
 
 impl<'a> MessageRead<'a> for Restrictions {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let msg = Self::default();
+        let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -3344,7 +3454,7 @@ pub struct Block {
 
 impl<'a> MessageRead<'a> for Block {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let msg = Self::default();
+        let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -3509,7 +3619,7 @@ pub struct Set {
 
 impl<'a> MessageRead<'a> for Set {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let msg = Self::default();
+        let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -5509,7 +5619,7 @@ pub struct Fill {
 
 impl<'a> MessageRead<'a> for Fill {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let msg = Self::default();
+        let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -6850,7 +6960,7 @@ pub struct Dataview {
 
 impl<'a> MessageRead<'a> for Dataview {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let msg = Self::default();
+        let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -6983,10 +7093,12 @@ pub struct Fields<'a> {
     pub cardSize: anytype::model::mod_Block::mod_Content::mod_Dataview::mod_View::Size,
     pub coverFit: bool,
     pub groupRelationKey: Cow<'a, str>,
+    pub endRelationKey: Cow<'a, str>,
     pub groupBackgroundColors: bool,
     pub pageLimit: i32,
     pub defaultTemplateId: Cow<'a, str>,
     pub defaultObjectTypeId: Cow<'a, str>,
+    pub wrapContent: bool,
 }
 
 impl<'a> MessageRead<'a> for Fields<'a> {
@@ -7001,10 +7113,12 @@ impl<'a> MessageRead<'a> for Fields<'a> {
                 Ok(40) => msg.cardSize = r.read_enum(bytes)?,
                 Ok(48) => msg.coverFit = r.read_bool(bytes)?,
                 Ok(58) => msg.groupRelationKey = r.read_string(bytes).map(Cow::Borrowed)?,
+                Ok(130) => msg.endRelationKey = r.read_string(bytes).map(Cow::Borrowed)?,
                 Ok(64) => msg.groupBackgroundColors = r.read_bool(bytes)?,
                 Ok(72) => msg.pageLimit = r.read_int32(bytes)?,
                 Ok(82) => msg.defaultTemplateId = r.read_string(bytes).map(Cow::Borrowed)?,
                 Ok(122) => msg.defaultObjectTypeId = r.read_string(bytes).map(Cow::Borrowed)?,
+                Ok(136) => msg.wrapContent = r.read_bool(bytes)?,
                 Ok(t) => { r.read_unknown(bytes, t)?; }
                 Err(e) => return Err(e),
             }
@@ -7023,10 +7137,12 @@ impl<'a> MessageWrite for Fields<'a> {
         + if self.cardSize == anytype::model::mod_Block::mod_Content::mod_Dataview::mod_View::Size::Small { 0 } else { 1 + sizeof_varint(*(&self.cardSize) as u64) }
         + if self.coverFit == false { 0 } else { 1 + sizeof_varint(*(&self.coverFit) as u64) }
         + if self.groupRelationKey == "" { 0 } else { 1 + sizeof_len((&self.groupRelationKey).len()) }
+        + if self.endRelationKey == "" { 0 } else { 2 + sizeof_len((&self.endRelationKey).len()) }
         + if self.groupBackgroundColors == false { 0 } else { 1 + sizeof_varint(*(&self.groupBackgroundColors) as u64) }
         + if self.pageLimit == 0i32 { 0 } else { 1 + sizeof_varint(*(&self.pageLimit) as u64) }
         + if self.defaultTemplateId == "" { 0 } else { 1 + sizeof_len((&self.defaultTemplateId).len()) }
         + if self.defaultObjectTypeId == "" { 0 } else { 1 + sizeof_len((&self.defaultObjectTypeId).len()) }
+        + if self.wrapContent == false { 0 } else { 2 + sizeof_varint(*(&self.wrapContent) as u64) }
     }
 
     fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
@@ -7037,10 +7153,12 @@ impl<'a> MessageWrite for Fields<'a> {
         if self.cardSize != anytype::model::mod_Block::mod_Content::mod_Dataview::mod_View::Size::Small { w.write_with_tag(40, |w| w.write_enum(*&self.cardSize as i32))?; }
         if self.coverFit != false { w.write_with_tag(48, |w| w.write_bool(*&self.coverFit))?; }
         if self.groupRelationKey != "" { w.write_with_tag(58, |w| w.write_string(&**&self.groupRelationKey))?; }
+        if self.endRelationKey != "" { w.write_with_tag(130, |w| w.write_string(&**&self.endRelationKey))?; }
         if self.groupBackgroundColors != false { w.write_with_tag(64, |w| w.write_bool(*&self.groupBackgroundColors))?; }
         if self.pageLimit != 0i32 { w.write_with_tag(72, |w| w.write_int32(*&self.pageLimit))?; }
         if self.defaultTemplateId != "" { w.write_with_tag(82, |w| w.write_string(&**&self.defaultTemplateId))?; }
         if self.defaultObjectTypeId != "" { w.write_with_tag(122, |w| w.write_string(&**&self.defaultObjectTypeId))?; }
+        if self.wrapContent != false { w.write_with_tag(136, |w| w.write_bool(*&self.wrapContent))?; }
         Ok(())
     }
 }
@@ -8165,7 +8283,7 @@ pub struct User {
 
 impl<'a> MessageRead<'a> for User {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let msg = Self::default();
+        let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -8197,7 +8315,7 @@ pub struct Block {
 
 impl<'a> MessageRead<'a> for Block {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let msg = Self::default();
+        let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -8406,7 +8524,7 @@ pub struct Process {
 
 impl<'a> MessageRead<'a> for Process {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let msg = Self::default();
+        let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -8536,7 +8654,7 @@ pub struct Status {
 
 impl<'a> MessageRead<'a> for Status {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let msg = Self::default();
+        let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -8890,7 +9008,7 @@ pub struct File {
 
 impl<'a> MessageRead<'a> for File {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let msg = Self::default();
+        let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -9061,7 +9179,7 @@ pub struct Membership {
 
 impl<'a> MessageRead<'a> for Membership {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let msg = Self::default();
+        let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -9118,6 +9236,136 @@ impl<'a> MessageWrite for Update<'a> {
     }
 }
 
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Debug, Default, PartialEq, Clone)]
+pub struct TiersUpdate<'a> {
+    pub tiers: Vec<anytype::model::MembershipTierData<'a>>,
+}
+
+impl<'a> MessageRead<'a> for TiersUpdate<'a> {
+    fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
+        let mut msg = Self::default();
+        while !r.is_eof() {
+            match r.next_tag(bytes) {
+                Ok(10) => msg.tiers.push(r.read_message::<anytype::model::MembershipTierData>(bytes)?),
+                Ok(t) => { r.read_unknown(bytes, t)?; }
+                Err(e) => return Err(e),
+            }
+        }
+        Ok(msg)
+    }
+}
+
+impl<'a> MessageWrite for TiersUpdate<'a> {
+    fn get_size(&self) -> usize {
+        0
+        + self.tiers.iter().map(|s| 1 + sizeof_len((s).get_size())).sum::<usize>()
+    }
+
+    fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
+        for s in &self.tiers { w.write_with_tag(10, |w| w.write_message(s))?; }
+        Ok(())
+    }
+}
+
+}
+
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Debug, Default, PartialEq, Clone)]
+pub struct MembershipV2 {
+}
+
+impl<'a> MessageRead<'a> for MembershipV2 {
+    fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
+        let mut msg = Self::default();
+        while !r.is_eof() {
+            match r.next_tag(bytes) {
+                Ok(t) => { r.read_unknown(bytes, t)?; }
+                Err(e) => return Err(e),
+            }
+        }
+        Ok(msg)
+    }
+}
+
+impl MessageWrite for MembershipV2 {
+    fn get_size(&self) -> usize {
+        0
+    }
+
+    fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
+        Ok(())
+    }
+}
+
+pub mod mod_MembershipV2 {
+
+use super::*;
+
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Debug, Default, PartialEq, Clone)]
+pub struct Update<'a> {
+    pub data: Option<anytype::model::mod_MembershipV2::Data<'a>>,
+}
+
+impl<'a> MessageRead<'a> for Update<'a> {
+    fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
+        let mut msg = Self::default();
+        while !r.is_eof() {
+            match r.next_tag(bytes) {
+                Ok(10) => msg.data = Some(r.read_message::<anytype::model::mod_MembershipV2::Data>(bytes)?),
+                Ok(t) => { r.read_unknown(bytes, t)?; }
+                Err(e) => return Err(e),
+            }
+        }
+        Ok(msg)
+    }
+}
+
+impl<'a> MessageWrite for Update<'a> {
+    fn get_size(&self) -> usize {
+        0
+        + self.data.as_ref().map_or(0, |m| 1 + sizeof_len((m).get_size()))
+    }
+
+    fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
+        if let Some(ref s) = self.data { w.write_with_tag(10, |w| w.write_message(s))?; }
+        Ok(())
+    }
+}
+
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Debug, Default, PartialEq, Clone)]
+pub struct ProductsUpdate<'a> {
+    pub products: Vec<anytype::model::mod_MembershipV2::Product<'a>>,
+}
+
+impl<'a> MessageRead<'a> for ProductsUpdate<'a> {
+    fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
+        let mut msg = Self::default();
+        while !r.is_eof() {
+            match r.next_tag(bytes) {
+                Ok(10) => msg.products.push(r.read_message::<anytype::model::mod_MembershipV2::Product>(bytes)?),
+                Ok(t) => { r.read_unknown(bytes, t)?; }
+                Err(e) => return Err(e),
+            }
+        }
+        Ok(msg)
+    }
+}
+
+impl<'a> MessageWrite for ProductsUpdate<'a> {
+    fn get_size(&self) -> usize {
+        0
+        + self.products.iter().map(|s| 1 + sizeof_len((s).get_size())).sum::<usize>()
+    }
+
+    fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
+        for s in &self.products { w.write_with_tag(10, |w| w.write_message(s))?; }
+        Ok(())
+    }
+}
+
 }
 
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -9127,7 +9375,7 @@ pub struct Notification {
 
 impl<'a> MessageRead<'a> for Notification {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let msg = Self::default();
+        let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -9225,7 +9473,7 @@ pub struct Payload {
 
 impl<'a> MessageRead<'a> for Payload {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let msg = Self::default();
+        let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -9292,7 +9540,7 @@ pub struct Space {
 
 impl<'a> MessageRead<'a> for Space {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let msg = Self::default();
+        let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -9315,7 +9563,6 @@ impl MessageWrite for Space {
 
 pub mod mod_Space {
 
-use std::borrow::Cow;
 use super::*;
 
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -9325,7 +9572,7 @@ pub struct SyncStatus {
 
 impl<'a> MessageRead<'a> for SyncStatus {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let msg = Self::default();
+        let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -9359,6 +9606,8 @@ pub struct Update<'a> {
     pub network: mod_Event::mod_Space::Network,
     pub error: mod_Event::mod_Space::SyncError,
     pub syncingObjectsCounter: i64,
+    pub notSyncedFilesCounter: i64,
+    pub uploadingFilesCounter: i64,
 }
 
 impl<'a> MessageRead<'a> for Update<'a> {
@@ -9371,6 +9620,8 @@ impl<'a> MessageRead<'a> for Update<'a> {
                 Ok(24) => msg.network = r.read_enum(bytes)?,
                 Ok(32) => msg.error = r.read_enum(bytes)?,
                 Ok(40) => msg.syncingObjectsCounter = r.read_int64(bytes)?,
+                Ok(48) => msg.notSyncedFilesCounter = r.read_int64(bytes)?,
+                Ok(56) => msg.uploadingFilesCounter = r.read_int64(bytes)?,
                 Ok(t) => { r.read_unknown(bytes, t)?; }
                 Err(e) => return Err(e),
             }
@@ -9387,6 +9638,8 @@ impl<'a> MessageWrite for Update<'a> {
         + if self.network == anytype::mod_Event::mod_Space::Network::Anytype { 0 } else { 1 + sizeof_varint(*(&self.network) as u64) }
         + if self.error == anytype::mod_Event::mod_Space::SyncError::Null { 0 } else { 1 + sizeof_varint(*(&self.error) as u64) }
         + if self.syncingObjectsCounter == 0i64 { 0 } else { 1 + sizeof_varint(*(&self.syncingObjectsCounter) as u64) }
+        + if self.notSyncedFilesCounter == 0i64 { 0 } else { 1 + sizeof_varint(*(&self.notSyncedFilesCounter) as u64) }
+        + if self.uploadingFilesCounter == 0i64 { 0 } else { 1 + sizeof_varint(*(&self.uploadingFilesCounter) as u64) }
     }
 
     fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
@@ -9395,50 +9648,12 @@ impl<'a> MessageWrite for Update<'a> {
         if self.network != anytype::mod_Event::mod_Space::Network::Anytype { w.write_with_tag(24, |w| w.write_enum(*&self.network as i32))?; }
         if self.error != anytype::mod_Event::mod_Space::SyncError::Null { w.write_with_tag(32, |w| w.write_enum(*&self.error as i32))?; }
         if self.syncingObjectsCounter != 0i64 { w.write_with_tag(40, |w| w.write_int64(*&self.syncingObjectsCounter))?; }
+        if self.notSyncedFilesCounter != 0i64 { w.write_with_tag(48, |w| w.write_int64(*&self.notSyncedFilesCounter))?; }
+        if self.uploadingFilesCounter != 0i64 { w.write_with_tag(56, |w| w.write_int64(*&self.uploadingFilesCounter))?; }
         Ok(())
     }
 }
 
-}
-
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Debug, Default, PartialEq, Clone)]
-pub struct AutoWidgetAdded<'a> {
-    pub targetId: Cow<'a, str>,
-    pub targetName: Cow<'a, str>,
-    pub widgetBlockId: Cow<'a, str>,
-}
-
-impl<'a> MessageRead<'a> for AutoWidgetAdded<'a> {
-    fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let mut msg = Self::default();
-        while !r.is_eof() {
-            match r.next_tag(bytes) {
-                Ok(10) => msg.targetId = r.read_string(bytes).map(Cow::Borrowed)?,
-                Ok(18) => msg.targetName = r.read_string(bytes).map(Cow::Borrowed)?,
-                Ok(26) => msg.widgetBlockId = r.read_string(bytes).map(Cow::Borrowed)?,
-                Ok(t) => { r.read_unknown(bytes, t)?; }
-                Err(e) => return Err(e),
-            }
-        }
-        Ok(msg)
-    }
-}
-
-impl<'a> MessageWrite for AutoWidgetAdded<'a> {
-    fn get_size(&self) -> usize {
-        0
-        + if self.targetId == "" { 0 } else { 1 + sizeof_len((&self.targetId).len()) }
-        + if self.targetName == "" { 0 } else { 1 + sizeof_len((&self.targetName).len()) }
-        + if self.widgetBlockId == "" { 0 } else { 1 + sizeof_len((&self.widgetBlockId).len()) }
-    }
-
-    fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
-        if self.targetId != "" { w.write_with_tag(10, |w| w.write_string(&**&self.targetId))?; }
-        if self.targetName != "" { w.write_with_tag(18, |w| w.write_string(&**&self.targetName))?; }
-        if self.widgetBlockId != "" { w.write_with_tag(26, |w| w.write_string(&**&self.widgetBlockId))?; }
-        Ok(())
-    }
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
@@ -9564,7 +9779,7 @@ pub struct P2PStatus {
 
 impl<'a> MessageRead<'a> for P2PStatus {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let msg = Self::default();
+        let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -9677,7 +9892,7 @@ pub struct Import {
 
 impl<'a> MessageRead<'a> for Import {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let msg = Self::default();
+        let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -9794,7 +10009,7 @@ pub struct EventModel {
 
 impl<'a> MessageRead<'a> for EventModel {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let msg = Self::default();
+        let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -9846,6 +10061,7 @@ impl<'a> MessageRead<'a> for Process<'a> {
                 Ok(66) => msg.message = mod_EventModel::mod_Process::OneOfmessage::export(r.read_message::<mod_EventModel::mod_Process::Export>(bytes)?),
                 Ok(74) => msg.message = mod_EventModel::mod_Process::OneOfmessage::saveFile(r.read_message::<mod_EventModel::mod_Process::SaveFile>(bytes)?),
                 Ok(82) => msg.message = mod_EventModel::mod_Process::OneOfmessage::migration(r.read_message::<mod_EventModel::mod_Process::Migration>(bytes)?),
+                Ok(98) => msg.message = mod_EventModel::mod_Process::OneOfmessage::preloadFile(r.read_message::<mod_EventModel::mod_Process::PreloadFile>(bytes)?),
                 Ok(t) => { r.read_unknown(bytes, t)?; }
                 Err(e) => return Err(e),
             }
@@ -9868,6 +10084,7 @@ impl<'a> MessageWrite for Process<'a> {
             mod_EventModel::mod_Process::OneOfmessage::export(ref m) => 1 + sizeof_len((m).get_size()),
             mod_EventModel::mod_Process::OneOfmessage::saveFile(ref m) => 1 + sizeof_len((m).get_size()),
             mod_EventModel::mod_Process::OneOfmessage::migration(ref m) => 1 + sizeof_len((m).get_size()),
+            mod_EventModel::mod_Process::OneOfmessage::preloadFile(ref m) => 1 + sizeof_len((m).get_size()),
             mod_EventModel::mod_Process::OneOfmessage::None => 0,
     }    }
 
@@ -9882,6 +10099,7 @@ impl<'a> MessageWrite for Process<'a> {
             mod_EventModel::mod_Process::OneOfmessage::export(ref m) => { w.write_with_tag(66, |w| w.write_message(m))? },
             mod_EventModel::mod_Process::OneOfmessage::saveFile(ref m) => { w.write_with_tag(74, |w| w.write_message(m))? },
             mod_EventModel::mod_Process::OneOfmessage::migration(ref m) => { w.write_with_tag(82, |w| w.write_message(m))? },
+            mod_EventModel::mod_Process::OneOfmessage::preloadFile(ref m) => { w.write_with_tag(98, |w| w.write_message(m))? },
             mod_EventModel::mod_Process::OneOfmessage::None => {},
     }        Ok(())
     }
@@ -9956,6 +10174,19 @@ impl<'a> MessageRead<'a> for Migration {
 }
 
 impl MessageWrite for Migration { }
+
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Debug, Default, PartialEq, Clone)]
+pub struct PreloadFile { }
+
+impl<'a> MessageRead<'a> for PreloadFile {
+    fn from_reader(r: &mut BytesReader, _: &[u8]) -> Result<Self> {
+        r.read_to_end();
+        Ok(Self::default())
+    }
+}
+
+impl MessageWrite for PreloadFile { }
 
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
@@ -10045,6 +10276,7 @@ pub enum OneOfmessage {
     export(mod_EventModel::mod_Process::Export),
     saveFile(mod_EventModel::mod_Process::SaveFile),
     migration(mod_EventModel::mod_Process::Migration),
+    preloadFile(mod_EventModel::mod_Process::PreloadFile),
     None,
 }
 
@@ -10057,3 +10289,5 @@ impl Default for OneOfmessage {
 }
 
 }
+
+// end-of 'events.proto' file

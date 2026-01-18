@@ -6,7 +6,7 @@ use crate::{
         jupyter::JupyterComponentAttr,
         text::{TextComponentAttr, TextStyle},
     },
-    jupyter_notbook::{self, model::JupyterNotebookRoot},
+    jupyter_notebook::{self, model::JupyterNotebookRoot},
 };
 
 use regex::Regex;

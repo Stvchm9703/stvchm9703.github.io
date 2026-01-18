@@ -2,10 +2,13 @@ use anyhow::{Error, anyhow};
 use smallvec::{SmallVec, smallvec};
 
 use super::Page;
-use crate::export_model::content_block::{
-    ComponentAttrType, ContentBlock,
-    layout::{LayoutComponentAttr, LayoutItem},
-    text::{TextComponentAttr, TextItem, TextStyle},
+use crate::export_model::{
+    content_block::{
+        ComponentAttrType, ContentBlock,
+        layout::{LayoutComponentAttr, LayoutItem},
+        text::{TextComponentAttr, TextItem, TextStyle},
+    },
+    page,
 };
 
 #[derive(Debug, Default)]
@@ -68,6 +71,7 @@ impl Page {
         }
         let mut text_comp_is_toggle: bool = false;
         let mut text_comp_is_layer_child: bool = false;
+
         if let ComponentAttrType::Text(t) = &root_blk.component_attr {
             text_comp_is_toggle = t.style == TextStyle::Toggle;
             if t.style == TextStyle::Marked || t.style == TextStyle::Numbered {
@@ -115,6 +119,11 @@ impl Page {
     pub(super) fn resolve_nest_children(&mut self, order_list: &Vec<String>) {
         let mut tmp_cache_contents = self.cache_contents.to_owned();
         let mut tmp_text_mark_and_number: PageTextListMainSet = smallvec![];
+
+        // if self.id == "bafyreiemw4vij6drxf24xikw5dgrylnb5aqha2nvbbmrwffotzxkt5jwlm" {
+        //     println!("resolve_nest_children : {:#?}", self);
+        // }
+        // 696b1639e212b5ce0180b80d
 
         if let Some(root_blk) = tmp_cache_contents.get(&self.id) {
             // add default layer
@@ -204,8 +213,10 @@ impl Page {
             ComponentAttrType::Text(e) => attr = e,
             _ => return,
         }
-        if [TextStyle::Marked, TextStyle::Numbered, TextStyle::Toggle].contains(&attr.style)
-            == false
+
+        if attr.style != TextStyle::Marked
+            && attr.style != TextStyle::Numbered
+            && attr.style != TextStyle::Toggle
         {
             return;
         }
@@ -213,7 +224,6 @@ impl Page {
 
         let lk_children_ids = current_block.children_ids.as_ref().unwrap();
         let mut cached = self.cache_contents.to_owned();
-        // println!("attr : {:#?}", attr);
 
         // if attr.style == TextStyle::Toggle {
         for child_id in lk_children_ids.iter() {

@@ -52,9 +52,12 @@ fn main_process(arg: &Args) -> Result<(), anyhow::Error> {
     if fs::exists(&arg.export_path).is_ok_and(|f| f == false) {
         fs::create_dir_all(&arg.export_path)?;
     }
-    let mut export_path_str = arg.export_path.to_str().unwrap();
+    let mut export_path_str: String = arg.export_path.to_str().unwrap().to_string();
     if export_path_str.trim().is_empty() {
-        export_path_str = format!("./exported_blog_posts__{}", chrono::Local::now().format("%Y%m%d%H%M%S")).as_str();
+        export_path_str = format!(
+            "./exported_blog_posts__{}",
+            chrono::Local::now().format("%Y%m%d%H%M%S")
+        );
     }
     let export_path = PathBuf::from(&export_path_str).canonicalize().unwrap();
 
@@ -154,7 +157,7 @@ fn main_process(arg: &Args) -> Result<(), anyhow::Error> {
 
         if path.extension().is_some_and(|f| f == "ipynb") {
             // jupyter_notbook_list
-            if let Ok(mut nb_file) = jupyter_notbook::util::read_jupyter_notebook(&tar_path) {
+            if let Ok(mut nb_file) = jupyter_notebook::util::read_jupyter_notebook(&tar_path) {
                 nb_file.file_url = Some(file_name.to_owned());
                 jupyter_notbook_list.push(nb_file);
             }

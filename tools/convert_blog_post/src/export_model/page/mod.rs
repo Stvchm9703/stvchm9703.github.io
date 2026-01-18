@@ -191,12 +191,13 @@ impl Page {
             return;
         }
         let check_id = self.id.to_owned();
-        // println!("page-id: {:?}", check_id);
+       
         let mut order_list_ptr = vec![];
         self.resolve_children_ids_order(&check_id, &mut order_list_ptr);
         self.resolve_nest_children(&order_list_ptr);
         // self.transform_text_list(current_block, text_sebering, &current_layer);
 
+    
         return;
     }
 }

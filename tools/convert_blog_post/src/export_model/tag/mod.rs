@@ -2,9 +2,7 @@ pub mod option;
 pub mod util;
 
 use super::{
-    common::{
-        AttributeMap, get_field_value, get_shorten_id, get_snapshot_shorthanded,
-    },
+    common::{AttributeMap, get_field_value, get_shorten_id, get_snapshot_shorthanded},
     // option::TagOption,
     page::ext::{PageExternalLink, ToPageExternalLink},
     trait_impl::{FromRaw, FromSnapshotList},
