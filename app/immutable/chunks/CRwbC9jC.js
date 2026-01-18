@@ -1,0 +1,1 @@
+import{h as r}from"./C7VJpUc4.js";var t=r(({flowchart:r})=>{const t=r?.subGraphTitleMargin?.top??0,a=r?.subGraphTitleMargin?.bottom??0;return{subGraphTitleTopMargin:t,subGraphTitleBottomMargin:a,subGraphTitleTotalMargin:t+a}},"getSubGraphTitleMargins");export{t};

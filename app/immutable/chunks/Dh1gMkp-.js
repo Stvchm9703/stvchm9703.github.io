@@ -1,1 +1,0 @@
-import{h as e,p as t}from"./BSkwur-o.js";import{b as o}from"./BwMZNxBp.js";var s=e(e=>{const{securityLevel:s}=o();let n=t("body");return"sandbox"===s&&(n=t((t(`#i${e}`).node()?.contentDocument??document).body)),n.select(`#${e}`)},"selectSvgElement");export{s as t};

@@ -1,1 +1,0 @@
-import"./BjEUid_f.js";import{n as o,t as r}from"./BHSXa98A.js";export{o as createArchitectureServices};

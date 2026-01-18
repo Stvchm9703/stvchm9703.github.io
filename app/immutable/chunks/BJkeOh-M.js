@@ -1,0 +1,1 @@
+import{t as s}from"./DvOV-445.js";import{Et as r,Vt as t}from"./DcaEFj2i.js";import{n as a}from"./BIoBYaCK.js";const i=()=>{const s=a;return{page:{subscribe:s.page.subscribe},navigating:{subscribe:s.navigating.subscribe},updated:s.updated}},e={subscribe:s=>i().page.subscribe(s)};export{e as t};
