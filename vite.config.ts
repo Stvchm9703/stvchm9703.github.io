@@ -4,7 +4,7 @@ import { sveltekit } from "@sveltejs/kit/vite";
 import unocss from "@unocss/vite";
 import ViteCompression from "vite-plugin-compression";
 import extractorSvelte from "@unocss/extractor-svelte";
-import { chunkSplitPlugin } from "vite-plugin-chunk-split";
+// import { chunkSplitPlugin } from "vite-plugin-chunk-split";
 import entryShakingPlugin from "vite-plugin-entry-shaking";
 import stripComments from "vite-plugin-strip-comments";
 import { visualizer } from "rollup-plugin-visualizer";
@@ -13,7 +13,7 @@ import devtoolsJson from "vite-plugin-devtools-json";
 import dynamicImport from "vite-plugin-dynamic-import";
 // import type { UserConfig } from "vite";
 import { defineConfig, loadEnv } from "vite";
-import deadFile from "vite-plugin-deadfile";
+// import deadFile from "vite-plugin-deadfile";
 // import transformerDirectives from '@unocss/transformer-directives'
 
 // console.log("schould be here");
@@ -76,7 +76,6 @@ export default defineConfig(async ({ mode }) => {
       process.env.NODE_ENV === "production"
         ? stripComments({ type: "none", enforce: "post" })
         : null,
-      chunkSplitPlugin(),
       ViteCompression({ algorithm: "gzip" }),
       // visualizer({ open: true, filename: "bundle-visualization.html" }),
     ],
@@ -96,7 +95,6 @@ export default defineConfig(async ({ mode }) => {
       },
       rollupOptions: {
         treeshake: true, // Ensure tree shaking is enabled
-
         output: {
           manualChunks: (id) => {
             if (id.includes("/svelte/") || id.includes("/@svelte/")) {
