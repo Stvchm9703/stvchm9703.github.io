@@ -1,1 +1,0 @@
-import"./BCwM8zZG.js";import{n as o,t as r}from"./C-Yhni3d.js";export{o as createArchitectureServices};

@@ -1,0 +1,1 @@
+import"./BCwM8zZG.js";import{n as s,t as o}from"./D3rDYBKU.js";export{s as createArchitectureServices};

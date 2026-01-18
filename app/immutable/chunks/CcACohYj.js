@@ -1,1 +1,0 @@
-import{nt as a,tt as r}from"./Mg0B-8hR.js";var t=(t,s)=>a.lang.round(r.parse(t)[s]);export{t};
