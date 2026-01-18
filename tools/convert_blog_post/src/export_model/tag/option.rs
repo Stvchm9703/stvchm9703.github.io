@@ -22,10 +22,9 @@ pub struct TagOption {
     pub sid: String,
     pub name: String,
     pub description: String,
-    pub relation_key: String, // st-relationshipKey
-    // styles: string[];
+    pub relation_key: String,
     #[serde(skip)]
-    pub attributes: AttributeMap, // Define AttributeMap according to your needs
+    pub attributes: AttributeMap,
 }
 
 impl FromSnapshotList for TagOption {
@@ -55,7 +54,6 @@ impl<'a> FromRaw<SnapshotWithType<'a>> for TagOption {
         let (_, field_map) = instance.unwrap();
 
         if let Ok(id) = get_field_value::<String>(&field_map, "id") {
-            // tmp.publish_date = publish_date.to_owned();
             tmp.id = id.to_owned();
             tmp.sid = get_shorten_id(&id);
         }

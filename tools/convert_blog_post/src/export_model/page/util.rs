@@ -7,7 +7,7 @@ use crate::{
         tag::Tag,
         // trait_impl::{FromBlock, FromRaw, FromSnapshotList},
     },
-    jupyter_notebook::{self, model::JupyterNotebookRoot},
+    jupyter_notebook::model::JupyterNotebookRoot,
 };
 
 use std::{

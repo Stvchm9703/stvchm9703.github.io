@@ -4,8 +4,6 @@ use crate::{
 };
 use serde::{Deserialize, Serialize};
 
-// pub type FileType = mod_File::Type;
-// pub type FileStyle = mod_File::Style;
 pub type ProcessorType = mod_Latex::Processor;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -17,7 +15,6 @@ pub struct LatexComponentAttr {
 
 impl<'life> FromBlockContent<RawLatex<'life>> for LatexComponentAttr {
     fn from_block_content(raw: &RawLatex<'life>) -> Result<LatexComponentAttr, anyhow::Error> {
-        // let raw_clone = raw.clone();
         let tmp = LatexComponentAttr {
             text: raw.text.to_string(),
             processor: raw.processor.to_owned(),

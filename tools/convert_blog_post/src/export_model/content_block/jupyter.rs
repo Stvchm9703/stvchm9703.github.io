@@ -1,7 +1,7 @@
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 
-use crate::jupyter_notebook::model::{Cell, CodeCell, JupyterNotebookRoot};
+use crate::jupyter_notebook::model::JupyterNotebookRoot;
 use crate::jupyter_notebook::util::resolve_jupyter_cell_output;
 
 use super::mark::Mark;
@@ -9,11 +9,6 @@ use super::text::{TextComponentAttr, TextStyle};
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct JupyterComponentAttr {
-    // "text": "/custom_component:jupyter:(data-preparating.ipynb:10)/",
-    // "style": "Code",
-    // "marks": {},
-    // "fileName": "data-preparating.ipynb",
-    // "cellNumber": "10",
     pub text: String,
     pub style: TextStyle,
     pub marks: Option<Vec<Mark>>,
@@ -45,8 +40,6 @@ impl JupyterComponentAttr {
         }
     }
     pub fn add_notebook_file(&mut self, file: &JupyterNotebookRoot) {
-        // self.file_name = file_name;
-        // self.cell =
         let mut cloned_nb = file.to_owned();
         let cell_s = cloned_nb.cells.get_mut(self.cell_number);
         if let Some(cell) = cell_s {
@@ -54,7 +47,6 @@ impl JupyterComponentAttr {
                 if let Some(outputs) = code.outputs.as_mut() {
                     for output in outputs.iter_mut() {
                         if let Some(data) = output.data.as_mut() {
-                            // data.push(" ".to_string());
                             if let Some(text_html) = data.text_html.as_mut() {
                                 if let Ok(html) = resolve_jupyter_cell_output(text_html) {
                                     *text_html = html;
@@ -66,7 +58,5 @@ impl JupyterComponentAttr {
             }
             self.cell = Some(cell.to_owned());
         }
-
-        // = cell_s;
     }
 }

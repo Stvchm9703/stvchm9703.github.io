@@ -923,7 +923,7 @@ pub struct Search {
 
 impl<'a> MessageRead<'a> for Search {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let mut msg = Self::default();
+        let msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -939,7 +939,7 @@ impl MessageWrite for Search {
         0
     }
 
-    fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
+    fn write_message<W: WriterBackend>(&self, _w: &mut Writer<W>) -> Result<()> {
         Ok(())
     }
 }
@@ -1530,7 +1530,7 @@ pub struct Content {
 
 impl<'a> MessageRead<'a> for Content {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let mut msg = Self::default();
+        let msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -1546,7 +1546,7 @@ impl MessageWrite for Content {
         0
     }
 
-    fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
+    fn write_message<W: WriterBackend>(&self, _w: &mut Writer<W>) -> Result<()> {
         Ok(())
     }
 }
@@ -7152,7 +7152,7 @@ pub struct Auth {
 
 impl<'a> MessageRead<'a> for Auth {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let mut msg = Self::default();
+        let msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -7168,7 +7168,7 @@ impl MessageWrite for Auth {
         0
     }
 
-    fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
+    fn write_message<W: WriterBackend>(&self, _w: &mut Writer<W>) -> Result<()> {
         Ok(())
     }
 }
@@ -7998,7 +7998,7 @@ pub struct Object {
 
 impl<'a> MessageRead<'a> for Object {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let mut msg = Self::default();
+        let msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -8014,7 +8014,7 @@ impl MessageWrite for Object {
         0
     }
 
-    fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
+    fn write_message<W: WriterBackend>(&self, _w: &mut Writer<W>) -> Result<()> {
         Ok(())
     }
 }
@@ -10722,7 +10722,7 @@ pub struct Payload {
 
 impl<'a> MessageRead<'a> for Payload {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let mut msg = Self::default();
+        let msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -10738,7 +10738,7 @@ impl MessageWrite for Payload {
         0
     }
 
-    fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
+    fn write_message<W: WriterBackend>(&self, _w: &mut Writer<W>) -> Result<()> {
         Ok(())
     }
 }
@@ -14272,7 +14272,7 @@ pub struct MembershipV2 {
 
 impl<'a> MessageRead<'a> for MembershipV2 {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let mut msg = Self::default();
+        let msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -14288,7 +14288,7 @@ impl MessageWrite for MembershipV2 {
         0
     }
 
-    fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
+    fn write_message<W: WriterBackend>(&self, _w: &mut Writer<W>) -> Result<()> {
         Ok(())
     }
 }

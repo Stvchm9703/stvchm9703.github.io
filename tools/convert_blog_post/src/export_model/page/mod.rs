@@ -14,11 +14,7 @@ use super::{
         is_release,
         path_resolver,
     },
-    content_block::{
-        ComponentAttrType, ContentBlock,
-        layout::{LayoutComponentAttr, LayoutItem},
-        text::{TextComponentAttr, TextStyle},
-    },
+    content_block::ContentBlock,
     // external_link, file_object,
     trait_impl::{FromBlock, FromRaw, FromSnapshotList},
 };
@@ -39,7 +35,7 @@ use std::{
     collections::BTreeMap,
 };
 
-use anyhow::{Error, anyhow};
+use anyhow::anyhow;
 use attr::get_page_details;
 use convert_blog_post_marco::set_field_value;
 use ext::PageExternalLink;

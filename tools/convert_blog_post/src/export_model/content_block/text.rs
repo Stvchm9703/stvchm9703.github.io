@@ -1,10 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-use super::{ComponentAttrType, ContentBlock};
-// use super::mark;
 use super::{super::common::is_release, mark::Mark};
+use super::{ComponentAttrType, ContentBlock};
 use crate::export_model::trait_impl::FromRaw;
-// use crate::proto::anytype::model;
 
 use crate::{
     export_model::trait_impl::FromBlockContent,
@@ -25,8 +23,6 @@ pub struct TextComponentAttr {
     pub style: TextStyle,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub marks: Option<Vec<Mark>>,
-    // #[serde(skip_serializing_if = "Option::is_none")]
-    // pub is_container: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub items: Option<Vec<TextItem>>,
 }
@@ -48,7 +44,6 @@ impl<'life> FromBlockContent<RawText<'life>> for TextComponentAttr {
             text: raw.text.to_string(),
             style: raw.style.to_owned(),
             marks: Some(marks),
-            // url : raw_clone.
             ..TextComponentAttr::default()
         };
         return Ok(tmp);
@@ -67,7 +62,6 @@ impl ContentBlock {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-// #[serde(untagged)]
 #[serde(tag = "_text_item_type")]
 pub enum TextItem {
     Block(TextComponentAttr),
@@ -82,7 +76,6 @@ impl Default for TextItem {
 }
 
 impl TextItem {
-    // pub fn to_subitem()
     pub fn to_subitem(blk: &ContentBlock) -> TextItem {
         if let ComponentAttrType::Text(t) = &blk.component_attr {
             return match t.style {
@@ -99,13 +92,10 @@ impl TextItem {
     pub fn create_container(subitems: &Vec<TextItem>) -> TextItem {
         let mut cloned: TextComponentAttr = TextComponentAttr::default();
         if let Some(first_item) = subitems.first() {
-            // cloned = first_item.clone();
             if let TextItem::LevelText(t) = first_item {
-                // cloned = t.clone();
                 cloned.id = t.id.to_owned();
                 cloned.style = t.style.clone();
                 cloned.order = t.order.to_owned();
-                // cloned.children_ids = t.children_ids.to_owned();
             }
         }
         cloned.items = Some(subitems.clone());

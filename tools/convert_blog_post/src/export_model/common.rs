@@ -1,9 +1,7 @@
 use anyhow::{Error, anyhow};
-// use core::unicode::conversions::to_lower;
 use once_cell::sync::Lazy;
-use std::{collections::BTreeMap, sync::Mutex};
-// use super::{super::common::is_release, ComponentStyle};
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
+use std::{collections::BTreeMap, sync::Mutex};
 
 use crate::proto::anytype::{SnapshotWithType, model::SmartBlockSnapshotBase};
 
@@ -163,7 +161,6 @@ pub(crate) static GLOBAL_RELATION_IDMAP: Lazy<Mutex<BTreeMap<String, Tag>>> = La
     Mutex::new(map)
 });
 use lazy_static::lazy_static;
-// pub static mut DEFAULT_TAG: Option<Tag> = None;
 lazy_static! {
     pub static ref DEFAULT_TAG: Mutex<Tag> = Mutex::new(Tag::default());
 }
@@ -235,7 +232,6 @@ pub(crate) fn get_snapshot_shorthanded<'a>(
     if let Err(e) = field_map {
         return Err(anyhow!("fail field map : {:?}", e));
     }
-    // let field_map_ref = field_map.as_ref().unwrap();
     return Ok((data_wrap.unwrap(), field_map.unwrap()));
 }
 
@@ -244,7 +240,6 @@ where
     T: DeserializeOwned,
 {
     if let Some(tmp) = detail_map.get(input_key) {
-        // val
         let result_wrap = serde_json::from_value(tmp.clone());
         if let Err(e) = result_wrap {
             return Err(anyhow!("parse error :{:?}", e));
@@ -253,9 +248,7 @@ where
     }
     let name_map = GLOBAL_RELATION_NAMEMAP_STR.lock().unwrap();
     if let Some(tmp_key) = name_map.get(input_key) {
-        // println!("getta :{:?}", tmp_key);
         if let Some(tmp) = detail_map.get(tmp_key) {
-            // println!("getta-2 :{:?}", tmp);
             let result_wrap = serde_json::from_value(tmp.clone());
             if let Err(e) = result_wrap {
                 return Err(anyhow!("parse error :{:?}", e));
@@ -269,7 +262,6 @@ where
         ));
     }
 
-    // eprintln!("cannot find the value with key : {:?}", input_key);
     return Err(anyhow!("no field key in with named: <{:?}> ", input_key));
 }
 
@@ -283,22 +275,12 @@ pub(crate) fn get_shorten_id(input: &str) -> String {
     input[s_pos..].to_string()
 }
 
-// export const pathResolver = (path: string) =>
-//   path
-//     .replace(/\s+/g, "_")
-//     .replace(/\W/g, "")
-//     .toLowerCase()
-//     .split("_")
-//     .filter((e) => !isEmpty(e))
-//     .join("-");
-//
 use stringcase::kebab_case;
 
 pub(crate) fn path_resolver(path: &str) -> String {
     return kebab_case(path);
 }
 
-// export const headerIdResolver = (text: string, id: string) => `${pathResolver(text || "")}-${id.slice(-6)}`;
 pub(crate) fn header_id_resolver(text: &str, id: &str) -> String {
     format!("{}_{}", path_resolver(text), get_shorten_id(id))
 }

@@ -23,7 +23,6 @@ impl<'life> FromBlockContent<RawBookmark<'life>> for BookmarkComponentAttr {
     fn from_block_content(
         raw: &RawBookmark<'life>,
     ) -> Result<BookmarkComponentAttr, anyhow::Error> {
-        // let raw_clone = raw.clone();
         let tmp = BookmarkComponentAttr {
             url: raw.url.to_string(),
             title: raw.title.to_string(),

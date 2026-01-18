@@ -1,3 +1,27 @@
+# Build artifacts
+/target/
+**/*.rs.bk
+
+# Rust version files
 rust-ver
 rust-ver-1
+
+# Debug files
 debug.txt
+*.log
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.env.local

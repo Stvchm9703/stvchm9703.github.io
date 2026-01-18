@@ -2,14 +2,12 @@ use super::Page;
 use crate::{
     export_model::content_block::{
         ComponentAttrType, ContentBlock,
-        file::FileComponentAttr,
         jupyter::JupyterComponentAttr,
-        text::{TextComponentAttr, TextStyle},
+        text::TextStyle,
     },
-    jupyter_notebook::{self, model::JupyterNotebookRoot},
+    jupyter_notebook::model::JupyterNotebookRoot,
 };
 
-use regex::Regex;
 // use regex_static;
 
 struct NotbookStore<'a>(&'a ContentBlock, &'a ContentBlock);
@@ -24,7 +22,7 @@ impl Page {
         let mut tmp_order: usize = 0;
         let mut tmp_notebook: JupyterComponentAttr = JupyterComponentAttr::default();
         let mut to_delete = vec![];
-        let mut to_update: Vec<ContentBlock> = vec![];
+        let to_update: Vec<ContentBlock> = vec![];
 
         let values = self.cache_contents.values_mut();
         for value in values {

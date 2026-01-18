@@ -37,14 +37,11 @@ pub struct ContentBlock {
     pub order: usize,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fields: Option<AttributeMap>,
-    // #[serde(skip)]
     pub children_ids: Option<Vec<String>>,
     pub style: ComponentStyle,
     pub component_attr: ComponentAttrType,
     #[serde(skip_serializing_if = "is_release")]
     pub debug_type: String,
-    // pub raw_block: AttributeMap,
-    // pub items: Vec<ContentBlock>,
 }
 
 impl FromBlock for ContentBlock {
@@ -56,7 +53,6 @@ impl FromBlock for ContentBlock {
             id: raw_blk.id.to_string(),
             children_ids: Some(children_ids),
             style: ComponentStyle::from_block(raw_blk)?,
-            // raw_block: json!(raw).as_object().unwrap().to_owned(),
             debug_type: raw_blk.content.to_string(),
             ..ContentBlock::default()
         };
@@ -148,15 +144,10 @@ pub enum ComponentAttrType {
     None,
     Unknown(AttributeMap),
     Bookmark(BookmarkComponentAttr),
-    // Div,
     File(FileComponentAttr),
     JupyterComponent(JupyterComponentAttr),
     Layout(LayoutComponentAttr),
-    /// not for export
-    // LayoutRow(LayoutComponentAttr),
-    // LayoutColumn(LayoutComponentAttr),
     Link(LinkComponentAttr),
-    // Relation,
     Latex(LatexComponentAttr),
     Table(LayoutComponentAttr),
     Text(TextComponentAttr),
@@ -223,21 +214,14 @@ impl<'a> FromBlockContent<mod_Block::OneOfcontent<'a>> for ComponentAttrType {
                     Err(anyhow!("init error :{:?}", y.err()))
                 }
             }
-            mod_Block::OneOfcontent::dataview(_) => {
-                Ok(ComponentAttrType::from_input(json!({
-                    // "style": dataview.style.to_string(),
-                    "orginal_type": "dataview",
-                })))
-            }
-            mod_Block::OneOfcontent::relation(_) => {
-                Ok(ComponentAttrType::from_input(json!({
-                    // "style": dataview.style.to_string(),
-                    "orginal_type": "relation",
-                })))
-            }
+            mod_Block::OneOfcontent::dataview(_) => Ok(ComponentAttrType::from_input(json!({
+                "orginal_type": "dataview",
+            }))),
+            mod_Block::OneOfcontent::relation(_) => Ok(ComponentAttrType::from_input(json!({
+                "orginal_type": "relation",
+            }))),
             mod_Block::OneOfcontent::featuredRelations(_) => {
                 Ok(ComponentAttrType::from_input(json!({
-                    // "style": dataview.style.to_string(),
                     "orginal_type": "featuredRelations",
                 })))
             }
@@ -251,7 +235,6 @@ impl<'a> FromBlockContent<mod_Block::OneOfcontent<'a>> for ComponentAttrType {
             }
             mod_Block::OneOfcontent::tableOfContents(_) => {
                 Ok(ComponentAttrType::from_input(json!({
-                    // "style": dataview.style.to_string(),
                     "orginal_type": "tableOfContents",
                 })))
             }
@@ -279,24 +262,15 @@ impl<'a> FromBlockContent<mod_Block::OneOfcontent<'a>> for ComponentAttrType {
                     Err(anyhow!("init error :{:?}", y.err()))
                 }
             }
-            mod_Block::OneOfcontent::widget(_) => {
-                Ok(ComponentAttrType::from_input(json!({
-                    // "style": dataview.style.to_string(),
-                    "orginal_type": "widget",
-                })))
-            }
-            mod_Block::OneOfcontent::chat(_) => {
-                Ok(ComponentAttrType::from_input(json!({
-                    // "style": dataview.style.to_string(),
-                    "orginal_type": "chat",
-                })))
-            }
-            mod_Block::OneOfcontent::None => {
-                Ok(ComponentAttrType::from_input(json!({
-                    // "style": dataview.style.to_string(),
-                    "orginal_type": "none",
-                })))
-            }
+            mod_Block::OneOfcontent::widget(_) => Ok(ComponentAttrType::from_input(json!({
+                "orginal_type": "widget",
+            }))),
+            mod_Block::OneOfcontent::chat(_) => Ok(ComponentAttrType::from_input(json!({
+                "orginal_type": "chat",
+            }))),
+            mod_Block::OneOfcontent::None => Ok(ComponentAttrType::from_input(json!({
+                "orginal_type": "none",
+            }))),
         }
     }
 }

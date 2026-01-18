@@ -2,15 +2,12 @@ mod cli;
 mod export_model;
 mod jupyter_notebook;
 mod proto;
-// mod anytype_simplied;
 
 use std::{
     fs::{self},
-    path::{self, PathBuf},
+    path::PathBuf,
 };
 
-// use crate::proto::anytype::object::AnytypeObject;
-// use crate::anytype_simplied::{convert_anytype_object, convert_snapshot};
 use crate::export_model::{
     collection::Collection,
     common::{DEFAULT_TAG, ObjectTypes, get_snapshot_data, has_object_type, header_id_resolver},
@@ -22,7 +19,6 @@ use crate::export_model::{
     trait_impl::FromRaw,
 };
 use crate::proto::anytype::SnapshotWithType;
-// use crate::anytype_proto::SnapshotWithType;
 
 use anyhow::{Error, Result, anyhow};
 use glob;
@@ -33,20 +29,12 @@ use quick_protobuf::MessageRead;
 use clap::Parser;
 use cli::Args;
 
-// use prost::{self, Message};
-
 fn main() {
     let args = Args::parse();
     main_process(&args).unwrap();
 }
 
-// const ANYTYPE_BASE_PATH: &str = "../../blog_post/Anytype.20250415.122153.2";
-
-//const ANYTYPE_PB_PATH: &str = "../../blog_post/Anytype.20250514.130201.63";
-
 fn main_process(arg: &Args) -> Result<(), anyhow::Error> {
-    // Test the functionality of the convert_blog_post tool
-    // ...
     let import_path = PathBuf::from(&arg.import_path).canonicalize().unwrap();
 
     if fs::exists(&arg.export_path).is_ok_and(|f| f == false) {

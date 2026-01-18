@@ -2,14 +2,11 @@ use anyhow::{Error, anyhow};
 use smallvec::{SmallVec, smallvec};
 
 use super::Page;
-use crate::export_model::{
-    content_block::{
+use crate::export_model::content_block::{
         ComponentAttrType, ContentBlock,
         layout::{LayoutComponentAttr, LayoutItem},
         text::{TextComponentAttr, TextItem, TextStyle},
-    },
-    page,
-};
+    };
 
 #[derive(Debug, Default)]
 struct PageTextListSet {
