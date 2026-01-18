@@ -48,9 +48,7 @@
 </script>
 
 <MetaTags {...meta} />
-<template>
-    {JSON.stringify(post)}
-</template>
+
 <section class="pt-2 pb-4 lg:pb-6">
     <Breadcrumb>
         <BreadcrumbList>

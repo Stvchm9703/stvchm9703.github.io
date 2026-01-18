@@ -6,7 +6,7 @@ import { BASE } from "$env/static/private";
 import { error } from "@sveltejs/kit";
 
 export const prerender = true;
-export const csr = false;
+// export const csr = true;
 export const load: PageLoad = async ({ fetch, params }) => {
   const index_req = await fetch("http://localhost:3000/series/index.json");
   if (!index_req.ok) {

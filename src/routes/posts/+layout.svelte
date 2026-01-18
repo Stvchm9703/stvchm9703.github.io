@@ -29,7 +29,7 @@
                 Steven Dev;s Log
             </h1>
             <div class="flex justify-between items-center mt-2 text-sm">
-                <p>Vol. 123, No. 45</p>
+                <!-- <p>Vol. 123, No. 45</p> -->
                 <p>{today_date}</p>
                 <!-- <p>Est. 1902</p> -->
             </div>

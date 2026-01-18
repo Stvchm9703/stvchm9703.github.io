@@ -5,6 +5,7 @@
   import SearchBar from "./search-bar.svelte";
   import { Button } from "$lib/components/ui/button/index.js";
   import { Search } from "@lucide/svelte";
+  import { onMount } from "svelte";
   //   import Trigger from "./trigger.svelte";
 
   let open = $state(false);
@@ -20,6 +21,9 @@
       open = !open;
     }
   }
+//   onMount(() => {
+//     console.log("Post Search Mounted");
+//   });
 </script>
 
 <svelte:document onkeydown={handleKeydown} />
@@ -40,6 +44,6 @@
   </kbd>
 </Button>
 
-<Command.CommandDialog bind:open class="bg-zinc-50 dark:bg-zinc-800">
+<Command.CommandDialog bind:open class="bg-zinc-50 dark:bg-zinc-800 xl:max-w-xl">
   <SearchBar />
 </Command.CommandDialog>

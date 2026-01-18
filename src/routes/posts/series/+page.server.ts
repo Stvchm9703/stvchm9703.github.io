@@ -5,7 +5,7 @@ import type { MetaTagsProps, Twitter, OpenGraph } from "svelte-meta-tags";
 import { BASE } from "$env/static/private";
 
 export const prerender = true;
-export const csr = false;
+
 export const load: PageLoad = async ({ fetch, params }) => {
   const index_req = await fetch("http://localhost:3000/series/index.json");
   const series = await index_req.json();
