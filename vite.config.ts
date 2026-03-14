@@ -5,7 +5,7 @@ import unocss from "@unocss/vite";
 import ViteCompression from "vite-plugin-compression";
 import extractorSvelte from "@unocss/extractor-svelte";
 // import { chunkSplitPlugin } from "vite-plugin-chunk-split";
-import entryShakingPlugin from "vite-plugin-entry-shaking";
+// import entryShakingPlugin from "vite-plugin-entry-shaking";
 import stripComments from "vite-plugin-strip-comments";
 import { visualizer } from "rollup-plugin-visualizer";
 import { imagetools } from "vite-imagetools";
@@ -37,9 +37,6 @@ export default defineConfig(async ({ mode }) => {
         },
       }),
       devtoolsJson(),
-      // deadFile({
-      //   include: ["src/**"],
-      // }),
       sveltekit(),
 
       unocss({
@@ -48,30 +45,6 @@ export default defineConfig(async ({ mode }) => {
         // injectReset: "@unocss/reset/tailwind.css",
         extractors: [extractorSvelte()],
         configFile: "uno.config.ts",
-      }),
-
-      entryShakingPlugin({
-        targets: [
-          // Or using glob patterns.
-          {
-            glob: "src/lib/**/*.{ts,js}",
-            // globOptions: { ignore: ["excluded.ts"] },
-          },
-        ],
-      }),
-      await entryShakingPlugin({
-        targets: [
-          // Or using glob patterns.
-          // { glob: "src/lib/**/*.{ts,js}" },
-          "@lucide/svelte",
-          "bits-ui",
-          "lodash-es",
-          // "d3"
-          // { glob: "src/lib/**/*" },
-          // { glob: "src/routes/**/*" },
-          // { glob: "src/lib/components/**/*" },
-        ],
-        extensions: ["svelte", "js", "ts"],
       }),
       process.env.NODE_ENV === "production"
         ? stripComments({ type: "none", enforce: "post" })
@@ -93,8 +66,7 @@ export default defineConfig(async ({ mode }) => {
         },
         compress: true,
       },
-      rollupOptions: {
-        treeshake: true, // Ensure tree shaking is enabled
+      rolldownOptions: {
         output: {
           manualChunks: (id) => {
             if (id.includes("/svelte/") || id.includes("/@svelte/")) {

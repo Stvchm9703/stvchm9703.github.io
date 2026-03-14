@@ -26,7 +26,7 @@
   import { MetaTags } from "svelte-meta-tags";
   const { meta } = page.data;
 
-  
+
 </script>
 
 <!-- <svelte:head>
