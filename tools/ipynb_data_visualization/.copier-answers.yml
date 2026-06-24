@@ -1,0 +1,10 @@
+# Changes here will be overwritten by Copier. Do not edit manually.
+_commit: v0.2.21
+_src_path: gh:jlevy/simple-modern-uv
+package_author_email: stv.chm@gmail.com
+package_author_name: Steven CHM
+package_description: A command-line tool for converting the ipynb file to data visualization
+    format
+package_github_org: Stvchm9703
+package_module: ipynb_data_visualization
+package_name: ipynb_data_visualization
