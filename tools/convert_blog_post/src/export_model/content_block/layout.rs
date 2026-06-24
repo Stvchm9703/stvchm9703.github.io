@@ -63,7 +63,7 @@ impl FromBlockContent<RawLayout> for LayoutComponentAttr {
     fn from_block_content(raw_obj: &RawLayout) -> Result<LayoutComponentAttr, anyhow::Error> {
         // let raw_clone = raw.clone();
         let tmp = LayoutComponentAttr {
-            layout_style: raw_obj.style.to_string(),
+            layout_style: format!("{:?}", raw_obj.style),
             ..LayoutComponentAttr::default()
         };
         return Ok(tmp);

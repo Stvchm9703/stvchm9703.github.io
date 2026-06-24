@@ -14,11 +14,8 @@ use quick_protobuf::{MessageInfo, MessageRead, MessageWrite, BytesReader, Writer
 use core::convert::{TryFrom, TryInto};
 use quick_protobuf::sizeofs::*;
 use super::*;
-use serde::Serialize;
-use crate::proto::google;
-use crate::proto::anytype;
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum SmartBlockType {
     AccountOld = 0,
     Page = 16,
@@ -128,7 +125,7 @@ impl<'a> From<&'a str> for SmartBlockType {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum RelationFormat {
     longtext = 0,
     shorttext = 1,
@@ -196,7 +193,7 @@ impl<'a> From<&'a str> for RelationFormat {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum ObjectOrigin {
     none = 0,
     clipboard = 1,
@@ -252,7 +249,7 @@ impl<'a> From<&'a str> for ObjectOrigin {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum SpaceStatus {
     Unknown = 0,
     Loading = 1,
@@ -311,7 +308,7 @@ impl<'a> From<&'a str> for SpaceStatus {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum ParticipantPermissions {
     Reader = 0,
     Writer_pb = 1,
@@ -349,7 +346,7 @@ impl<'a> From<&'a str> for ParticipantPermissions {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum InviteType {
     Member = 0,
     Guest = 1,
@@ -384,7 +381,7 @@ impl<'a> From<&'a str> for InviteType {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum ParticipantStatus {
     Joining = 0,
     Active = 1,
@@ -428,7 +425,7 @@ impl<'a> From<&'a str> for ParticipantStatus {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum SpaceAccessType {
     Private = 0,
     Personal = 1,
@@ -463,7 +460,7 @@ impl<'a> From<&'a str> for SpaceAccessType {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum SpaceUxType {
     None = 0,
     Data = 1,
@@ -504,7 +501,7 @@ impl<'a> From<&'a str> for SpaceUxType {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum ImageKind {
     Basic = 0,
     Cover = 1,
@@ -542,7 +539,7 @@ impl<'a> From<&'a str> for ImageKind {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum FileIndexingStatus {
     NotIndexed = 0,
     Indexed = 1,
@@ -577,7 +574,7 @@ impl<'a> From<&'a str> for FileIndexingStatus {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum SpaceShareableStatus {
     StatusUnknown = 0,
     StatusShareable = 1,
@@ -612,7 +609,7 @@ impl<'a> From<&'a str> for SpaceShareableStatus {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum NameserviceNameType {
     AnyName = 0,
 }
@@ -641,7 +638,7 @@ impl<'a> From<&'a str> for NameserviceNameType {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum DeviceNetworkType {
     WIFI = 0,
     CELLULAR = 1,
@@ -676,7 +673,7 @@ impl<'a> From<&'a str> for DeviceNetworkType {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum SyncStatus {
     SyncStatusSynced = 0,
     SyncStatusSyncing = 1,
@@ -714,7 +711,7 @@ impl<'a> From<&'a str> for SyncStatus {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum SyncError {
     SyncErrorNull = 0,
     SyncErrorIncompatibleVersion = 2,
@@ -817,104 +814,104 @@ impl<'a> MessageWrite for SmartBlockSnapshotBase<'a> {
 }
 
 
-// IMPORTANT: For any future changes, note that the lifetime parameter
-// of the `proto` field is set to 'static!!!
-//
-// This means that the internals of `proto` should at no point create a
-// mutable reference to something using that lifetime parameter, on pain
-// of UB. This applies even though it may be transmuted to a smaller
-// lifetime later (through `proto()` or `proto_mut()`).
-//
-// At the time of writing, the only possible thing that uses the
-// lifetime parameter is `Cow<'a, T>`, which never does this, so it's
-// not UB.
-//
-#[derive(Debug)]
-struct SmartBlockSnapshotBaseOwnedInner {
-    buf: Vec<u8>,
-    proto: Option<SmartBlockSnapshotBase<'static>>,
-    _pin: core::marker::PhantomPinned,
-}
-
-impl SmartBlockSnapshotBaseOwnedInner {
-    fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
-        let inner = Self {
-            buf,
-            proto: None,
-            _pin: core::marker::PhantomPinned,
-        };
-        let mut pinned = Box::pin(inner);
-
-        let mut reader = BytesReader::from_bytes(&pinned.buf);
-        let proto = SmartBlockSnapshotBase::from_reader(&mut reader, &pinned.buf)?;
-
-        unsafe {
-            let proto = core::mem::transmute::<_, SmartBlockSnapshotBase<'_>>(proto);
-            pinned.as_mut().get_unchecked_mut().proto = Some(proto);
-        }
-        Ok(pinned)
-    }
-}
-
-pub struct SmartBlockSnapshotBaseOwned {
-    inner: core::pin::Pin<Box<SmartBlockSnapshotBaseOwnedInner>>,
-}
-
-#[allow(dead_code)]
-impl SmartBlockSnapshotBaseOwned {
-    pub fn buf(&self) -> &[u8] {
-        &self.inner.buf
-    }
-
-    pub fn proto<'a>(&'a self) -> &'a SmartBlockSnapshotBase<'a> {
-        let proto = self.inner.proto.as_ref().unwrap();
-        unsafe { core::mem::transmute::<&SmartBlockSnapshotBase<'static>, &SmartBlockSnapshotBase<'a>>(proto) }
-    }
-
-    pub fn proto_mut<'a>(&'a mut self) -> &'a mut SmartBlockSnapshotBase<'a> {
-        let inner = self.inner.as_mut();
-        let inner = unsafe { inner.get_unchecked_mut() };
-        let proto = inner.proto.as_mut().unwrap();
-        unsafe { core::mem::transmute::<_, &mut SmartBlockSnapshotBase<'a>>(proto) }
-    }
-}
-
-impl core::fmt::Debug for SmartBlockSnapshotBaseOwned {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        self.inner.proto.as_ref().unwrap().fmt(f)
-    }
-}
-
-impl TryFrom<Vec<u8>> for SmartBlockSnapshotBaseOwned {
-    type Error=quick_protobuf::Error;
-
-    fn try_from(buf: Vec<u8>) -> Result<Self> {
-        Ok(Self { inner: SmartBlockSnapshotBaseOwnedInner::new(buf)? })
-    }
-}
-
-impl TryInto<Vec<u8>> for SmartBlockSnapshotBaseOwned {
-    type Error=quick_protobuf::Error;
-
-    fn try_into(self) -> Result<Vec<u8>> {
-        let mut buf = Vec::new();
-        let mut writer = Writer::new(&mut buf);
-        self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
-        Ok(buf)
-    }
-}
-
-impl From<SmartBlockSnapshotBase<'static>> for SmartBlockSnapshotBaseOwned {
-    fn from(proto: SmartBlockSnapshotBase<'static>) -> Self {
-        Self {
-            inner: Box::pin(SmartBlockSnapshotBaseOwnedInner {
-                buf: Vec::new(),
-                proto: Some(proto),
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct SmartBlockSnapshotBaseOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<SmartBlockSnapshotBase<'static>>,
                 _pin: core::marker::PhantomPinned,
-            })
-        }
-    }
-}
+            }
+
+            impl SmartBlockSnapshotBaseOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = SmartBlockSnapshotBase::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, SmartBlockSnapshotBase<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct SmartBlockSnapshotBaseOwned {
+                inner: core::pin::Pin<Box<SmartBlockSnapshotBaseOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl SmartBlockSnapshotBaseOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a SmartBlockSnapshotBase<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&SmartBlockSnapshotBase<'static>, &SmartBlockSnapshotBase<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut SmartBlockSnapshotBase<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut SmartBlockSnapshotBase<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for SmartBlockSnapshotBaseOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for SmartBlockSnapshotBaseOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: SmartBlockSnapshotBaseOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for SmartBlockSnapshotBaseOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<SmartBlockSnapshotBase<'static>> for SmartBlockSnapshotBaseOwned {
+                fn from(proto: SmartBlockSnapshotBase<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(SmartBlockSnapshotBaseOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
             
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
@@ -923,7 +920,7 @@ pub struct Search {
 
 impl<'a> MessageRead<'a> for Search {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let msg = Self::default();
+        let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -939,18 +936,20 @@ impl MessageWrite for Search {
         0
     }
 
-    fn write_message<W: WriterBackend>(&self, _w: &mut Writer<W>) -> Result<()> {
+    fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
         Ok(())
     }
 }
-impl TryFrom<&[u8]> for Search {
-    type Error=quick_protobuf::Error;
 
-    fn try_from(buf: &[u8]) -> Result<Self> {
-        let mut reader = BytesReader::from_bytes(&buf);
-        Ok(Search::from_reader(&mut reader, &buf)?)
-    }
-}
+
+            impl TryFrom<&[u8]> for Search {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: &[u8]) -> Result<Self> {
+                    let mut reader = BytesReader::from_bytes(&buf);
+                    Ok(Search::from_reader(&mut reader, &buf)?)
+                }
+            }
             
 pub mod mod_Search {
 
@@ -998,104 +997,104 @@ impl<'a> MessageWrite for Result_pb<'a> {
 }
 
 
-// IMPORTANT: For any future changes, note that the lifetime parameter
-// of the `proto` field is set to 'static!!!
-//
-// This means that the internals of `proto` should at no point create a
-// mutable reference to something using that lifetime parameter, on pain
-// of UB. This applies even though it may be transmuted to a smaller
-// lifetime later (through `proto()` or `proto_mut()`).
-//
-// At the time of writing, the only possible thing that uses the
-// lifetime parameter is `Cow<'a, T>`, which never does this, so it's
-// not UB.
-//
-#[derive(Debug)]
-struct Result_pbOwnedInner {
-    buf: Vec<u8>,
-    proto: Option<Result_pb<'static>>,
-    _pin: core::marker::PhantomPinned,
-}
-
-impl Result_pbOwnedInner {
-    fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
-        let inner = Self {
-            buf,
-            proto: None,
-            _pin: core::marker::PhantomPinned,
-        };
-        let mut pinned = Box::pin(inner);
-
-        let mut reader = BytesReader::from_bytes(&pinned.buf);
-        let proto = Result_pb::from_reader(&mut reader, &pinned.buf)?;
-
-        unsafe {
-            let proto = core::mem::transmute::<_, Result_pb<'_>>(proto);
-            pinned.as_mut().get_unchecked_mut().proto = Some(proto);
-        }
-        Ok(pinned)
-    }
-}
-
-pub struct Result_pbOwned {
-    inner: core::pin::Pin<Box<Result_pbOwnedInner>>,
-}
-
-#[allow(dead_code)]
-impl Result_pbOwned {
-    pub fn buf(&self) -> &[u8] {
-        &self.inner.buf
-    }
-
-    pub fn proto<'a>(&'a self) -> &'a Result_pb<'a> {
-        let proto = self.inner.proto.as_ref().unwrap();
-        unsafe { core::mem::transmute::<&Result_pb<'static>, &Result_pb<'a>>(proto) }
-    }
-
-    pub fn proto_mut<'a>(&'a mut self) -> &'a mut Result_pb<'a> {
-        let inner = self.inner.as_mut();
-        let inner = unsafe { inner.get_unchecked_mut() };
-        let proto = inner.proto.as_mut().unwrap();
-        unsafe { core::mem::transmute::<_, &mut Result_pb<'a>>(proto) }
-    }
-}
-
-impl core::fmt::Debug for Result_pbOwned {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        self.inner.proto.as_ref().unwrap().fmt(f)
-    }
-}
-
-impl TryFrom<Vec<u8>> for Result_pbOwned {
-    type Error=quick_protobuf::Error;
-
-    fn try_from(buf: Vec<u8>) -> Result<Self> {
-        Ok(Self { inner: Result_pbOwnedInner::new(buf)? })
-    }
-}
-
-impl TryInto<Vec<u8>> for Result_pbOwned {
-    type Error=quick_protobuf::Error;
-
-    fn try_into(self) -> Result<Vec<u8>> {
-        let mut buf = Vec::new();
-        let mut writer = Writer::new(&mut buf);
-        self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
-        Ok(buf)
-    }
-}
-
-impl From<Result_pb<'static>> for Result_pbOwned {
-    fn from(proto: Result_pb<'static>) -> Self {
-        Self {
-            inner: Box::pin(Result_pbOwnedInner {
-                buf: Vec::new(),
-                proto: Some(proto),
+            // IMPORTANT: For any future changes, note that the lifetime parameter
+            // of the `proto` field is set to 'static!!!
+            //
+            // This means that the internals of `proto` should at no point create a
+            // mutable reference to something using that lifetime parameter, on pain
+            // of UB. This applies even though it may be transmuted to a smaller
+            // lifetime later (through `proto()` or `proto_mut()`).
+            //
+            // At the time of writing, the only possible thing that uses the
+            // lifetime parameter is `Cow<'a, T>`, which never does this, so it's
+            // not UB.
+            //
+            #[derive(Debug)]
+            struct Result_pbOwnedInner {
+                buf: Vec<u8>,
+                proto: Option<Result_pb<'static>>,
                 _pin: core::marker::PhantomPinned,
-            })
-        }
-    }
-}
+            }
+
+            impl Result_pbOwnedInner {
+                fn new(buf: Vec<u8>) -> Result<core::pin::Pin<Box<Self>>> {
+                    let inner = Self {
+                        buf,
+                        proto: None,
+                        _pin: core::marker::PhantomPinned,
+                    };
+                    let mut pinned = Box::pin(inner);
+
+                    let mut reader = BytesReader::from_bytes(&pinned.buf);
+                    let proto = Result_pb::from_reader(&mut reader, &pinned.buf)?;
+
+                    unsafe {
+                        let proto = core::mem::transmute::<_, Result_pb<'_>>(proto);
+                        pinned.as_mut().get_unchecked_mut().proto = Some(proto);
+                    }
+                    Ok(pinned)
+                }
+            }
+
+            pub struct Result_pbOwned {
+                inner: core::pin::Pin<Box<Result_pbOwnedInner>>,
+            }
+
+            #[allow(dead_code)]
+            impl Result_pbOwned {
+                pub fn buf(&self) -> &[u8] {
+                    &self.inner.buf
+                }
+
+                pub fn proto<'a>(&'a self) -> &'a Result_pb<'a> {
+                    let proto = self.inner.proto.as_ref().unwrap();
+                    unsafe { core::mem::transmute::<&Result_pb<'static>, &Result_pb<'a>>(proto) }
+                }
+
+                pub fn proto_mut<'a>(&'a mut self) -> &'a mut Result_pb<'a> {
+                    let inner = self.inner.as_mut();
+                    let inner = unsafe { inner.get_unchecked_mut() };
+                    let proto = inner.proto.as_mut().unwrap();
+                    unsafe { core::mem::transmute::<_, &mut Result_pb<'a>>(proto) }
+                }
+            }
+
+            impl core::fmt::Debug for Result_pbOwned {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    self.inner.proto.as_ref().unwrap().fmt(f)
+                }
+            }
+
+            impl TryFrom<Vec<u8>> for Result_pbOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_from(buf: Vec<u8>) -> Result<Self> {
+                    Ok(Self { inner: Result_pbOwnedInner::new(buf)? })
+                }
+            }
+
+            impl TryInto<Vec<u8>> for Result_pbOwned {
+                type Error=quick_protobuf::Error;
+
+                fn try_into(self) -> Result<Vec<u8>> {
+                    let mut buf = Vec::new();
+                    let mut writer = Writer::new(&mut buf);
+                    self.inner.proto.as_ref().unwrap().write_message(&mut writer)?;
+                    Ok(buf)
+                }
+            }
+
+            impl From<Result_pb<'static>> for Result_pbOwned {
+                fn from(proto: Result_pb<'static>) -> Self {
+                    Self {
+                        inner: Box::pin(Result_pbOwnedInner {
+                            buf: Vec::new(),
+                            proto: Some(proto),
+                            _pin: core::marker::PhantomPinned,
+                        })
+                    }
+                }
+            }
             
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
@@ -1464,7 +1463,7 @@ impl<'a> MessageWrite for Block<'a> {
 pub mod mod_Block {
 
 use super::*;
-use serde::{Serialize, Deserialize};
+
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct Restrictions {
@@ -1530,7 +1529,7 @@ pub struct Content {
 
 impl<'a> MessageRead<'a> for Content {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let msg = Self::default();
+        let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -1546,7 +1545,7 @@ impl MessageWrite for Content {
         0
     }
 
-    fn write_message<W: WriterBackend>(&self, _w: &mut Writer<W>) -> Result<()> {
+    fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
         Ok(())
     }
 }
@@ -1609,9 +1608,9 @@ impl MessageWrite for Layout {
             }
             
 pub mod mod_Layout {
-    use serde::{Deserialize, Serialize};
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum Style {
     Row = 0,
     Column = 1,
@@ -1652,18 +1651,6 @@ impl<'a> From<&'a str> for Style {
             "TableColumns" => Style::TableColumns,
             _ => Self::default(),
         }
-    }
-}
-impl ToString for Style {
-    fn to_string(&self) -> String {
-        match self {
-             Style::Row => "Row",
-             Style::Column => "Column",
-             Style::Div => "Div",
-             Style::Header => "Header",
-             Style::TableRows => "TableRows",
-             Style::TableColumns => "TableColumns",
-        }.to_string()
     }
 }
 
@@ -1826,9 +1813,9 @@ impl<'a> MessageWrite for Link<'a> {
             }
             
 pub mod mod_Link {
-use serde::{Deserialize, Serialize};
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Deserialize, Serialize)]
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum IconSize {
     SizeNone = 0,
     SizeSmall = 1,
@@ -1863,7 +1850,7 @@ impl<'a> From<&'a str> for IconSize {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum Style {
     Page = 0,
     Dataview = 1,
@@ -1901,7 +1888,7 @@ impl<'a> From<&'a str> for Style {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum Description {
     None = 0,
     Added = 1,
@@ -1936,7 +1923,7 @@ impl<'a> From<&'a str> for Description {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum CardStyle {
     Text = 0,
     Card = 1,
@@ -2018,7 +2005,7 @@ impl MessageWrite for Div {
 pub mod mod_Div {
 
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum Style {
     Line = 0,
     Dots = 1,
@@ -2049,14 +2036,7 @@ impl<'a> From<&'a str> for Style {
         }
     }
 }
-impl ToString for Style {
-    fn to_string(&self) -> String {
-        match self {
-            Style::Line =>"Line" ,
-            Style::Dots =>"Dots" ,
-        }.to_string()
-    }
-}
+
 }
 
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -2222,7 +2202,7 @@ impl<'a> MessageWrite for Bookmark<'a> {
 pub mod mod_Bookmark {
 
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum State {
     Empty = 0,
     Fetching = 1,
@@ -2851,10 +2831,9 @@ impl<'a> MessageWrite for Mark<'a> {
             }
             
 pub mod mod_Mark {
-    use serde::{Deserialize, Serialize};
 
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum Type {
     Strikethrough = 0,
     Keyboard = 1,
@@ -2915,7 +2894,7 @@ impl<'a> From<&'a str> for Type {
 
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum Style {
     Paragraph = 0,
     Header1 = 1,
@@ -3150,11 +3129,9 @@ impl<'a> MessageWrite for File<'a> {
             }
             
 pub mod mod_File {
-    use serde::{Deserialize, Serialize};
 
 
-
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum Type {
     None = 0,
     File = 1,
@@ -3198,7 +3175,7 @@ impl<'a> From<&'a str> for Type {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum Style {
     Auto = 0,
     Link = 1,
@@ -3233,7 +3210,7 @@ impl<'a> From<&'a str> for Style {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum State {
     Empty = 0,
     Uploading = 1,
@@ -3664,7 +3641,7 @@ impl<'a> MessageWrite for View<'a> {
 pub mod mod_View {
 
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum Type {
     Table = 0,
     List = 1,
@@ -3708,7 +3685,7 @@ impl<'a> From<&'a str> for Type {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum Size {
     Small = 0,
     Medium = 1,
@@ -3908,7 +3885,7 @@ impl<'a> MessageWrite for Relation<'a> {
 pub mod mod_Relation {
 
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum DateFormat {
     MonthAbbrBeforeDay = 0,
     MonthAbbrAfterDay = 1,
@@ -3949,7 +3926,7 @@ impl<'a> From<&'a str> for DateFormat {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum TimeFormat {
     Format12 = 0,
     Format24 = 1,
@@ -3981,7 +3958,7 @@ impl<'a> From<&'a str> for TimeFormat {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum FormulaType {
     None = 0,
     Count = 1,
@@ -4214,7 +4191,7 @@ impl<'a> MessageWrite for Sort<'a> {
 pub mod mod_Sort {
 
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum Type {
     Asc = 0,
     Desc = 1,
@@ -4249,7 +4226,7 @@ impl<'a> From<&'a str> for Type {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum EmptyType {
     NotSpecified = 0,
     Start = 1,
@@ -4457,7 +4434,7 @@ impl<'a> MessageWrite for Filter<'a> {
 pub mod mod_Filter {
 
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum Operator {
     No = 0,
     Or = 1,
@@ -4492,7 +4469,7 @@ impl<'a> From<&'a str> for Operator {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum Condition {
     None = 0,
     Equal = 1,
@@ -4572,7 +4549,7 @@ impl<'a> From<&'a str> for Condition {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum QuickOption {
     ExactDate = 0,
     Yesterday = 1,
@@ -5834,10 +5811,9 @@ impl<'a> MessageWrite for Latex<'a> {
             }
             
 pub mod mod_Latex {
-    use serde::{Deserialize, Serialize};
 
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize,Deserialize)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum Processor {
     Latex = 0,
     Mermaid = 1,
@@ -6198,7 +6174,7 @@ impl<'a> MessageWrite for Widget<'a> {
 pub mod mod_Widget {
 
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum Layout {
     Link = 0,
     Tree = 1,
@@ -6266,7 +6242,7 @@ impl MessageWrite for Chat { }
             
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum Position {
     None = 0,
     Top = 1,
@@ -6316,7 +6292,7 @@ impl<'a> From<&'a str> for Position {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum Align {
     AlignLeft = 0,
     AlignCenter = 1,
@@ -6354,7 +6330,7 @@ impl<'a> From<&'a str> for Align {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum VerticalAlign {
     VerticalAlignTop = 0,
     VerticalAlignMiddle = 1,
@@ -7152,7 +7128,7 @@ pub struct Auth {
 
 impl<'a> MessageRead<'a> for Auth {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let msg = Self::default();
+        let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -7168,7 +7144,7 @@ impl MessageWrite for Auth {
         0
     }
 
-    fn write_message<W: WriterBackend>(&self, _w: &mut Writer<W>) -> Result<()> {
+    fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
         Ok(())
     }
 }
@@ -7344,7 +7320,7 @@ impl<'a> MessageWrite for AppInfo<'a> {
                 }
             }
             
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum LocalApiScope {
     Limited = 0,
     JsonAPI = 1,
@@ -7381,7 +7357,7 @@ impl<'a> From<&'a str> for LocalApiScope {
 
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum StatusType {
     Active = 0,
     PendingDeletion = 1,
@@ -7574,8 +7550,9 @@ impl<'a> MessageWrite for LinkPreview<'a> {
             }
             
 pub mod mod_LinkPreview {
-    use serde::{Deserialize, Serialize};
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
+
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum Type {
     Unknown = 0,
     Page = 1,
@@ -7892,7 +7869,7 @@ impl<'a> MessageWrite for DataviewRestrictions<'a> {
                 }
             }
             
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum ObjectRestriction {
     None = 0,
     Delete = 1,
@@ -7951,7 +7928,7 @@ impl<'a> From<&'a str> for ObjectRestriction {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum DataviewRestriction {
     DVNone = 0,
     DVRelation = 1,
@@ -7998,7 +7975,7 @@ pub struct Object {
 
 impl<'a> MessageRead<'a> for Object {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let msg = Self::default();
+        let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -8014,7 +7991,7 @@ impl MessageWrite for Object {
         0
     }
 
-    fn write_message<W: WriterBackend>(&self, _w: &mut Writer<W>) -> Result<()> {
+    fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
         Ok(())
     }
 }
@@ -8507,7 +8484,7 @@ impl<'a> MessageWrite for ObjectType<'a> {
 pub mod mod_ObjectType {
 
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum Layout {
     basic = 0,
     profile = 1,
@@ -9245,7 +9222,7 @@ impl<'a> MessageWrite for Option_pb<'a> {
                 }
             }
             
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum Scope {
     object = 0,
     type_pb = 1,
@@ -9286,7 +9263,7 @@ impl<'a> From<&'a str> for Scope {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum DataSource {
     details = 0,
     derived = 1,
@@ -9771,7 +9748,7 @@ impl MessageWrite for InternalFlag {
 pub mod mod_InternalFlag {
 
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum Value {
     editorDeleteEmpty = 0,
     editorSelectType = 1,
@@ -10722,7 +10699,7 @@ pub struct Payload {
 
 impl<'a> MessageRead<'a> for Payload {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let msg = Self::default();
+        let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -10738,7 +10715,7 @@ impl MessageWrite for Payload {
         0
     }
 
-    fn write_message<W: WriterBackend>(&self, _w: &mut Writer<W>) -> Result<()> {
+    fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
         Ok(())
     }
 }
@@ -11298,7 +11275,7 @@ impl MessageWrite for Export {
 pub mod mod_Export {
 
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum Code {
     NULL = 0,
     UNKNOWN_ERROR = 1,
@@ -12366,7 +12343,7 @@ impl<'a> MessageWrite for ParticipantPermissionsChange<'a> {
                 }
             }
             
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum Status {
     Created = 0,
     Shown = 1,
@@ -12404,7 +12381,7 @@ impl<'a> From<&'a str> for Status {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum ActionType {
     CLOSE = 0,
 }
@@ -12482,7 +12459,7 @@ impl MessageWrite for Export { }
 pub mod mod_Export {
 
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum Format {
     Markdown = 0,
     Protobuf = 1,
@@ -12554,7 +12531,7 @@ impl MessageWrite for Import { }
 pub mod mod_Import {
 
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum Type {
     Notion = 0,
     Markdown = 1,
@@ -12604,7 +12581,7 @@ impl<'a> From<&'a str> for Type {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum ErrorCode {
     NULL = 0,
     UNKNOWN_ERROR = 1,
@@ -13900,7 +13877,7 @@ impl<'a> MessageWrite for Membership<'a> {
 pub mod mod_Membership {
 
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum Status {
     StatusUnknown = 0,
     StatusPending = 1,
@@ -13938,7 +13915,7 @@ impl<'a> From<&'a str> for Status {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum PaymentMethod {
     MethodNone = 0,
     MethodStripe = 1,
@@ -13979,7 +13956,7 @@ impl<'a> From<&'a str> for PaymentMethod {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum EmailVerificationStatus {
     StatusNotVerified = 0,
     StatusCodeSent = 1,
@@ -14219,7 +14196,7 @@ impl<'a> MessageWrite for MembershipTierData<'a> {
 pub mod mod_MembershipTierData {
 
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum PeriodType {
     PeriodTypeUnknown = 0,
     PeriodTypeUnlimited = 1,
@@ -14272,7 +14249,7 @@ pub struct MembershipV2 {
 
 impl<'a> MessageRead<'a> for MembershipV2 {
     fn from_reader(r: &mut BytesReader, bytes: &'a [u8]) -> Result<Self> {
-        let msg = Self::default();
+        let mut msg = Self::default();
         while !r.is_eof() {
             match r.next_tag(bytes) {
                 Ok(t) => { r.read_unknown(bytes, t)?; }
@@ -14288,7 +14265,7 @@ impl MessageWrite for MembershipV2 {
         0
     }
 
-    fn write_message<W: WriterBackend>(&self, _w: &mut Writer<W>) -> Result<()> {
+    fn write_message<W: WriterBackend>(&self, w: &mut Writer<W>) -> Result<()> {
         Ok(())
     }
 }
@@ -14925,7 +14902,7 @@ impl MessageWrite for ProductStatus {
 pub mod mod_ProductStatus {
 
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum Status {
     StatusUnknown = 0,
     StatusPending = 1,
@@ -15533,7 +15510,7 @@ impl<'a> MessageWrite for Data<'a> {
                 }
             }
             
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum PaymentProvider {
     None = 0,
     Stripe = 1,
@@ -15577,7 +15554,7 @@ impl<'a> From<&'a str> for PaymentProvider {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum Period {
     Unlimited = 0,
     Monthly = 1,
@@ -16658,7 +16635,7 @@ impl<'a> MessageWrite for Attachment<'a> {
 pub mod mod_Attachment {
 
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub enum AttachmentType {
     FILE = 0,
     IMAGE = 1,

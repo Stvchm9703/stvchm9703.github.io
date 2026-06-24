@@ -194,7 +194,7 @@ impl<'a> FromBlockContent<mod_Block::OneOfcontent<'a>> for ComponentAttrType {
                 }
             }
             mod_Block::OneOfcontent::div(div) => Ok(ComponentAttrType::from_input(json!({
-                "style": div.style.to_string(),
+                "style": format!("{:?}", div.style),
                 "orginal_type": "div",
             }))),
             mod_Block::OneOfcontent::bookmark(bookmark) => {
