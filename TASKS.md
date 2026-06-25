@@ -38,15 +38,15 @@
 - [x] **P2_blog_integration_standalone** — Python CLI `--out-dir`/`-o` writes `<stem>.viz.json` envelope; blog `custom/data-table.svelte` (new) + "Data" tab in `custom/jupyter.svelte` render it. (P2 optional fetch-fallback skipped by design.)
 - [x] **P3_preprocessor_convert_blog_post** — Python `--sidecar` writes `<stem>.viz.json` next to the `.ipynb`; Rust adds `dataTables` (+`load_sidecar`) to `JupyterComponentAttr`; blog renders `componentAttr.dataTables`. ⚠️ **see P3-WIRE** — `load_sidecar` is implemented but not yet called by the pipeline.
 
-### Wave 4 (depend on wave-3 tasks)
-- [ ] **P4_polish** — Python: Phase 4 polish (README, CI, optional caching). deps: P2, P3 · blocks: — · wave 4
+### Wave 4 — ✅ COMPLETE (2026-06-25)
+- [x] **P4_polish** — real README (CLI flags, envelope shape, both integrations + pipeline order); CI confirmed OK for `src/` layout; determinism documented; ruff `UTC` fix. ✓ `pytest` 46 · `ruff` clean.
 
 ## Waiting On
 - [x] **G1_remove_convert_blog_post_ts** — ✅ **DONE (2026-06-25, human-confirmed)** — `tools/convert_blog_post_ts/` removed. Verified: `pnpm check` shows the same 23 pre-existing errors (no new ones), `cargo test` green. Blog resolves types via `$generateor`→`src/types`.
 
 ## Someday
 
-- [ ] **P3-WIRE** — Rust: actually call `JupyterComponentAttr::load_sidecar` in the pipeline so `dataTables` populates. `notebook_related.rs::resolve_notebook` only has the notebook *filename*; plumb the resolved `.ipynb` filesystem path (e.g. store it on `JupyterNotebookRoot` when read in `main.rs`, or pass the import `files/` dir) and call `load_sidecar` after `add_notebook_file`. Also document the pipeline order (run `ipynb_data_visualization … --sidecar` BEFORE `convert_blog_post`). Verify: `cargo test` + an end-to-end run with a sidecar present. Blocks true P3 end-to-end.
+- [x] **P3-WIRE** — ✅ DONE (2026-06-25): `source_path` added to `JupyterNotebookRoot` (`#[serde(default, skip_deserializing)]`), set in `main.rs`; `resolve_notebook` now calls `load_sidecar` after `add_notebook_file`; 2 tests; pipeline order documented in `convert_blog_post/CLAUDE.md`. ✓ `cargo test` 15. _Open: no Makefile/script chains the `--sidecar` step before convert yet (optional)._
 
 _Follow-ups surfaced during Wave 1:_
 - [ ] **D1-T1** — Rust: investigate Drawio companion-file linkage in the `.pb` block tree; if a sibling `File` block carries the diagram, add `file_url` to `LatexComponentAttr` + wire asset copy; else document Drawio as unrecoverable. (see `docs/decisions/drawio-mermaid-latex.md`)
