@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { ContentBlock } from "$generateor/content_block";
+  import type { ContentBlock, TextItem } from "$generateor/content_block";
   import { Checkbox } from "$lib/components/ui/checkbox";
   import { Label } from "$lib/components/ui/label";
   import {
@@ -17,6 +17,13 @@
     headerIdResolver,
     resolveStyle,
   } from "./common";
+
+  /** Render a single TextItem inside a Toggle/list accordion. */
+  function renderItemHtml(item: TextItem): string {
+    if (item._text_item_type === "Other") return "";
+    const itemMarks = Array.isArray(item.marks) ? item.marks : [];
+    return resolveMarks(itemMarks, item.text ?? "");
+  }
 
   const {
     id,
@@ -155,9 +162,24 @@
       </AccordionTrigger>
       <AccordionContent class="pl-3 lg:pl-8 pr-2">
         {#each other.items as item}
-          <!-- {#if item._text_item_type == "Other"} -->
-          <Block {...item} />
-          <!-- {/if} -->
+          {#if item._text_item_type === "Other"}
+            <Block {...item} />
+          {:else if item._text_item_type === "LevelText" || item._text_item_type === "Block"}
+            <p class={resolveStyle(content_style)}>
+              {@html renderItemHtml(item)}
+            </p>
+            {#if item.items && item.items.length > 0}
+              <ul class="list-disc ml-4">
+                {#each item.items as subItem}
+                  {#if subItem._text_item_type === "LevelText" || subItem._text_item_type === "Block"}
+                    <li>{@html renderItemHtml(subItem)}</li>
+                  {:else if subItem._text_item_type === "Other"}
+                    <Block {...subItem} />
+                  {/if}
+                {/each}
+              </ul>
+            {/if}
+          {/if}
         {/each}
       </AccordionContent>
     </AccordionItem>

@@ -48,9 +48,12 @@ function resolvePostDetailMetaTags(post: IPage) {
     post.serie?.label ?? "",
     ...post.tags.map((tag) => tag.label),
   ].filter((p) => p !== "");
+  const coverImageUrl = post.coverImage
+    ? `${BASE}/blog/assets/files/${post.coverImage}`
+    : undefined;
   const twitter = {
     cardType: "summary_large_image",
-    image: post.coverImage ?? undefined,
+    image: coverImageUrl,
     imageAlt: `cover image, ${post.title}, Steven Dev's`,
   } satisfies Twitter;
   const openGraph = {
@@ -64,18 +67,19 @@ function resolvePostDetailMetaTags(post: IPage) {
       tags,
     },
     images: [
-      post.coverImage
+      coverImageUrl
         ? {
-            url: `${BASE}/blog/assets/files/${post.coverImage}`,
+            url: coverImageUrl,
             width: 850,
             height: 650,
             alt: "cover image",
           }
         : undefined,
-      ...(post.meta?.images ?? []),
-    ]
-      .filter((p) => p)
-      .map((e) => ({ ...e, url: `${BASE}${e.url}` })),
+      ...(post.meta?.images ?? []).map((img) => ({
+        ...img,
+        url: `${BASE}${img.url}`,
+      })),
+    ].filter((p): p is NonNullable<typeof p> => p != null),
     videos: post.meta?.videos ?? undefined,
     audio: post.meta?.audio ?? undefined,
   } satisfies OpenGraph;
