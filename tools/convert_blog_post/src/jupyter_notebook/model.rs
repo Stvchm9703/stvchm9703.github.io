@@ -7,6 +7,10 @@ pub struct JupyterNotebookRoot {
     pub nbformat: usize,
     pub nbformat_minor: usize,
     pub file_url: Option<String>,
+    /// Absolute filesystem path to the `.ipynb` file.
+    /// Set by `main.rs` after reading the notebook; not present in `.ipynb` JSON.
+    #[serde(default, skip_deserializing)]
+    pub source_path: Option<String>,
 }
 
 // type Cell = CodeCell | MarkdownCell;

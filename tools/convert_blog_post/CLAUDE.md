@@ -83,6 +83,31 @@ pb-rs -I=protos/anytype -o=src/proto/anytype/events.rs protos/anytype/events.pro
 pb-rs -I=protos/anytype -o=src/proto/anytype/changes.rs protos/anytype/changes.proto -s
 ```
 
+## Jupyter Notebook Sidecar Pipeline Order
+
+When a blog page contains Jupyter notebook blocks, the sidecar pre-processor
+**must run before** `convert_blog_post` so that data tables are available at
+conversion time.
+
+Required order for each `.ipynb` that lives in the Anytype export `files/` dir:
+
+```bash
+# Step 1 — generate the sidecar next to the .ipynb (once per notebook)
+ipynb_data_visualization <import>/files/<notebook>.ipynb --sidecar
+
+# Step 2 — convert the Anytype export (reads the sidecar automatically)
+convert_blog_post -i <import> -o <export>
+```
+
+`--sidecar` writes `<import>/files/<notebook>.viz.json` next to the `.ipynb`.
+`convert_blog_post` copies all `files/*` to the export directory and, when it
+reads each `.ipynb`, it records the **absolute filesystem path** in
+`JupyterNotebookRoot::source_path`.  During page resolution the notebook
+resolver calls `JupyterComponentAttr::load_sidecar(source_path)` which reads
+`<parent>/<stem>.viz.json` and populates `data_tables` for the matching
+`cellIndex`.  If no sidecar is present the field stays `null` and the blog
+renders without data tables (zero impact on existing pages).
+
 ## Important Notes
 
 - Files in `src/proto/anytype/` are auto-generated - do not modify directly

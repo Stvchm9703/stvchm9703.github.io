@@ -171,6 +171,7 @@ fn main_process(arg: &Args) -> Result<(), anyhow::Error> {
             // jupyter_notbook_list
             if let Ok(mut nb_file) = jupyter_notebook::util::read_jupyter_notebook(&tar_path) {
                 nb_file.file_url = Some(file_name.to_owned());
+                nb_file.source_path = Some(tar_path.to_string_lossy().into_owned());
                 jupyter_notbook_list.push(nb_file);
             }
         }
