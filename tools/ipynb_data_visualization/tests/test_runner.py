@@ -335,3 +335,117 @@ class TestBuildEnvelope:
         ts = "2026-01-01T00:00:00Z"
         envelope = build_envelope(str(SAMPLE_NB), result["cell_snapshots"], generated_at=ts)
         assert envelope["generatedAt"] == ts
+
+
+# ---------------------------------------------------------------------------
+# Phase 2 — CLI --out-dir output convention
+# ---------------------------------------------------------------------------
+
+
+class TestCliOutDir:
+    """Verify ``--out-dir`` writes ``<DIR>/<stem>.viz.json``."""
+
+    def test_out_dir_creates_viz_json(self, tmp_path: Path) -> None:
+        from ipynb_data_visualization.cli import main
+
+        rc = main([str(SAMPLE_NB), "--out-dir", str(tmp_path), "--quiet"])
+        assert rc == 0
+        expected = tmp_path / f"{SAMPLE_NB.stem}.viz.json"
+        assert expected.exists(), f"Expected {expected} to exist"
+
+    def test_out_dir_content_is_valid_envelope(self, tmp_path: Path) -> None:
+        from ipynb_data_visualization.cli import main
+
+        main([str(SAMPLE_NB), "--out-dir", str(tmp_path), "--quiet"])
+        out = tmp_path / f"{SAMPLE_NB.stem}.viz.json"
+        envelope = json.loads(out.read_text())
+        assert "fileUrl" in envelope
+        assert "generatedAt" in envelope
+        assert "captures" in envelope
+
+    def test_out_dir_stem_matches_notebook_name(self, tmp_path: Path) -> None:
+        from ipynb_data_visualization.cli import main
+
+        main([str(SAMPLE_NB), "--out-dir", str(tmp_path), "--quiet"])
+        # Only one file should be created; its name must be <notebook-stem>.viz.json
+        created = list(tmp_path.glob("*.viz.json"))
+        assert len(created) == 1
+        expected_name = f"{SAMPLE_NB.stem}.viz.json"
+        assert created[0].name == expected_name, f"Expected {expected_name}, got {created[0].name}"
+
+    def test_out_dir_created_if_absent(self, tmp_path: Path) -> None:
+        from ipynb_data_visualization.cli import main
+
+        nested = tmp_path / "subdir" / "output"
+        rc = main([str(SAMPLE_NB), "--out-dir", str(nested), "--quiet"])
+        assert rc == 0
+        assert (nested / f"{SAMPLE_NB.stem}.viz.json").exists()
+
+
+# ---------------------------------------------------------------------------
+# Phase 3 — CLI --sidecar output convention
+# ---------------------------------------------------------------------------
+
+
+class TestCliSidecar:
+    """Verify ``--sidecar`` writes ``<notebook-dir>/<stem>.viz.json`` next to the .ipynb."""
+
+    def test_sidecar_written_next_to_notebook(self, tmp_path: Path) -> None:
+        import shutil
+
+        from ipynb_data_visualization.cli import main
+
+        # Copy the fixture notebook into a temp directory so we don't pollute the fixture dir.
+        nb_copy = tmp_path / SAMPLE_NB.name
+        shutil.copy(SAMPLE_NB, nb_copy)
+
+        rc = main([str(nb_copy), "--sidecar", "--quiet"])
+        assert rc == 0
+        sidecar = tmp_path / f"{SAMPLE_NB.stem}.viz.json"
+        assert sidecar.exists(), f"Expected sidecar at {sidecar}"
+
+    def test_sidecar_filename_convention(self, tmp_path: Path) -> None:
+        import shutil
+
+        from ipynb_data_visualization.cli import main
+
+        nb_copy = tmp_path / SAMPLE_NB.name
+        shutil.copy(SAMPLE_NB, nb_copy)
+        main([str(nb_copy), "--sidecar", "--quiet"])
+
+        # Filename must be <stem>.viz.json — no extra suffix on top of .ipynb.
+        expected_name = f"{SAMPLE_NB.stem}.viz.json"
+        assert (tmp_path / expected_name).exists()
+
+    def test_sidecar_content_is_valid_envelope(self, tmp_path: Path) -> None:
+        import shutil
+
+        from ipynb_data_visualization.cli import main
+
+        nb_copy = tmp_path / SAMPLE_NB.name
+        shutil.copy(SAMPLE_NB, nb_copy)
+        main([str(nb_copy), "--sidecar", "--quiet"])
+
+        sidecar = tmp_path / f"{SAMPLE_NB.stem}.viz.json"
+        envelope = json.loads(sidecar.read_text())
+        assert "fileUrl" in envelope
+        assert "captures" in envelope
+        # cell indices must be absolute and match expected positions
+        cell_indices = {cap["cellIndex"] for cap in envelope["captures"]}
+        assert cell_indices.issubset({1, 3, 4})
+
+    def test_sidecar_and_out_dir_both_written(self, tmp_path: Path) -> None:
+        """--sidecar and --out-dir can be combined; both outputs are written."""
+        import shutil
+
+        from ipynb_data_visualization.cli import main
+
+        nb_copy = tmp_path / "notebooks" / SAMPLE_NB.name
+        nb_copy.parent.mkdir(parents=True)
+        shutil.copy(SAMPLE_NB, nb_copy)
+        out_dir = tmp_path / "out"
+
+        rc = main([str(nb_copy), "--sidecar", "--out-dir", str(out_dir), "--quiet"])
+        assert rc == 0
+        assert (nb_copy.parent / f"{SAMPLE_NB.stem}.viz.json").exists()
+        assert (out_dir / f"{SAMPLE_NB.stem}.viz.json").exists()

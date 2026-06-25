@@ -2,6 +2,15 @@
 cli.py - Command-line interface for ipynb_data_visualization.
 
 Entry point: ipynb_data_visualization:main (registered in pyproject.toml).
+
+Output modes
+------------
+- Default (no -o / --out-dir / --sidecar): JSON printed to stdout in --quiet
+  mode; nothing printed in verbose mode.
+- ``-o FILE`` / ``--output FILE``: write envelope to FILE (legacy).
+- ``--out-dir DIR``: write ``<DIR>/<stem>.viz.json`` (P2 standalone convention).
+- ``--sidecar``: write ``<notebook-dir>/<stem>.viz.json`` next to the .ipynb
+  (P3 pre-processor convention, so convert_blog_post can find it).
 """
 
 import argparse
@@ -36,6 +45,23 @@ def main(argv: list[str] | None = None) -> int:
         metavar="FILE",
         default=None,
         help="Write the per-notebook envelope JSON to FILE (default: stdout in quiet mode).",
+    )
+    parser.add_argument(
+        "--out-dir",
+        metavar="DIR",
+        default=None,
+        help=(
+            "Write the envelope to <DIR>/<stem>.viz.json "
+            "(P2 standalone convention). Created if absent."
+        ),
+    )
+    parser.add_argument(
+        "--sidecar",
+        action="store_true",
+        help=(
+            "Write the envelope as a sidecar <stem>.viz.json next to the .ipynb "
+            "(P3 pre-processor convention for convert_blog_post)."
+        ),
     )
     parser.add_argument(
         "--stop-at",
@@ -92,13 +118,35 @@ def main(argv: list[str] | None = None) -> int:
 
     json_output = json.dumps(envelope, indent=2, default=str)
 
+    # Determine output destination(s). Priority: --output > --out-dir > --sidecar > stdout.
+    wrote = False
+
     if args.output:
         out_path = Path(args.output)
         out_path.parent.mkdir(parents=True, exist_ok=True)
         out_path.write_text(json_output, encoding="utf-8")
         if not args.quiet:
             print(f"\nOutput written to: {out_path}")
-    else:
+        wrote = True
+
+    if args.out_dir:
+        stem = notebook_path.stem
+        out_path = Path(args.out_dir) / f"{stem}.viz.json"
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text(json_output, encoding="utf-8")
+        if not args.quiet:
+            print(f"\nOutput written to: {out_path}")
+        wrote = True
+
+    if args.sidecar:
+        stem = notebook_path.stem
+        sidecar_path = notebook_path.parent / f"{stem}.viz.json"
+        sidecar_path.write_text(json_output, encoding="utf-8")
+        if not args.quiet:
+            print(f"\nSidecar written to: {sidecar_path}")
+        wrote = True
+
+    if not wrote:
         # Only print JSON to stdout when not in verbose mode to avoid mixing with log output
         if args.quiet:
             print(json_output)
