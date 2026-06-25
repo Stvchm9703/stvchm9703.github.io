@@ -32,11 +32,11 @@
 - [x] **P1_core_table_schema** — `serialize.py` (DataFrame→`orient="table"` + envelope, `cellIndex`=absolute, `--max-rows`); CLI writes envelope. ✓ `uv run pytest`: **38 passed**.
 
 ### Type-safety refactor (B4 fallout — chosen approach: narrow)
-- [ ] **C1_narrow_componentattr** — blog: narrow `componentAttr` by `componentType` in `text/table/code/latex/file/link/bookmark.svelte` + `block/common.ts` so they type-check against the strict `ComponentAttr` union (`src/types/content_block.ts`). Clears group-(a) errors. Bundled with the Wave-3 **blog** builder (single blog lane to avoid concurrent `pnpm check`). Verify: `pnpm check` — group-(a) cleared, no regressions.
+- [x] **C1_narrow_componentattr** — ✅ narrowed `componentAttr` by `componentType` in `text/table/code/latex/file.svelte` + `block/common.ts` (fixed a bogus `$generateor/common` import). ✓ `pnpm check`: **186 → 141** error lines (45 cleared); no new errors. `link.svelte`/`bookmark.svelte` keep 1 pre-existing `stComponent` card error each (group-b).
 
-### Wave 3 (depend on wave-2 tasks)
-- [ ] **P2_blog_integration_standalone** — Python+blog: Phase 2 standalone `.viz.json` + blog "Data" tab. deps: P1 · blocks: P4 · wave 3
-- [ ] **P3_preprocessor_convert_blog_post** — Python+Rust+blog: Phase 3 sidecar pre-processor + Rust `data_tables` + blog render. deps: P1 · blocks: P4 · wave 3
+### Wave 3 — ✅ COMPLETE (2026-06-25; cargo 13✓ / pytest 46✓ / pnpm 141 errors, all group-b)
+- [x] **P2_blog_integration_standalone** — Python CLI `--out-dir`/`-o` writes `<stem>.viz.json` envelope; blog `custom/data-table.svelte` (new) + "Data" tab in `custom/jupyter.svelte` render it. (P2 optional fetch-fallback skipped by design.)
+- [x] **P3_preprocessor_convert_blog_post** — Python `--sidecar` writes `<stem>.viz.json` next to the `.ipynb`; Rust adds `dataTables` (+`load_sidecar`) to `JupyterComponentAttr`; blog renders `componentAttr.dataTables`. ⚠️ **see P3-WIRE** — `load_sidecar` is implemented but not yet called by the pipeline.
 
 ### Wave 4 (depend on wave-3 tasks)
 - [ ] **P4_polish** — Python: Phase 4 polish (README, CI, optional caching). deps: P2, P3 · blocks: — · wave 4
@@ -45,6 +45,8 @@
 - [x] **G1_remove_convert_blog_post_ts** — ✅ **DONE (2026-06-25, human-confirmed)** — `tools/convert_blog_post_ts/` removed. Verified: `pnpm check` shows the same 23 pre-existing errors (no new ones), `cargo test` green. Blog resolves types via `$generateor`→`src/types`.
 
 ## Someday
+
+- [ ] **P3-WIRE** — Rust: actually call `JupyterComponentAttr::load_sidecar` in the pipeline so `dataTables` populates. `notebook_related.rs::resolve_notebook` only has the notebook *filename*; plumb the resolved `.ipynb` filesystem path (e.g. store it on `JupyterNotebookRoot` when read in `main.rs`, or pass the import `files/` dir) and call `load_sidecar` after `add_notebook_file`. Also document the pipeline order (run `ipynb_data_visualization … --sidecar` BEFORE `convert_blog_post`). Verify: `cargo test` + an end-to-end run with a sidecar present. Blocks true P3 end-to-end.
 
 _Follow-ups surfaced during Wave 1:_
 - [ ] **D1-T1** — Rust: investigate Drawio companion-file linkage in the `.pb` block tree; if a sibling `File` block carries the diagram, add `file_url` to `LatexComponentAttr` + wire asset copy; else document Drawio as unrecoverable. (see `docs/decisions/drawio-mermaid-latex.md`)
