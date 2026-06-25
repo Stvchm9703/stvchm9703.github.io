@@ -2,12 +2,69 @@
     import { Highlight, LineNumbers } from "svelte-highlight";
     // import Copy from "svelte-radix/Copy.svelte";
     import Copy from "@lucide/svelte/icons/copy";
-    import { typescript, type LanguageType } from "svelte-highlight/languages";
+    import {
+        typescript,
+        javascript,
+        python,
+        rust,
+        bash,
+        json,
+        xml,
+        css,
+        go,
+        java,
+        kotlin,
+        swift,
+        csharp,
+        cpp,
+        c,
+        ruby,
+        php,
+        sql,
+        yaml,
+        plaintext,
+        type LanguageType,
+    } from "svelte-highlight/languages";
     import "svelte-highlight/styles/gruvbox-dark-soft.css";
     import { headerIdResolver, resolveStyle } from "./common";
     import type { ContentBlock } from "$generateor/content_block";
     import { Button } from "$lib/components/ui/button";
     import { onMount } from "svelte";
+
+    const langMap: Record<string, LanguageType<any>> = {
+        ts: typescript,
+        typescript: typescript,
+        js: javascript,
+        javascript: javascript,
+        py: python,
+        python: python,
+        rs: rust,
+        rust: rust,
+        sh: bash,
+        bash: bash,
+        shell: bash,
+        json: json,
+        html: xml,
+        xml: xml,
+        css: css,
+        go: go,
+        java: java,
+        kotlin: kotlin,
+        swift: swift,
+        cs: csharp,
+        csharp: csharp,
+        cpp: cpp,
+        "c++": cpp,
+        c: c,
+        rb: ruby,
+        ruby: ruby,
+        php: php,
+        sql: sql,
+        yaml: yaml,
+        yml: yaml,
+        plaintext: plaintext,
+        text: plaintext,
+    };
 
     const {
         id,
@@ -20,7 +77,13 @@
     const { text, style: element_style, marks, ...other } = $derived(componentAttr);
     // const hasText = text !== undefined && text !== "" && text !== null;
 
-    let lang: LanguageType<any> = $state.raw(typescript);
+    let lang: LanguageType<any> = $derived.by(() => {
+        const rawLang = fields?.["lang"];
+        if (rawLang && typeof rawLang === "string") {
+            return langMap[rawLang.toLowerCase()] ?? typescript;
+        }
+        return typescript;
+    });
 
 
 

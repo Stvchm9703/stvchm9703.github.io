@@ -42,8 +42,8 @@ const config = {
       "$types/*": "src/types/*",
       $components: "src/lib/components",
       "$components/*": "src/lib/components/*",
-      $generateor: "tools/convert_blog_post_ts",
-      "$generateor/*": "tools/convert_blog_post_ts/*",
+      $generateor: "src/types",
+      "$generateor/*": "src/types/*",
     },
     paths: {
       base: process.argv.includes("dev") ? "" : process.env.BASE_PATH,

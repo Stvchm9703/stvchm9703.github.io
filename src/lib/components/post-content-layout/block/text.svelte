@@ -37,7 +37,7 @@
   const header_classes = "text-2xl font-bold mt-8 mb-4 scroll-mt-16";
 
   const hasText = $derived(text !== undefined && text !== "" && text !== null);
-  let tMarks = $derived(marks.marks || []);
+  let tMarks = $derived(Array.isArray(marks) ? marks : []);
   const resolveHeaderId = (text: string, id: string) =>
     headerIdResolver(text, id).toLowerCase();
 </script>
