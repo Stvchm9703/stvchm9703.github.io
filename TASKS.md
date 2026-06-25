@@ -25,12 +25,14 @@
   - [x] **R4_customcomponent_decision** — **DECISION: drop/defer** (`docs/decisions/customcomponent.md`). No impl.
   - [~] **R5_user_workspace_resolution** — **DEFERRED** (no consumer needs resolved author/workspace today).
 
-### Wave 2 (depend only on wave-1 tasks)
-- [ ] **B3_toggle_leveltext_items** — blog: render Toggle/list `LevelText` items in `text.svelte`. deps: B1 · blocks: — · wave 2
-- [ ] **X1_blog_consume_coverimage** — blog: consume `coverImage` (OG image) + type. deps: R1 (DONE) · blocks: — · wave 2
-  - ✅ **Path form resolved (2026-06-25):** R1 now emits `coverImage` = bare `<name>` (the blog prepends `/blog/assets/files/`). `coverImage` + `description` added to `src/types/page.ts`. X1 remaining work = confirm `+page.server.ts` OG read + any blog UI use of the cover image.
-- [ ] **X2_verify_asset_path_serving** — blog: verify/fix asset serving from `static/blog/assets/`. deps: R3 · blocks: — · wave 2
-- [ ] **P1_core_table_schema** — Python: Phase 1 execute→capture→Table-Schema envelope. deps: P0 · blocks: P2, P3 · wave 2
+### Wave 2 — ✅ COMPLETE (2026-06-25; verified — no new errors: 187→186 error lines)
+- [x] **B3_toggle_leveltext_items** — `text.svelte` Toggle/list branch now dispatches on `_text_item_type` (`LevelText`/`Block` → text + nested list; `Other` → `<Block>`).
+- [x] **X1_blog_consume_coverimage** — `+page.server.ts` builds `coverImageUrl` from bare `coverImage`; fixed twitter image + removed OG double-`${BASE}`. Types already in `src/types/page.ts`.
+- [x] **X2_verify_asset_path_serving** — verified: `static/blog/assets/files/<name>` (R3) matches `file.svelte`'s `/blog/assets/${fileUrl}`; SvelteKit serves `static/` at root. **No change needed.**
+- [x] **P1_core_table_schema** — `serialize.py` (DataFrame→`orient="table"` + envelope, `cellIndex`=absolute, `--max-rows`); CLI writes envelope. ✓ `uv run pytest`: **38 passed**.
+
+### Type-safety refactor (B4 fallout — chosen approach: narrow)
+- [ ] **C1_narrow_componentattr** — blog: narrow `componentAttr` by `componentType` in `text/table/code/latex/file/link/bookmark.svelte` + `block/common.ts` so they type-check against the strict `ComponentAttr` union (`src/types/content_block.ts`). Clears group-(a) errors. Bundled with the Wave-3 **blog** builder (single blog lane to avoid concurrent `pnpm check`). Verify: `pnpm check` — group-(a) cleared, no regressions.
 
 ### Wave 3 (depend on wave-2 tasks)
 - [ ] **P2_blog_integration_standalone** — Python+blog: Phase 2 standalone `.viz.json` + blog "Data" tab. deps: P1 · blocks: P4 · wave 3
@@ -47,7 +49,7 @@
 _Follow-ups surfaced during Wave 1:_
 - [ ] **D1-T1** — Rust: investigate Drawio companion-file linkage in the `.pb` block tree; if a sibling `File` block carries the diagram, add `file_url` to `LatexComponentAttr` + wire asset copy; else document Drawio as unrecoverable. (see `docs/decisions/drawio-mermaid-latex.md`)
 - [ ] **D1-T2** — blog: add `latex.svelte` branches for `Latex` (KaTeX math), `GithubGist`, `Drawio` (img/placeholder, after D1-T1), and an unknown-processor `{:else}` fallback.
-- [ ] **CLEANUP-blog-typecheck** — resolve the ~23 pre-existing `svelte-check` errors (missing `$assets/*?format=...` module decls, card `title_slot`/`content_slot`/`serie` props, stray `key`/`hx-get`/`open` attrs, `ui/tabs/*`, implicit-any route params). Not caused by Wave 1.
+- [ ] **CLEANUP-blog-typecheck-infra** — pre-existing infra/route type debt (group b; group a is now task **C1**): `+page.server.ts` using `PageLoad`/`EntryGenerator` from `./$types` (should be `PageServerLoad`), implicit-any params, missing `$assets/*?format=...` module decls, card `title_slot`/`content_slot`/`serie` props, stray `key`/`hx-get`/`open` attrs, `ui/tabs/*` preprocessing failures. Independent of the converter work.
 - [ ] **DOC-r3-static-path** — document `--static-assets-path` (relative to CWD; pass absolute path if not run from repo root) in the tool README/CLAUDE.md.
 - _(coverImage path-form reconciliation folded into X1 above.)_
 
