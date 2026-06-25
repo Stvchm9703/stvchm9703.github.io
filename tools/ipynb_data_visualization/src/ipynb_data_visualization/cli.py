@@ -9,7 +9,8 @@ import json
 import sys
 from pathlib import Path
 
-from .runner import list_dataframes, print_summary, run_notebook
+from .runner import print_summary, run_notebook
+from .serialize import build_envelope
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -34,7 +35,7 @@ def main(argv: list[str] | None = None) -> int:
         "--output",
         metavar="FILE",
         default=None,
-        help="Write captured DataFrame summary as JSON to FILE (default: stdout).",
+        help="Write the per-notebook envelope JSON to FILE (default: stdout in quiet mode).",
     )
     parser.add_argument(
         "--stop-at",
@@ -57,7 +58,7 @@ def main(argv: list[str] | None = None) -> int:
         type=int,
         default=None,
         metavar="N",
-        help="Truncate each captured DataFrame to at most N rows in the output.",
+        help="Truncate each captured DataFrame to at most N rows in the output (shape always records original size).",
     )
     parser.add_argument(
         "--quiet",
@@ -82,32 +83,14 @@ def main(argv: list[str] | None = None) -> int:
     if not args.quiet:
         print_summary(result)
 
-    # Build a JSON-serialisable summary
-    df_names = list_dataframes(result)
-    output_data: dict = {
-        "notebook": str(notebook_path),
-        "cells_executed": len(result["cell_snapshots"]),
-        "dataframes": [],
-    }
+    # Build the per-notebook envelope (Table-Schema JSON)
+    envelope = build_envelope(
+        notebook_path=str(notebook_path),
+        cell_snapshots=result["cell_snapshots"],
+        max_rows=args.max_rows,
+    )
 
-    import pandas as pd  # noqa: PLC0415 (late import after successful run)
-
-    for name in df_names:
-        df: pd.DataFrame = result["dataframes"][name]
-        rows = df
-        if args.max_rows is not None and len(df) > args.max_rows:
-            rows = df.head(args.max_rows)
-        output_data["dataframes"].append(
-            {
-                "name": name,
-                "shape": list(df.shape),
-                "columns": list(df.columns),
-                "dtypes": {col: str(dtype) for col, dtype in df.dtypes.items()},
-                "data": json.loads(rows.to_json(orient="records")),
-            }
-        )
-
-    json_output = json.dumps(output_data, indent=2, default=str)
+    json_output = json.dumps(envelope, indent=2, default=str)
 
     if args.output:
         out_path = Path(args.output)

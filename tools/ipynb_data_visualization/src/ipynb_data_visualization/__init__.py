@@ -10,6 +10,7 @@ from .runner import (
     run_notebook,
     scan_dataframes,
 )
+from .serialize import build_envelope, serialize_dataframe
 
 __all__ = [
     "main",
@@ -20,4 +21,6 @@ __all__ = [
     "get_stop_capture",
     "list_dataframes",
     "print_summary",
+    "serialize_dataframe",
+    "build_envelope",
 ]
