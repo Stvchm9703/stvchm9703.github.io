@@ -39,6 +39,7 @@ classifiers = [
 # ---- Main dependencies ----
 
 dependencies = [
+    "pandas>=2.0",
 ]
 
 
