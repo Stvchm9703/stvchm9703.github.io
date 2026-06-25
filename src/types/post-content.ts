@@ -1,3 +1,13 @@
+/**
+ * @deprecated This file does NOT match the JSON emitted by
+ * `tools/convert_blog_post`. It is an older hand-drafted shape (flat `Content`
+ * union, `RelatedPost.id: number`, `tableOfContents[].title`) and is not
+ * imported anywhere in the app.
+ *
+ * Use `./page.ts` + `./content_block.ts` (or the `./index.ts` barrel) instead,
+ * which reflect the real output. See `docs/data_model.md`. Safe to delete once
+ * confirmed unused.
+ */
 export interface PostContent {
   title: string;
   date: string;
