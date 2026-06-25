@@ -29,7 +29,7 @@ The per-notebook envelope follows §3 of implementation_plan.md:
 """
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 
@@ -91,7 +91,7 @@ def build_envelope(
         The envelope dict as documented in §3 of implementation_plan.md.
     """
     if generated_at is None:
-        generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        generated_at = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     captures = []
     for snap in cell_snapshots:
