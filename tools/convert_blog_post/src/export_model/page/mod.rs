@@ -66,6 +66,12 @@ pub struct Page {
     #[serde(skip_serializing_if = "is_release")]
     pub raw_series: Option<Vec<String>>,
     pub serie: Option<PageExternalLink>,
+    // cover image – first image file block URL (e.g. "files/<name>"); None when absent
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub cover_image: Option<String>,
+    // optional description from Anytype description relation
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
     // page other relation / attr
     pub meta: PageMeta,
     pub table_of_contents: Vec<PageExternalLink>,
@@ -117,6 +123,8 @@ impl<'a> FromRaw<SnapshotWithType<'a>> for Page {
         tmp.creator = field_attr.creator;
         // tmp.snippet = getFieldValue(detailMap, "snippet") ?? "";
         tmp.snippet = field_attr.snippet;
+        // description from the Anytype description relation (optional)
+        tmp.description = field_attr.description.filter(|d| !d.is_empty());
         // tmp.raw_tag_list = getFieldValue(detailMap, "tag") ?? [];
         if let Some(tag) = field_attr.tag {
             tmp.raw_tag_list = tag;

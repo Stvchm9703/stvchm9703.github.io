@@ -13,7 +13,7 @@ pub struct Args {
     #[arg(short = 'o', long)]
     pub export_path: OsString,
 
-    /// Number of times to greet
+    /// Skip copying asset files to export dir and static assets dir
     #[arg(short, long)]
     pub skip_copy: bool,
 
@@ -22,4 +22,10 @@ pub struct Args {
 
     #[arg(short, long)]
     pub ts_export: bool,
+
+    /// Additional static assets directory to copy files into (default: "static/blog/assets").
+    /// Set to an empty string to disable the second copy.
+    /// Assets are written to <static_assets_path>/files/<filename>.
+    #[arg(long, default_value = "static/blog/assets")]
+    pub static_assets_path: OsString,
 }

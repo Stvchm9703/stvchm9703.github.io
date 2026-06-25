@@ -130,6 +130,21 @@ fn main_process(arg: &Args) -> Result<(), anyhow::Error> {
         fs::create_dir_all(&export_file_path)?;
     }
 
+    // R3: optional second copy to static/blog/assets/files/ (or a user-supplied path)
+    let static_assets_str = arg.static_assets_path.to_str().unwrap_or("").trim().to_owned();
+    let static_assets_file_path: Option<PathBuf> = if !static_assets_str.is_empty() && !arg.skip_copy {
+        let mut p = PathBuf::from(&static_assets_str);
+        p.push("files");
+        if let Err(e) = fs::create_dir_all(&p) {
+            eprintln!("Warning: could not create static assets dir {:?}: {}", p, e);
+            None
+        } else {
+            Some(p)
+        }
+    } else {
+        None
+    };
+
     let file_assets_path = format!("{}/files/*", import_path.to_str().unwrap());
     for entry in glob::glob(&file_assets_path).unwrap().into_iter() {
         let path = entry.ok().unwrap();
@@ -141,6 +156,15 @@ fn main_process(arg: &Args) -> Result<(), anyhow::Error> {
         tar_copy_path.push(file_name);
         if arg.skip_copy == false {
             fs::copy(&tar_path, &tar_copy_path).expect("failed to copy file");
+
+            // R3: also copy to static/blog/assets/files/<name> when configured
+            if let Some(ref static_files_dir) = static_assets_file_path {
+                let mut static_copy_path = static_files_dir.clone();
+                static_copy_path.push(file_name);
+                if let Err(e) = fs::copy(&tar_path, &static_copy_path) {
+                    eprintln!("Warning: failed to copy {:?} to static assets: {}", file_name, e);
+                }
+            }
         }
 
         if path.extension().is_some_and(|f| f == "ipynb") {

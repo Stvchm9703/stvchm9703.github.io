@@ -103,9 +103,24 @@ impl Page {
     }
 
     fn add_meta_data(&mut self, file_list: &Vec<&file_object::FileObject>) {
-        let images = file_list
+        let image_files: Vec<&file_object::FileObject> = file_list
             .into_iter()
             .filter(|p| p.file_type == "images")
+            .copied()
+            .collect();
+
+        // R1: populate cover_image from the first image file block.
+        // Emit the bare file name; the blog prepends `/blog/assets/files/`.
+        if self.cover_image.is_none() {
+            if let Some(first_img) = image_files.first() {
+                if !first_img.file_url.is_empty() {
+                    self.cover_image = Some(first_img.file_url.clone());
+                }
+            }
+        }
+
+        let images = image_files
+            .iter()
             .map(|p| p.to_page_meta_og())
             .collect::<Vec<PageMetaOpenGraphObj>>();
 

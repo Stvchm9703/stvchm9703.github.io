@@ -11,3 +11,6 @@ pub mod external_link;
 pub mod file_util;
 
 pub mod content_block;
+
+#[cfg(test)]
+mod test;

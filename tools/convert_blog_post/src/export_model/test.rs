@@ -7,6 +7,81 @@ use serde_json;
 use std::cell::RefCell;
 use std::rc::Rc;
 
+// ------------------------------------------------------------------
+// R1 + R2: Page serialization tests for coverImage and description
+// ------------------------------------------------------------------
+#[cfg(test)]
+mod page_field_tests {
+    use crate::export_model::page::Page;
+
+    /// R1: a Page with cover_image set should emit "coverImage" in JSON.
+    #[test]
+    fn test_cover_image_present() {
+        let mut page = Page::default();
+        page.cover_image = Some("files/my-image.jpg".to_string());
+
+        let json = serde_json::to_string(&page).expect("serialise");
+        assert!(
+            json.contains("\"coverImage\""),
+            "coverImage key missing from JSON: {}",
+            json
+        );
+        assert!(
+            json.contains("files/my-image.jpg"),
+            "coverImage value missing from JSON: {}",
+            json
+        );
+    }
+
+    /// R1: a Page without cover_image should NOT emit "coverImage" at all
+    /// (skip_serializing_if = Option::is_none).
+    #[test]
+    fn test_cover_image_absent() {
+        let page = Page::default();
+        assert!(page.cover_image.is_none());
+
+        let json = serde_json::to_string(&page).expect("serialise");
+        assert!(
+            !json.contains("\"coverImage\""),
+            "coverImage should be absent when None, but found in JSON: {}",
+            json
+        );
+    }
+
+    /// R2: a Page with description set should emit "description" in JSON.
+    #[test]
+    fn test_description_present() {
+        let mut page = Page::default();
+        page.description = Some("A great post about Rust.".to_string());
+
+        let json = serde_json::to_string(&page).expect("serialise");
+        assert!(
+            json.contains("\"description\""),
+            "description key missing from JSON: {}",
+            json
+        );
+        assert!(
+            json.contains("A great post about Rust."),
+            "description value missing from JSON: {}",
+            json
+        );
+    }
+
+    /// R2: a Page without description should NOT emit "description".
+    #[test]
+    fn test_description_absent() {
+        let page = Page::default();
+        assert!(page.description.is_none());
+
+        let json = serde_json::to_string(&page).expect("serialise");
+        assert!(
+            !json.contains("\"description\""),
+            "description should be absent when None, but found in JSON: {}",
+            json
+        );
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct Coordinate {
     name: String,
