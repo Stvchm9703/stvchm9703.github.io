@@ -28,7 +28,7 @@
 ### Wave 2 (depend only on wave-1 tasks)
 - [ ] **B3_toggle_leveltext_items** — blog: render Toggle/list `LevelText` items in `text.svelte`. deps: B1 · blocks: — · wave 2
 - [ ] **X1_blog_consume_coverimage** — blog: consume `coverImage` (OG image) + type. deps: R1 (DONE) · blocks: — · wave 2
-  - ⚠️ **Reconcile path form:** R1 emits `coverImage` = `files/<name>`, but `+page.server.ts` builds `${BASE}/blog/assets/files/${post.coverImage}` → would double `files/`. Decide: emit bare `<name>` from R1 **or** drop the `files/` from the blog URL. Also `coverImage` is now a typed field on `src/types/page.ts`? (NO — add it).
+  - ✅ **Path form resolved (2026-06-25):** R1 now emits `coverImage` = bare `<name>` (the blog prepends `/blog/assets/files/`). `coverImage` + `description` added to `src/types/page.ts`. X1 remaining work = confirm `+page.server.ts` OG read + any blog UI use of the cover image.
 - [ ] **X2_verify_asset_path_serving** — blog: verify/fix asset serving from `static/blog/assets/`. deps: R3 · blocks: — · wave 2
 - [ ] **P1_core_table_schema** — Python: Phase 1 execute→capture→Table-Schema envelope. deps: P0 · blocks: P2, P3 · wave 2
 
@@ -40,7 +40,7 @@
 - [ ] **P4_polish** — Python: Phase 4 polish (README, CI, optional caching). deps: P2, P3 · blocks: — · wave 4
 
 ## Waiting On
-- [ ] **G1_remove_convert_blog_post_ts** — 🚪 **GATED / DESTRUCTIVE** — remove legacy `tools/convert_blog_post_ts/`. deps: B4, R1, R3, R4 · **NOT in any auto-executable wave; requires explicit human confirmation** before a builder may run it.
+- [x] **G1_remove_convert_blog_post_ts** — ✅ **DONE (2026-06-25, human-confirmed)** — `tools/convert_blog_post_ts/` removed. Verified: `pnpm check` shows the same 23 pre-existing errors (no new ones), `cargo test` green. Blog resolves types via `$generateor`→`src/types`.
 
 ## Someday
 
