@@ -210,6 +210,30 @@ export interface LatexComponentAttr {
   processor: string;
 }
 
+// ---------------------------------------------------------------------------
+// Wave-3 data table types (P2/P3 contract)
+// ---------------------------------------------------------------------------
+
+export interface TableSchemaField {
+  name: string;
+  type: string;
+}
+
+export interface TableSchema {
+  schema: {
+    fields: TableSchemaField[];
+    primaryKey: string[];
+    pandas_version: string;
+  };
+  data: Record<string, unknown>[];
+}
+
+export interface DataTableEntry {
+  name: string;
+  shape: [number, number];
+  table: TableSchema;
+}
+
 export interface JupyterComponentAttr {
   componentType: "JupyterComponent";
   text: string;
@@ -218,6 +242,8 @@ export interface JupyterComponentAttr {
   fileName: string;
   cellNumber: number;
   cell: JupyterCell | null;
+  /** Wave-3 (P3): optional data tables from sidecar pre-processor */
+  dataTables?: DataTableEntry[];
 }
 
 /** Catch-all for relation/dataview/featuredRelations/div/icon/widget/chat/etc. */

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { ContentBlock } from "$generateor/content_block";
+  import type { ContentBlock, FileComponentAttr } from "$generateor/content_block";
   import { cn } from "$lib/utils";
   import { headerIdResolver, resolveStyle } from "./common";
   import {
@@ -9,7 +9,6 @@
   } from "$lib/stores/lightgallery.svelte";
 
   const {
-    postTitle,
     id,
     fields,
     componentAttr,
@@ -17,12 +16,18 @@
     ...rest
   }: ContentBlock = $props();
 
-  const {
-    type: fileType,
-    style,
-    name: fileName,
-    fileUrl,
-  } = $derived(componentAttr);
+  // Narrow to FileComponentAttr — this component is only mounted for File blocks
+  const fileAttr = $derived(
+    componentAttr.componentType === "File"
+      ? (componentAttr as FileComponentAttr)
+      : null
+  );
+
+  const fileType = $derived(fileAttr?.type);
+  const fileStyle = $derived(fileAttr?.style);
+  const fileName = $derived(fileAttr?.name ?? "");
+  const fileUrl = $derived(fileAttr?.fileUrl ?? "");
+
   const baseClass = ["w-full", "my-2", "max-h-240"];
   const mediaClass = [
     "rounded-md",
@@ -32,7 +37,7 @@
     "object-contain",
   ];
 
-  const elemId = $derived(headerIdResolver(fileType, id));
+  const elemId = $derived(headerIdResolver(fileType ?? "", id));
 </script>
 
 <template>
@@ -42,7 +47,7 @@
 {#if fileType === "Image"}
   <figure
     id={elemId}
-    class={cn([baseClass, resolveStyle(style)])}
+    class={cn([baseClass, resolveStyle(fileStyle)])}
     onclick={() => openGallery(fileUrl)}
   >
     <figcaption></figcaption>
@@ -50,13 +55,13 @@
       <img
         class={cn(mediaClass)}
         src={`/blog/assets/${fileUrl}`}
-        alt="{fileName} - {postTitle}"
+        alt="{fileName}"
         aria-label={fileName}
       />
     </picture>
   </figure>
 {:else if fileType === "Video"}
-  <figure id={elemId} class={cn([baseClass, resolveStyle(style)])}>
+  <figure id={elemId} class={cn([baseClass, resolveStyle(fileStyle)])}>
     <figcaption></figcaption>
     <video class={cn(mediaClass)} src={`/blog/assets/${fileUrl}`}>
       <track kind="captions" />

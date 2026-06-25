@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { ContentBlock } from "$generateor/content_block";
+  import type { ContentBlock, LatexComponentAttr } from "$generateor/content_block";
   import { onMount } from "svelte";
   import { cn } from "$lib/utils";
   import {
@@ -16,8 +16,14 @@
     ...rest
   }: ContentBlock = $props();
 
-  // const {  componentAttr?.processor } = componentAttr;
-  const id = $derived(headerIdResolver(componentAttr?.processor, blockId));
+  // Narrow to LatexComponentAttr — this component is only mounted for Latex blocks
+  const latexAttr = $derived(
+    componentAttr.componentType === "Latex"
+      ? (componentAttr as LatexComponentAttr)
+      : null
+  );
+
+  const id = $derived(headerIdResolver(latexAttr?.processor ?? "", blockId));
   const baseComponetClass = ["mx-auto", "aspect-video", "my-2"];
 
   /// google map
@@ -64,10 +70,10 @@
   // meriad implement
   let mermaid_rend: string | null = $state.raw(null);
   onMount(async () => {
-    if (componentAttr?.processor === "Mermaid") {
+    if (latexAttr?.processor === "Mermaid") {
       const mermaid = (await import("mermaid")).default;
       await mermaid.init();
-      const result = await mermaid.render(id, componentAttr?.text);
+      const result = await mermaid.render(id, latexAttr.text);
       mermaid_rend = result.svg;
       // console.log(mermaid_rend);
     }
@@ -76,28 +82,28 @@
   // Graphviz / dot-lang
   let graphviz_rend: SVGElement | null = $state.raw(null);
   onMount(async () => {
-    if (componentAttr?.processor === "Graphviz") {
+    if (latexAttr?.processor === "Graphviz") {
       const viz = (await import("@viz-js/viz")).instance;
       const render = await viz();
-      graphviz_rend = render.renderSVGElement(componentAttr?.text);
+      graphviz_rend = render.renderSVGElement(latexAttr.text);
     }
   });
 </script>
 
-{#if componentAttr?.processor === "Youtube"}
+{#if latexAttr?.processor === "Youtube"}
   <iframe
     {id}
     class={cn([baseComponetClass, "w-full", resolveStyle(content_style)])}
-    src={resolveYoutubeEmbed(componentAttr?.text)}
+    src={resolveYoutubeEmbed(latexAttr.text)}
     frameBorder="0"
     allowFullScreen
     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
     title="yt-link"
     loading="lazy"
   ></iframe>
-{:else if componentAttr?.processor === "GoogleMaps"}
+{:else if latexAttr?.processor === "GoogleMaps"}
   <iframe
-    src={convertGoogleMapsUrlToEmbed(componentAttr?.text)}
+    src={convertGoogleMapsUrlToEmbed(latexAttr.text)}
     class={cn([baseComponetClass, "w-full", resolveStyle(content_style)])}
     title="google-map"
     allowfullscreen
@@ -106,7 +112,7 @@
   >
     Google Map content, unresovleds
   </iframe>
-{:else if componentAttr?.processor === "Mermaid"}
+{:else if latexAttr?.processor === "Mermaid"}
   <figure
     id={`container-${id}`}
     class={cn([
@@ -117,7 +123,7 @@
   >
     {@html mermaid_rend}
   </figure>
-{:else if componentAttr?.processor === "Graphviz"}
+{:else if latexAttr?.processor === "Graphviz"}
   <figure
     id={`container-${id}`}
     class={cn([

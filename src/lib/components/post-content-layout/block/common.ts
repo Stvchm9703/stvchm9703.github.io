@@ -1,17 +1,24 @@
 import { isArrayLike, isEmpty } from "lodash-es";
 // import { pathResolver as pr } from "$lib/utils";
-import type { TextMark, TextMarkType } from "$generateor/common";
-export const resolveMarks = (marks: TextMark[], text: string): string => {
+import type { Mark, ComponentStyle } from "$generateor/content_block";
+
+/** Internal mark type that tolerates legacy numeric values from older JSON. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type MarkTypeOrLegacy = any;
+
+export const resolveMarks = (marks: Mark[] | unknown, text: string): string => {
   let result = text + "";
   const resultSet = [];
-  let marksList = marks;
+  let marksList: Mark[] = marks as Mark[];
   if (!isArrayLike(marksList)) {
     if (marksList === undefined) {
       console.warn("unresolved marks", { marks });
       return result;
     }
-    if (isArrayLike(marks.marks)) {
-      marksList = marks.marks;
+    // Legacy: some callers pass a wrapped object { marks: [...] }
+    const wrapped = marks as { marks?: unknown };
+    if (isArrayLike(wrapped.marks)) {
+      marksList = wrapped.marks as Mark[];
     }
   }
 
@@ -25,7 +32,9 @@ export const resolveMarks = (marks: TextMark[], text: string): string => {
 
     let attr = "";
 
-    switch (mark.type) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const markType: MarkTypeOrLegacy = (mark as any).type;
+    switch (markType) {
       case 0:
       case "Strikethrough":
         classToken.push("line-through");
@@ -109,16 +118,17 @@ export const pathResolver = (path: string) =>
     .filter((e) => !isEmpty(e))
     .join("-");
 
-export const resolveStyle = (style) => {
+/**
+ * Resolves a ComponentStyle (or string style) to an array of Tailwind class tokens.
+ * Accepts ComponentStyle objects, strings (e.g. FileStyle), or null/undefined.
+ */
+export const resolveStyle = (style: ComponentStyle | string | null | undefined): string[] => {
   if (!style) return [];
-  let styleToken = [];
+  if (typeof style === "string") return [];
+  let styleToken: string[] = [];
 
-  if (style["backgroundColor"] && style["backgroundColor"] !== "") {
-    styleToken.push(`bg-${style["backgroundColor"]}-300/30`);
-  }
-
-  if (style["textColor"] && style["textColor"] !== "") {
-    styleToken.push(`text-${style["textColor"]}-700`);
+  if (style.backgroundColor && style.backgroundColor !== "") {
+    styleToken.push(`bg-${style.backgroundColor}-300/30`);
   }
 
   return styleToken;

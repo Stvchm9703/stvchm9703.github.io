@@ -10,50 +10,67 @@
     TableCell,
   } from "$lib/components/ui/table";
   import Block from "./layout.svelte";
-  import type { ContentBlock } from "$generateor/content_block";
+  import type { ContentBlock, LayoutComponentAttr, LayoutItem } from "$generateor/content_block";
 
   import { resolveStyle } from "./common";
 
   const { id, order, fields, componentAttr, style, ...rest }: ContentBlock = $props();
-  const componentType = $derived(
-    () => rest?.componentType || rest?.layoutStyle || "Table"
+
+  // Narrow to LayoutComponentAttr — this component is only mounted for Table/Layout blocks
+  const layoutAttr = $derived(
+    (componentAttr.componentType === "Table" || componentAttr.componentType === "Layout" || componentAttr.componentType === undefined)
+      ? (componentAttr as LayoutComponentAttr)
+      : null
   );
 
-  const items = $derived(() => {
-    return componentAttr?.items || rest?.items || [];
-  });
+  const componentType = $derived(
+    layoutAttr?.componentType || layoutAttr?.layoutStyle || "Table"
+  );
 
-  const header = $derived(() => items[1].items[0]);
-  const rows = $derived(() => items[1].items.slice(1));
+  const items = $derived(layoutAttr?.items ?? []);
+
+  const header = $derived(
+    items.length > 1 && "items" in items[1] ? (items[1] as LayoutComponentAttr) : null
+  );
+  const headerItems = $derived(
+    header && "items" in header ? (header.items ?? []) : []
+  );
+  const rows = $derived(
+    items.length > 1 ? items.slice(2) : []
+  );
 </script>
 
 <Table
-  id={headerIdResolver(componentType + "_", id || "")}
+  id={headerIdResolver((componentType ?? "Table") + "_", id || "")}
   {...rest}
   class="table"
 >
   <TableHeader>
     <TableRow>
-      {#if header}
-        {#each header.items as cell}
-          <TableHead class={resolveStyle(cell.style)}>
-            <Block {...cell} />
-          </TableHead>
+      {#if header && headerItems.length > 0}
+        {#each headerItems as cell}
+          {#if "componentAttr" in cell}
+            <TableHead class={resolveStyle(cell.style)}>
+              <Block {...cell} />
+            </TableHead>
+          {/if}
         {/each}
       {/if}
     </TableRow>
   </TableHeader>
   <TableBody>
-    {#if rows}
-      {#each rows as row}
+    {#each rows as row}
+      {#if "items" in row && row.items}
         <TableRow>
           {#each row.items as cell}
-            <TableCell class={resolveStyle(cell.style)}>
-              <Block {...cell} />
-            </TableCell>
+            {#if "componentAttr" in cell}
+              <TableCell class={resolveStyle(cell.style)}>
+                <Block {...cell} />
+              </TableCell>
+            {/if}
           {/each}
         </TableRow>
-      {/each}
-    {/if}
+      {/if}
+    {/each}
   </TableBody>
 </Table>

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { ContentBlock, TextItem } from "$generateor/content_block";
+  import type { ContentBlock, TextItem, TextComponentAttr } from "$generateor/content_block";
   import { Checkbox } from "$lib/components/ui/checkbox";
   import { Label } from "$lib/components/ui/label";
   import {
@@ -32,12 +32,19 @@
     style: content_style,
     ...rest
   }: ContentBlock = $props();
-  const {
-    text,
-    style: element_style,
-    marks,
-    ...other
-  } = $derived(componentAttr);
+
+  // Narrow to TextComponentAttr — this component is only mounted for Text blocks
+  const textAttr = $derived(
+    componentAttr.componentType === "Text"
+      ? (componentAttr as TextComponentAttr)
+      : null
+  );
+
+  const text = $derived(textAttr?.text ?? "");
+  const element_style = $derived(textAttr?.style);
+  const marks = $derived(textAttr?.marks);
+  const items = $derived(textAttr?.items ?? []);
+
   // const { content } = block;
   // console.log(other);
   //
@@ -79,27 +86,25 @@
   </h5>
 {:else if element_style === "Numbered"}
   <ol id={headerIdResolver("ol", id)} class="list-decimal ml-4">
-    {#each other["items"] as item}
-      <li id={headerIdResolver("ol", item.id)} class={resolveStyle(item.style)}>
-        <!-- {@html item["text"]} -->
-        {@html resolveMarks(item["marks"], item["text"])}
-      </li>
+    {#each items as item}
+      {#if item._text_item_type !== "Other"}
+        <li id={headerIdResolver("ol", item.id)} class={resolveStyle(item.style)}>
+          {@html resolveMarks(item.marks ?? [], item.text ?? "")}
+        </li>
+      {/if}
     {/each}
   </ol>
 {:else if element_style === "Marked"}
   <ul id={headerIdResolver("ul", id)} class="list-disc ml-4">
-    <!-- <template>
-      {JSON.stringify(other)}
-    </template> -->
-
-    {#each other["items"] as item}
-      <li
-        id={headerIdResolver("ul", id) + `_${item.order}`}
-        class={resolveStyle(item.style)}
-      >
-        <!-- {@html item["text"]} -->
-        {@html resolveMarks(item["marks"], item["text"])}
-      </li>
+    {#each items as item}
+      {#if item._text_item_type !== "Other"}
+        <li
+          id={headerIdResolver("ul", id) + `_${item.order}`}
+          class={resolveStyle(item.style)}
+        >
+          {@html resolveMarks(item.marks ?? [], item.text ?? "")}
+        </li>
+      {/if}
     {/each}
   </ul>
 {:else if element_style === "Quote" && hasText}
@@ -111,11 +116,6 @@
     <p class={resolveStyle(content_style)}>
       "{@html resolveMarks(tMarks, text)}"
     </p>
-    {#if other.author}
-      <footer class="text-sm text-muted-foreground mt-2">
-        — {other.author}
-      </footer>
-    {/if}
   </blockquote>
 {:else if element_style === "Callout" && hasText}
   <div
@@ -139,7 +139,6 @@
   <div class="items-center flex gap-3 my-6">
     <Checkbox
       id={headerIdResolver(element_style, id)}
-      checked={other["checked"]}
       disabled
     />
     <div class="grid gap-1.5 leading-none">
@@ -152,7 +151,7 @@
     </div>
   </div>
 {:else if element_style === "Toggle"}
-  <Accordion id={headerIdResolver(element_style, id)} class="w-full">
+  <Accordion type="single" id={headerIdResolver(element_style, id)} class="w-full">
     <AccordionItem
       class="border-slate-300"
       value={headerIdResolver(element_style, id)}
@@ -161,7 +160,7 @@
         {@html resolveMarks(tMarks, text)}
       </AccordionTrigger>
       <AccordionContent class="pl-3 lg:pl-8 pr-2">
-        {#each other.items as item}
+        {#each items as item}
           {#if item._text_item_type === "Other"}
             <Block {...item} />
           {:else if item._text_item_type === "LevelText" || item._text_item_type === "Block"}

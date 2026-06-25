@@ -27,7 +27,7 @@
     } from "svelte-highlight/languages";
     import "svelte-highlight/styles/gruvbox-dark-soft.css";
     import { headerIdResolver, resolveStyle } from "./common";
-    import type { ContentBlock } from "$generateor/content_block";
+    import type { ContentBlock, TextComponentAttr } from "$generateor/content_block";
     import { Button } from "$lib/components/ui/button";
     import { onMount } from "svelte";
 
@@ -74,8 +74,14 @@
         ...rest
     }: ContentBlock = $props();
 
-    const { text, style: element_style, marks, ...other } = $derived(componentAttr);
-    // const hasText = text !== undefined && text !== "" && text !== null;
+    // Narrow to TextComponentAttr — code blocks are Text blocks with style=Code
+    const textAttr = $derived(
+        componentAttr.componentType === "Text"
+            ? (componentAttr as TextComponentAttr)
+            : null
+    );
+    const text = $derived(textAttr?.text ?? "");
+    const element_style = $derived(textAttr?.style ?? "Code");
 
     let lang: LanguageType<any> = $derived.by(() => {
         const rawLang = fields?.["lang"];
@@ -109,7 +115,7 @@
         "my-2",
     ]}
 >
-    {#if fields["from"]}
+    {#if fields?.["from"]}
         <figcaption
             data-rehype-pretty-code-title=""
             data-language={fields["lang"]}

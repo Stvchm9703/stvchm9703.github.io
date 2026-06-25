@@ -7,12 +7,30 @@
   import { gfmPlugin } from "svelte-exmarkdown/gfm";
   import "svelte-highlight/styles/gruvbox-dark-soft.css";
   import { headerIdResolver } from "../common";
+  import type { JupyterComponentAttr } from "$generateor/content_block";
+  import DataTable from "./data-table.svelte";
   // import "$lib/styles/svelte_highlight.css";
   const exmdPlugins = [gfmPlugin()];
 
   const { id, componentAttr } = $props();
-  const { cell, fileName, cellNumber } = $derived(componentAttr);
-  const { source, outputs, cell_type } = $derived(cell);
+
+  // Narrow to JupyterComponentAttr
+  const jupyterAttr = $derived(
+    componentAttr?.componentType === "JupyterComponent"
+      ? (componentAttr as JupyterComponentAttr)
+      : (componentAttr as JupyterComponentAttr)
+  );
+
+  const cell = $derived(jupyterAttr?.cell);
+  const fileName = $derived(jupyterAttr?.fileName ?? "");
+  const cellNumber = $derived(jupyterAttr?.cellNumber ?? 0);
+  const dataTables = $derived(jupyterAttr?.dataTables ?? []);
+  const hasDataTables = $derived(dataTables.length > 0);
+
+  const source = $derived(cell?.source ?? []);
+  const outputs = $derived(cell?.cell_type === "code" ? (cell.outputs ?? []) : []);
+  const cell_type = $derived(cell?.cell_type ?? "code");
+
   const elemId = $derived(headerIdResolver("jupyter", id));
 
   // import Island from "$lib/islands/island.svelte";
@@ -59,6 +77,9 @@
         Outputs
       </Tabs.Trigger>
       <Tabs.Trigger value="source" class={tabTriggerClass}>Source</Tabs.Trigger>
+      {#if hasDataTables}
+        <Tabs.Trigger value="data" class={tabTriggerClass}>Data</Tabs.Trigger>
+      {/if}
     </Tabs.List>
     <Tabs.Content value="outputs" class={tabContentClass}>
       {#if cell_type === "code"}
@@ -68,25 +89,25 @@
               "jupyter-cell",
               "p-4  leading-normal",
               // "[&_thead>_tr>_th]:(inline text-nowrap break-keep)",
-              outputBlock.data["image/png"]
+              outputBlock.data?.["image/png"]
                 ? "bg-coolGray-100 flex items-center justify-center"
                 : "bg-transparent",
             ])}
           >
-            {#if outputBlock.data["image/png"]}
+            {#if outputBlock.data?.["image/png"]}
               <img
                 class="w-full aspect-3/2 block object-contain object-position-center"
                 src={`data:image/png;base64,${outputBlock.data["image/png"]}`}
-                alt="Image"
+                alt="render result {fileName} cell {cellNumber}"
                 aria-label="render result, {fileName} - cell: {cellNumber}"
               />
               <span class="text-xs text-gray-500 mt-2 block">
                 {outputBlock.data["text/plain"]}
                 render result, {fileName} - cell: {cellNumber}
               </span>
-            {:else if outputBlock.data["text/html"]}
+            {:else if outputBlock.data?.["text/html"]}
               {@html outputBlock.data["text/html"].join("")}
-            {:else if outputBlock.data["text/plain"]}
+            {:else if outputBlock.data?.["text/plain"]}
               {@html outputBlock.data["text/plain"].join("")}
             {:else}
               No data available
@@ -125,6 +146,15 @@
         </Highlight>
       {/await}
     </Tabs.Content>
+    {#if hasDataTables}
+      <Tabs.Content value="data" class={tabContentClass}>
+        <div class="p-2 flex flex-col gap-4">
+          {#each dataTables as entry}
+            <DataTable tableSchema={entry.table} name={entry.name} />
+          {/each}
+        </div>
+      </Tabs.Content>
+    {/if}
   </Tabs.Root>
 
   <figcaption
