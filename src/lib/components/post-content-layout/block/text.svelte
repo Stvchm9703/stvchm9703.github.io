@@ -25,6 +25,16 @@
     return resolveMarks(itemMarks, item.text ?? "");
   }
 
+  /**
+   * The converter wraps a run of nested siblings in a text-less `Block` container.
+   * Unwrap it so the run renders as one list level instead of an extra empty <li>.
+   */
+  function flattenItems(raw: TextItem[] | undefined | null): TextItem[] {
+    return (raw ?? []).flatMap((item) =>
+      item._text_item_type === "Block" && !item.text ? flattenItems(item.items) : [item]
+    );
+  }
+
   const {
     id,
     fields,
@@ -86,26 +96,11 @@
   </h5>
 {:else if element_style === "Numbered"}
   <ol id={headerIdResolver("ol", id)} class="list-decimal ml-4">
-    {#each items as item}
-      {#if item._text_item_type !== "Other"}
-        <li id={headerIdResolver("ol", item.id)} class={resolveStyle(item.style)}>
-          {@html resolveMarks(item.marks ?? [], item.text ?? "")}
-        </li>
-      {/if}
-    {/each}
+    {@render listRows(flattenItems(items), "ol")}
   </ol>
 {:else if element_style === "Marked"}
   <ul id={headerIdResolver("ul", id)} class="list-disc ml-4">
-    {#each items as item}
-      {#if item._text_item_type !== "Other"}
-        <li
-          id={headerIdResolver("ul", id) + `_${item.order}`}
-          class={resolveStyle(item.style)}
-        >
-          {@html resolveMarks(item.marks ?? [], item.text ?? "")}
-        </li>
-      {/if}
-    {/each}
+    {@render listRows(flattenItems(items), "ul")}
   </ul>
 {:else if element_style === "Quote" && hasText}
   <blockquote
@@ -167,17 +162,7 @@
             <p class={resolveStyle(content_style)}>
               {@html renderItemHtml(item)}
             </p>
-            {#if item.items && item.items.length > 0}
-              <ul class="list-disc ml-4">
-                {#each item.items as subItem}
-                  {#if subItem._text_item_type === "LevelText" || subItem._text_item_type === "Block"}
-                    <li>{@html renderItemHtml(subItem)}</li>
-                  {:else if subItem._text_item_type === "Other"}
-                    <Block {...subItem} />
-                  {/if}
-                {/each}
-              </ul>
-            {/if}
+            {@render nestedList(item.items)}
           {/if}
         {/each}
       </AccordionContent>
@@ -189,3 +174,34 @@
     {@html resolveMarks(tMarks, text)}
   </p>
 {/if}
+
+<!--
+  List rendering is mutually recursive so nesting goes as deep as the data does.
+  `listRows` emits the <li>s for one level; `nestedList` opens the next level.
+-->
+{#snippet listRows(entries: TextItem[], kind: "ol" | "ul")}
+  {#each entries as item, idx}
+    {#if item._text_item_type === "Other"}
+      <li class="list-none"><Block {...item} /></li>
+    {:else}
+      <li
+        id={headerIdResolver(kind, item.id ?? id) + `_${item.order ?? idx}`}
+        class={resolveStyle(item.style)}
+      >
+        {@html renderItemHtml(item)}
+        {@render nestedList(item.items)}
+      </li>
+    {/if}
+  {/each}
+{/snippet}
+
+{#snippet nestedList(raw: TextItem[] | undefined | null)}
+  {@const entries = flattenItems(raw)}
+  {#if entries.length > 0}
+    {#if entries[0].style === "Numbered"}
+      <ol class="list-decimal ml-4">{@render listRows(entries, "ol")}</ol>
+    {:else}
+      <ul class="list-disc ml-4">{@render listRows(entries, "ul")}</ul>
+    {/if}
+  {/if}
+{/snippet}

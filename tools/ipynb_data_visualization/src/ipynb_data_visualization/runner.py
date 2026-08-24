@@ -16,8 +16,10 @@ This mirrors how Jupyter works:
 
 import io
 import json
+import os
 import sys
 import traceback
+from pathlib import Path
 from typing import Any
 
 # Reference to Python's built-in exec function; used to run notebook cells.
@@ -81,6 +83,7 @@ def run_notebook(
     stop_at: list[int] | int | None = None,
     capture_intermediate: bool = True,
     verbose: bool = True,
+    root_dir: str | None = None,
 ) -> dict[str, Any]:
     """Execute an .ipynb file cell-by-cell and capture DataFrames.
 
@@ -95,6 +98,10 @@ def run_notebook(
         capture_intermediate: If True, snapshot DataFrames after EVERY cell.
                               If False, only snapshot at stop_at cells and end.
         verbose: Print execution progress.
+        root_dir: If given, change the current working directory to this path
+                  while executing cells, so notebook-relative file references
+                  (e.g. reading a data file by relative path) resolve correctly.
+                  The original working directory is restored afterwards.
 
     Returns:
         {
@@ -138,6 +145,41 @@ def run_notebook(
     stop_captures: dict[int, dict] = {}
     snapshots: list[dict] = []
 
+    # Optionally run cells from a different working directory so that
+    # notebook-relative file references resolve. Restored in the finally below.
+    original_cwd = os.getcwd()
+    if root_dir is not None:
+        target_dir = Path(root_dir).expanduser()
+        if not target_dir.is_dir():
+            raise NotADirectoryError(f"root_dir is not a directory: {target_dir}")
+        os.chdir(target_dir)
+        if verbose:
+            print(f"[cwd] executing cells from: {target_dir.resolve()}\n")
+
+    try:
+        return _execute_cells(
+            cells=cells,
+            namespace=namespace,
+            stop_points=stop_points,
+            stop_captures=stop_captures,
+            snapshots=snapshots,
+            capture_intermediate=capture_intermediate,
+            verbose=verbose,
+        )
+    finally:
+        os.chdir(original_cwd)
+
+
+def _execute_cells(
+    cells: list[dict],
+    namespace: dict[str, Any],
+    stop_points: set[int],
+    stop_captures: dict[int, dict],
+    snapshots: list[dict],
+    capture_intermediate: bool,
+    verbose: bool,
+) -> dict[str, Any]:
+    """Run the prepared cells in ``namespace`` and collect snapshots."""
     for i, cell in enumerate(cells):
         source = cell["source"].strip()
         if not source:

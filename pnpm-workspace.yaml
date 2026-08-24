@@ -1,2 +1,12 @@
+allowBuilds:
+  '@carbon/charts': true
+  '@carbon/colors': true
+  '@carbon/icons': true
+  '@carbon/utils-position': true
+  esbuild: true
+  node: true
+  sharp: true
+  svelte-preprocess: true
+  vue-demi: true
 onlyBuiltDependencies:
   - svelte-preprocess

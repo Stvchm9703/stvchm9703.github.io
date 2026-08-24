@@ -87,6 +87,16 @@ def main(argv: list[str] | None = None) -> int:
         help="Truncate each captured DataFrame to at most N rows in the output (shape always records original size).",
     )
     parser.add_argument(
+        "--root-dir",
+        metavar="DIR",
+        default=None,
+        help=(
+            "Set the working directory used while executing the notebook cells, "
+            "so notebook-relative file paths (datasets, snapshots, etc.) resolve. "
+            "The notebook path is resolved before changing directory."
+        ),
+    )
+    parser.add_argument(
         "--quiet",
         action="store_true",
         help="Suppress per-cell execution output.",
@@ -94,9 +104,14 @@ def main(argv: list[str] | None = None) -> int:
 
     args = parser.parse_args(argv)
 
-    notebook_path = Path(args.notebook)
+    # Resolve to an absolute path before any chdir so the notebook is still found.
+    notebook_path = Path(args.notebook).resolve()
     if not notebook_path.exists():
         print(f"Error: notebook not found: {notebook_path}", file=sys.stderr)
+        return 1
+
+    if args.root_dir is not None and not Path(args.root_dir).expanduser().is_dir():
+        print(f"Error: root-dir is not a directory: {args.root_dir}", file=sys.stderr)
         return 1
 
     result = run_notebook(
@@ -104,6 +119,7 @@ def main(argv: list[str] | None = None) -> int:
         stop_at=args.stop_at,
         capture_intermediate=args.all_cells,
         verbose=not args.quiet,
+        root_dir=args.root_dir,
     )
 
     if not args.quiet:

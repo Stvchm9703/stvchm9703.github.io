@@ -1,7 +1,7 @@
 // import { resolve } from "path";
 import { sveltekit } from "@sveltejs/kit/vite";
 // import unocss from '@unocss/svelte-scoped/vite';
-import unocss from "@unocss/vite";
+import unocss from "unocss/vite";
 import ViteCompression from "vite-plugin-compression";
 import extractorSvelte from "@unocss/extractor-svelte";
 // import { chunkSplitPlugin } from "vite-plugin-chunk-split";

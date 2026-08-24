@@ -18,13 +18,26 @@ struct PageTextListSet {
     pub sebering_id_list: Vec<String>,
     pub start_child: Vec<String>,
     pub layer: usize,
+    /// Owning block of this run. Without it, two different parents' children at the
+    /// same depth merge, because `order` is the index in the flat block array and
+    /// sibling runs of adjacent parents are consecutive.
+    pub parent_id: String,
 }
 
 impl PageTextListSet {
     /// Check if a block can be added to this sibering group.
-    /// Must be same style, same layer, and consecutive order (end + 1 == new order)
-    pub fn can_continue_sibering(&self, style: &TextStyle, order: &usize, layer: &usize) -> bool {
-        &self.style == style && &self.layer == layer && self.end + 1 == *order
+    /// Must be same parent, same style, same layer, and consecutive order (end + 1 == new order)
+    pub fn can_continue_sibering(
+        &self,
+        style: &TextStyle,
+        order: &usize,
+        layer: &usize,
+        parent_id: &str,
+    ) -> bool {
+        self.parent_id == parent_id
+            && &self.style == style
+            && &self.layer == layer
+            && self.end + 1 == *order
     }
 
     pub fn push_next(&mut self, blk: &ContentBlock) -> Result<(), Error> {
@@ -142,6 +155,9 @@ impl Page {
         }
 
         let current_layer = 1;
+        // Top-level blocks are flattened out of their divs/layouts, so they all share
+        // the page root as their grouping parent.
+        let root_id = self.id.to_owned();
 
         // First pass: resolve internal children and collect sibering groups
         for id in order_list {
@@ -152,6 +168,7 @@ impl Page {
                     blk,
                     &mut tmp_text_mark_and_number,
                     current_layer,
+                    &root_id,
                 );
             }
         }
@@ -258,9 +275,10 @@ impl Page {
         current_block: &mut ContentBlock,
         text_sebering: &mut PageTextListMainSet,
         current_layer: usize,
+        parent_id: &str,
     ) {
-        self.resolve_layout_nest_children(current_block, text_sebering, current_layer);
-        self.resolve_text_nest_children(current_block, text_sebering, current_layer);
+        self.resolve_layout_nest_children(current_block, text_sebering, current_layer, parent_id);
+        self.resolve_text_nest_children(current_block, text_sebering, current_layer, parent_id);
     }
 
     fn resolve_text_nest_children(
@@ -268,6 +286,7 @@ impl Page {
         current_block: &mut ContentBlock,
         text_sebering: &mut PageTextListMainSet,
         current_layer: usize,
+        parent_id: &str,
     ) {
         let attr: &mut TextComponentAttr;
         let cloned_curr_blk = current_block.to_owned();
@@ -285,7 +304,7 @@ impl Page {
         }
         // println!(in );
 
-        let lk_children_ids = current_block.children_ids.as_ref().unwrap();
+        let lk_children_ids = current_block.children_ids.clone().unwrap_or_default();
         let mut cached = self.cache_contents.to_owned();
 
         // if attr.style == TextStyle::Toggle {
@@ -296,6 +315,7 @@ impl Page {
                         child_blk,
                         text_sebering,
                         current_layer + 1,
+                        &cloned_curr_blk.id,
                     );
                 }
 
@@ -315,7 +335,12 @@ impl Page {
         if attr.style == TextStyle::Numbered || attr.style == TextStyle::Marked {
             // Try to find an existing sibering group that this block can continue
             let sebering = text_sebering.iter_mut().find(|p| {
-                p.can_continue_sibering(&attr.style, &cloned_curr_blk.order, &current_layer)
+                p.can_continue_sibering(
+                    &attr.style,
+                    &cloned_curr_blk.order,
+                    &current_layer,
+                    parent_id,
+                )
             });
 
             if let Some(existing_group) = sebering {
@@ -332,6 +357,7 @@ impl Page {
                     end: cloned_curr_blk.order,
                     sebering_id_list: vec![cloned_curr_blk.id.to_owned()],
                     layer: current_layer,
+                    parent_id: parent_id.to_string(),
                 });
             }
         }
@@ -346,7 +372,12 @@ impl Page {
         text_sebering: &mut PageTextListMainSet,
         current_layer: usize,
     ) {
-        if text_sebering.is_empty() {
+        // Nothing to nest for a leaf list item — leave `items` unset.
+        if current_block
+            .children_ids
+            .as_ref()
+            .is_none_or(|c| c.is_empty())
+        {
             return;
         }
         let cached = self.cache_contents.to_owned();
@@ -354,16 +385,10 @@ impl Page {
         // Find sibering groups that are children of this block (next layer down)
         let child_layer_groups: Vec<&PageTextListSet> = text_sebering
             .iter()
-            .filter(|p| {
-                p.layer == current_layer + 1
-                    && current_block
-                        .children_ids
-                        .as_ref()
-                        .is_some_and(|f| f.contains(&p.start_id))
-            })
+            .filter(|p| p.layer == current_layer + 1 && p.parent_id == current_block.id)
             .collect();
 
-        if !child_layer_groups.is_empty() {
+        {
             // Build a set of IDs that should be skipped (non-first items in sibering groups)
             let mut skip_ids: std::collections::HashSet<String> = std::collections::HashSet::new();
             for group in child_layer_groups.iter() {
@@ -425,7 +450,9 @@ impl Page {
         current_block: &mut ContentBlock,
         text_sebering: &mut PageTextListMainSet,
         current_layer: usize,
+        _parent_id: &str,
     ) {
+        let block_id = current_block.id.to_owned();
         let attr: &mut LayoutComponentAttr;
         match &mut current_block.component_attr {
             ComponentAttrType::Layout(e) | ComponentAttrType::Table(e) => attr = e,
@@ -458,6 +485,7 @@ impl Page {
                         child_blk,
                         text_sebering,
                         current_layer + 1,
+                        &block_id,
                     );
                 }
 
@@ -474,5 +502,83 @@ impl Page {
         let updated_block = current_block.clone();
         self.cache_contents
             .insert(updated_block.id.clone(), updated_block);
+    }
+}
+
+#[cfg(test)]
+mod nested_children_tests {
+    use super::*;
+    use crate::export_model::content_block::text::TextItem;
+
+    fn text_blk(id: &str, order: usize, style: TextStyle, kids: &[&str]) -> ContentBlock {
+        ContentBlock {
+            id: id.to_string(),
+            order,
+            children_ids: Some(kids.iter().map(|s| s.to_string()).collect()),
+            component_attr: ComponentAttrType::Text(TextComponentAttr {
+                text: format!("text-{id}"),
+                style,
+                marks: Some(vec![]),
+                ..TextComponentAttr::default()
+            }),
+            debug_type: "text".to_string(),
+            ..ContentBlock::default()
+        }
+    }
+
+    /// Two sibling `Numbered` parents each own two `Marked` children whose `order`
+    /// values run consecutively across the parent boundary (58,59 | 60,61) — exactly
+    /// the shape that used to merge both runs into one group and silently drop the
+    /// second parent's nested bullets.
+    #[test]
+    fn each_parent_keeps_its_own_nested_children() {
+        let mut page = Page::default();
+        page.id = "root".to_string();
+
+        for blk in [
+            text_blk("root", 0, TextStyle::Title, &["p1", "p2"]),
+            text_blk("p1", 16, TextStyle::Numbered, &["c1", "c2"]),
+            text_blk("p2", 17, TextStyle::Numbered, &["c3", "c4"]),
+            text_blk("c1", 58, TextStyle::Marked, &[]),
+            text_blk("c2", 59, TextStyle::Marked, &[]),
+            text_blk("c3", 60, TextStyle::Marked, &[]),
+            text_blk("c4", 61, TextStyle::Marked, &[]),
+        ] {
+            page.cache_contents.insert(blk.id.to_owned(), blk);
+        }
+
+        page.resolve_nest_children(&vec!["p1".to_string(), "p2".to_string()]);
+
+        // p1 + p2 are consecutive Numbered siblings -> one grouped container.
+        assert_eq!(page.contents.len(), 1, "expected one grouped list container");
+
+        let ComponentAttrType::Text(attr) = &page.contents[0].component_attr else {
+            panic!("container should be a Text block");
+        };
+        let items = attr.items.as_ref().expect("container has items");
+        assert_eq!(items.len(), 2, "container should hold both parents");
+
+        for (idx, item) in items.iter().enumerate() {
+            let TextItem::LevelText(level) = item else {
+                panic!("item {idx} should be LevelText, got {item:?}");
+            };
+            let nested = level
+                .items
+                .as_ref()
+                .unwrap_or_else(|| panic!("parent {idx} lost its nested children"));
+            assert_eq!(
+                nested.len(),
+                1,
+                "parent {idx} should hold one nested Marked container"
+            );
+            let TextItem::Block(sub) = &nested[0] else {
+                panic!("parent {idx} nested entry should be a Block container");
+            };
+            assert_eq!(
+                sub.items.as_ref().map(|i| i.len()),
+                Some(2),
+                "parent {idx} should keep both bullets"
+            );
+        }
     }
 }
