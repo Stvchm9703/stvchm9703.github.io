@@ -2,12 +2,12 @@
     // import "uno.css";
 
     import { page } from "$app/state";
-    import { Button } from "$lib/components/ui/button";
+    import { Button } from "#lib/components/ui/button/index.js";
 
     import {
         initLightGallery,
         // lightgallery,
-    } from "$lib/stores/lightgallery.svelte";
+    } from "#lib/stores/lightgallery.svelte.js";
     import {
         Breadcrumb,
         BreadcrumbItem,
@@ -15,23 +15,23 @@
         BreadcrumbList,
         BreadcrumbPage,
         BreadcrumbSeparator,
-    } from "$lib/components/ui/breadcrumb";
+    } from "#lib/components/ui/breadcrumb/index.js";
 
-    // import Separator from "$lib/components/ui/separator/separator.svelte";
-    import TableOfContents from "$lib/components/post-content-layout/table-of-content/container.svelte";
-    import TableOfContentsMobile from "$lib/components/post-content-layout/table-of-content/mob-list.svelte";
-    import RelatedChapters from "$lib/components/post-content-layout/related-chapter/container.svelte";
-    import RelatedChaptersMobile from "$lib/components/post-content-layout/related-chapter/mob-list.svelte";
-    import Tag from "$lib/components/post-content-layout/tag/tag.svelte";
-    // import PostCard from "$lib/components/post-layout/card/base-card.svelte";
+    // import Separator from "#lib/components/ui/separator/separator.svelte";
+    import TableOfContents from "#lib/components/post-content-layout/table-of-content/container.svelte";
+    import TableOfContentsMobile from "#lib/components/post-content-layout/table-of-content/mob-list.svelte";
+    import RelatedChapters from "#lib/components/post-content-layout/related-chapter/container.svelte";
+    import RelatedChaptersMobile from "#lib/components/post-content-layout/related-chapter/mob-list.svelte";
+    import Tag from "#lib/components/post-content-layout/tag/tag.svelte";
+    // import PostCard from "#lib/components/post-layout/card/base-card.svelte";
 
     // CMS - content block render Component
-    import BlockLayout from "$lib/components/post-content-layout/block/layout.svelte";
+    import BlockLayout from "#lib/components/post-content-layout/block/layout.svelte";
 
     import { isEmpty } from "lodash-es";
 
     // import type { Page as IPage } from "$generateor/page";
-    import { displayDate } from "$lib/utils";
+    import { displayDate } from "#lib/utils.js";
     import { MetaTags } from "svelte-meta-tags";
     import { onMount } from "svelte";
     // import { mel } from "svelte-highlight/languages";
@@ -42,7 +42,11 @@
     let articleContent;
     onMount(() => {
         // console.log(post);
-        initLightGallery(articleContent, post.meta.images);
+        console.log("articleContent", articleContent);
+        console.log("post.meta.images", post.meta.images);
+        if(post.meta.images){
+            initLightGallery(articleContent, post.meta.images);
+        }
     });
 </script>
 

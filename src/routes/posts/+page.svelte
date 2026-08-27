@@ -1,11 +1,11 @@
 <script>
     import "uno.css";
-    import { buttonVariants } from "$lib/components/ui/button";
-    import { Separator } from "$lib/components/ui/separator";
-    import Headline from "$lib/components/post-layout/headline.svelte";
-    import PostContainer from "$lib/components/post-layout/post-list-container.svelte";
-    import PostCard from "$lib/components/post-layout/card";
-    import { cn, displayDate, pathResolver } from "$lib/utils";
+    import { buttonVariants } from "#lib/components/ui/button/index.js";
+    import { Separator } from "#lib/components/ui/separator/index.js";
+    import Headline from "#lib/components/post-layout/headline.svelte";
+    import PostContainer from "#lib/components/post-layout/post-list-container.svelte";
+    import PostCard from "#lib/components/post-layout/card/index.js";
+    import { cn, displayDate, pathResolver } from "#lib/utils.js";
     import { page } from "$app/state";
     import { MetaTags } from "svelte-meta-tags";
     const { series: rawSeries, meta } = page.data;

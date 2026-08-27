@@ -1,11 +1,11 @@
 <script lang="ts">
   // import "uno.css";
 
-  import { preventDefault } from "$lib/utils";
+  import { preventDefault } from "#lib/utils.js";
   import { kebabCase } from "lodash-es";
 
   import { page } from "$app/state";
-  import Tag from "$lib/components/post-content-layout/tag/tag.svelte";
+  import Tag from "#lib/components/post-content-layout/tag/tag.svelte";
   import { MetaTags } from "svelte-meta-tags";
   import {
     Breadcrumb,
@@ -14,7 +14,7 @@
     BreadcrumbList,
     BreadcrumbPage,
     BreadcrumbSeparator,
-  } from "$lib/components/ui/breadcrumb";
+  } from "#lib/components/ui/breadcrumb/index.js";
 
 
   const { tags, meta } = page.data;

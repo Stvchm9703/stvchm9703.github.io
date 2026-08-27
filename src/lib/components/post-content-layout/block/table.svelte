@@ -8,7 +8,7 @@
     TableBody,
     TableRow,
     TableCell,
-  } from "$lib/components/ui/table";
+  } from "#lib/components/ui/table/index.js";
   import Block from "./layout.svelte";
   import type { ContentBlock, LayoutComponentAttr, LayoutItem } from "$generateor/content_block";
 

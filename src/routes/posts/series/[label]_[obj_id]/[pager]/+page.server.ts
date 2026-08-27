@@ -1,10 +1,10 @@
 import type { PageLoad, EntryGenerator } from "./$types";
-import { resolveMetaTags } from "$lib/metas/index";
+import { resolveMetaTags } from "#lib/metas/index.js";
 import type { MetaTagsProps, Twitter, OpenGraph } from "svelte-meta-tags";
 
-import { BASE } from "$env/static/private";
+import { BASE } from "$app/env/private";
 import { error, redirect } from "@sveltejs/kit";
-import { pathResolver } from "$lib/utils";
+import { pathResolver } from "#lib/utils.js";
 import { kebabCase } from "lodash-es";
 
 export const prerender = true;

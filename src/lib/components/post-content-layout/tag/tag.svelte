@@ -1,6 +1,6 @@
 <script>
-    import { cn } from "$lib/utils";
-    import { badgeVariants } from "$lib/components/ui/badge";
+    import { cn } from "#lib/utils.js";
+    import { badgeVariants } from "#lib/components/ui/badge/index.js";
     const { id, label : name, url, ...rest } = $props();
 </script>
 

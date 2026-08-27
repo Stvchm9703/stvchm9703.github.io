@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { scrollbar as presetScrollbar } from "$lib/components/preset";
-  import { cn } from "$lib/utils";
+  import { scrollbar as presetScrollbar } from "#lib/components/preset.js";
+  import { cn } from "#lib/utils.js";
   import { Tabs } from "bits-ui";
   import { Highlight, LineNumbers } from "svelte-highlight";
   import Markdown from "svelte-exmarkdown";
@@ -9,7 +9,7 @@
   import { headerIdResolver } from "../common";
   import type { JupyterComponentAttr } from "$generateor/content_block";
   import DataTable from "./data-table.svelte";
-  // import "$lib/styles/svelte_highlight.css";
+  // import "#lib/styles/svelte_highlight.css";
   const exmdPlugins = [gfmPlugin()];
 
   const { id, componentAttr } = $props();
@@ -33,7 +33,7 @@
 
   const elemId = $derived(headerIdResolver("jupyter", id));
 
-  // import Island from "$lib/islands/island.svelte";
+  // import Island from "#lib/islands/island.svelte";
 
   async function initHighlight() {
     const defaultMd = await import(`svelte-highlight/languages/markdown`).then(
@@ -166,7 +166,7 @@
 </figure>
 
 <style>
-  @import "$lib/styles/svelte_highlight.css";
+  @import "../../../../styles/svelte_highlight.css";
   .jupyter-cell {
     /* @apply border-1 border-solid border-coolgray-200; */
     @apply w-auto block;

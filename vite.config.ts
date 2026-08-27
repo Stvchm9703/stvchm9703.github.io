@@ -1,3 +1,12 @@
+// import adapter from '@sveltejs/adapter-auto';
+import adapter from "@sveltejs/adapter-static";
+
+// import UnoCSS from "@unocss/svelte-scoped/preprocess";
+// import preprocess from "svelte-preprocess";
+import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
+
+import { svelte_client_components as clientComponents } from "svelte-client-components";
+
 // import { resolve } from "path";
 import { sveltekit } from "@sveltejs/kit/vite";
 // import unocss from '@unocss/svelte-scoped/vite';
@@ -37,7 +46,51 @@ export default defineConfig(async ({ mode }) => {
         },
       }),
       devtoolsJson(),
-      sveltekit(),
+      sveltekit({
+        // Consult https://github.com/sveltejs/svelte-preprocess
+        // for more information about preprocessors
+        preprocess: [clientComponents(), vitePreprocess()],
+        compilerOptions: { css: "external" },
+        // vitePlugin: { inspector: { showToggleButton: "always" } },
+        appDir: "app",
+        // inspector: process.argv.includes('dev'),
+        adapter: adapter({
+          fallback: "200.html",
+          // precompress: true,
+          pages: "build",
+          assets: "build",
+          precompress: !process.argv.includes("dev"),
+          strict: true
+        }),
+
+        prerender: {
+          // default: true,
+          handleHttpError: "ignore",
+          handleMissingId: "ignore",
+          handleEntryGeneratorMismatch: "ignore",
+          crawl: true
+        },
+        // files: {
+        //   hooks: "src/hooks",
+        // },
+        alias: {
+          $lib: "src/lib",
+          "$lib/*": "src/lib/*",
+          $assets: "src/assets",
+          "$assets/*": "src/assets/*",
+          $type: "src/types",
+          "$type/*": "src/types/*",
+          $types: "src/types",
+          "$types/*": "src/types/*",
+          $components: "src/lib/components",
+          "$components/*": "src/lib/components/*",
+          $generateor: "src/types",
+          "$generateor/*": "src/types/*"
+        },
+        paths: {
+          base: process.argv.includes("dev") ? "" : process.env.BASE_PATH
+        }
+      }),
 
       unocss({
         // configOrPath: 'uno.config.ts',
@@ -49,14 +102,11 @@ export default defineConfig(async ({ mode }) => {
       process.env.NODE_ENV === "production"
         ? stripComments({ type: "none", enforce: "post" })
         : null,
-      ViteCompression({ algorithm: "gzip" }),
-      // visualizer({ open: true, filename: "bundle-visualization.html" }),
+      ViteCompression({ algorithm: "gzip" })
     ],
-
-    optimizeDeps: {
-      // include: ["pixi.js"],
-    },
-
+    // visualizer({ open: true, filename: "bundle-visualization.html" }),
+    optimizeDeps: {},
+    // include: ["pixi.js"],
     build: {
       cssMinify: "lightningcss",
       minify: "terser",

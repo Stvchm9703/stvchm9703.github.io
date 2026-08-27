@@ -1,4 +1,4 @@
-import { resolveMetaTags } from "$lib/metas";
+import { resolveMetaTags } from "#lib/metas/index.js";
 
 export const prerender = true;
 

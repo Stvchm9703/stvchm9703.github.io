@@ -1,9 +1,9 @@
 import type { PageLoad, EntryGenerator } from "./$types";
-import { resolveMetaTags } from "$lib/metas/index";
+import { resolveMetaTags } from "#lib/metas/index.js";
 import type { MetaTagsProps, Twitter, OpenGraph } from "svelte-meta-tags";
 
-import { BASE } from "$env/static/private";
-import { pathResolver } from "$lib/utils";
+import { BASE } from "$app/env/private";
+import { pathResolver } from "#lib/utils.js";
 
 export const prerender = true;
 export const csr = false;

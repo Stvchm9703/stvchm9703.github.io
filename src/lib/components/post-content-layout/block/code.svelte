@@ -28,7 +28,7 @@
     import "svelte-highlight/styles/gruvbox-dark-soft.css";
     import { headerIdResolver, resolveStyle } from "./common";
     import type { ContentBlock, TextComponentAttr } from "$generateor/content_block";
-    import { Button } from "$lib/components/ui/button";
+    import { Button } from "#lib/components/ui/button/index.js";
     import { onMount } from "svelte";
 
     const langMap: Record<string, LanguageType<any>> = {
@@ -145,5 +145,5 @@
 </figure>
 
 <style>
-    @import "$lib/styles/svelte_highlight.css";
+    @import "../../../styles/svelte_highlight.css";
 </style>

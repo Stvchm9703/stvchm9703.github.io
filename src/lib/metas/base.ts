@@ -1,5 +1,5 @@
 import type { MetaTagsProps, Twitter, OpenGraph } from "svelte-meta-tags";
-import { BASE } from "$env/static/private";
+import { BASE } from "$app/env/private";
 export const BaseTwitterTags: Twitter = {
   cardType: "summary_large_image",
   site: "@steven9703_github_io",

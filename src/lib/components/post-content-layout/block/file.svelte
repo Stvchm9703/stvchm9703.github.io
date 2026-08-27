@@ -1,12 +1,12 @@
 <script lang="ts">
   import type { ContentBlock, FileComponentAttr } from "$generateor/content_block";
-  import { cn } from "$lib/utils";
+  import { cn } from "#lib/utils.js";
   import { headerIdResolver, resolveStyle } from "./common";
   import {
     // initLightGallery,
     // lightgallery,
     openGallery,
-  } from "$lib/stores/lightgallery.svelte";
+  } from "#lib/stores/lightgallery.svelte.js";
 
   const {
     id,

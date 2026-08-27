@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { ContentBlock, LatexComponentAttr } from "$generateor/content_block";
   import { onMount } from "svelte";
-  import { cn } from "$lib/utils";
+  import { cn } from "#lib/utils.js";
   import {
     resolveMarks,
     pathResolver,

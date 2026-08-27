@@ -1,9 +1,9 @@
 import type { EntryGenerator } from "./$types";
 import { error } from "@sveltejs/kit";
-import { displayDate, pathResolver } from "$lib/utils";
+import { displayDate, pathResolver } from "#lib/utils.js";
 import { kebabCase } from "lodash-es";
 import type { RequestHandler } from "./$types";
-import PostCard from "$lib/components/post-layout/card";
+import PostCard from "#lib/components/post-layout/card/index.js";
 import { render } from "svelte/server";
 export const prerender = true;
 // export const csr = false;

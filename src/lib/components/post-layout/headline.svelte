@@ -1,11 +1,11 @@
 <script>
     import CalendarIcon from "@lucide/svelte/icons/calendar";
-    import Separator from "$lib/components/ui/separator/separator.svelte";
-    import Image from "$lib/components/Image.svelte";
-    import Tag from "$lib/components/post-content-layout/tag/tag.svelte";
-    import { cn, displayDate } from "$lib/utils";
+    import Separator from "#lib/components/ui/separator/separator.svelte";
+    import Image from "#lib/components/Image.svelte";
+    import Tag from "#lib/components/post-content-layout/tag/tag.svelte";
+    import { cn, displayDate } from "#lib/utils.js";
     const { post, content_slot } = $props();
-import { buttonVariants } from "$lib/components/ui/button";
+import { buttonVariants } from "#lib/components/ui/button/index.js";
 </script>
 
 <section class="py-4">

@@ -1,14 +1,14 @@
 import type { PageLoad, EntryGenerator } from "./$types";
 import type { Page as IPage } from "$generateor/page";
-import { resolveMetaTags } from "$lib/metas/index";
+import { resolveMetaTags } from "#lib/metas/index.js";
 import type {
   MetaTag,
   MetaTagsProps,
   OpenGraph,
   Twitter,
 } from "svelte-meta-tags";
-import { displayDate } from "$lib/utils";
-import { BASE } from "$env/static/private";
+import { displayDate } from "#lib/utils.js";
+import { BASE } from "$app/env/private";
 export const csr = true;
 export const prerender = true;
 
@@ -22,11 +22,8 @@ export const load: PageLoad = async ({ fetch, params }) => {
     throw new Error(`Post with ID ${params.post_id} not found`);
   }
 
-  const content_result = await fetch(
-    `http://localhost:3000/${target_post.page_content_path.replace("blog_post_resolved/", "")}`,
-  );
-
-  const content = (await content_result.json()) as IPage;
+  const content_result = await fetch(`http://localhost:3000/${target_post.page_content_path.replace("blog_post_resolved/", "")}`);
+  const content = await content_result.json() as IPage;
   const meta = resolvePostDetailMetaTags(content);
 
   return {

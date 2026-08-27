@@ -1,6 +1,6 @@
 import type { EntryGenerator } from "./$types";
 import { error } from "@sveltejs/kit";
-import { displayDate, pathResolver } from "$lib/utils";
+import { displayDate, pathResolver } from "#lib/utils.js";
 import { kebabCase } from "lodash-es";
 export const prerender = true;
 // export const csr = false;
@@ -36,7 +36,7 @@ export const entries: EntryGenerator = async () => {
 };
 
 import type { RequestHandler } from "./$types";
-import PostCard from "$lib/components/post-layout/card";
+import PostCard from "#lib/components/post-layout/card/index.js";
 import { render } from "svelte/server";
 export const GET: RequestHandler = async ({ url, params }) => {
   const { label, id, pager } = params;

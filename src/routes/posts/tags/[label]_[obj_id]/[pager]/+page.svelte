@@ -1,8 +1,8 @@
 <script lang="ts">
     import { page } from "$app/state";
-    import PostCard from "$lib/components/post-layout/card";
-    import { buttonVariants } from "$lib/components/ui/button";
-    import { displayDate, cn } from "$lib/utils";
+    import PostCard from "#lib/components/post-layout/card/index.js";
+    import { buttonVariants } from "#lib/components/ui/button/index.js";
+    import { displayDate, cn } from "#lib/utils.js";
     import { MetaTags } from "svelte-meta-tags";
     import { kebabCase } from "lodash-es";
 

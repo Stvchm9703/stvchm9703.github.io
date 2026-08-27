@@ -5,7 +5,7 @@
     const { today_date, today_year } = page.data;
     const { children } = $props();
     import { MetaTags } from 'svelte-meta-tags';
-    import PostSearchBar from "$lib/components/post-search/main.svelte";
+    import PostSearchBar from "#lib/components/post-search/main.svelte";
 </script>
 
 

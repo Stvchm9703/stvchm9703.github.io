@@ -4,9 +4,9 @@
     CardContent,
     CardTitle,
     CardDescription,
-  } from "$lib/components/ui/card";
+  } from "#lib/components/ui/card/index.js";
   import type { ContentBlock } from "$generateor/content_block";
-  import Tag from "$lib/components/post-content-layout/tag/tag.svelte";
+  import Tag from "#lib/components/post-content-layout/tag/tag.svelte";
   import { resolveMarks, resolveStyle, headerIdResolver } from "./common";
 
   let { class: className, id, componentAttr, componentType } = $props();

@@ -1,16 +1,16 @@
 <script lang="ts">
   import type { ContentBlock, TextItem, TextComponentAttr } from "$generateor/content_block";
-  import { Checkbox } from "$lib/components/ui/checkbox";
-  import { Label } from "$lib/components/ui/label";
+  import { Checkbox } from "#lib/components/ui/checkbox/index.js";
+  import { Label } from "#lib/components/ui/label/index.js";
   import {
     Accordion,
     AccordionItem,
     AccordionContent,
     AccordionTrigger,
-  } from "$lib/components/ui/accordion";
+  } from "#lib/components/ui/accordion/index.js";
   // import Self from "./text.svelte";
   import Block from "./layout.svelte";
-  import { cn } from "$lib/utils";
+  import { cn } from "#lib/utils.js";
   import {
     resolveMarks,
     pathResolver,

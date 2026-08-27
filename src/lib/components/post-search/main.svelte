@@ -1,9 +1,9 @@
 <script lang="ts">
-  import * as Command from "$lib/components/ui/command/index.js";
-  import { cn } from "$lib/utils";
+  import * as Command from "#lib/components/ui/command/index.js";
+  import { cn } from "#lib/utils.js";
 
   import SearchBar from "./search-bar.svelte";
-  import { Button } from "$lib/components/ui/button/index.js";
+  import { Button } from "#lib/components/ui/button/index.js";
   import { Search } from "@lucide/svelte";
   import { onMount } from "svelte";
   //   import Trigger from "./trigger.svelte";

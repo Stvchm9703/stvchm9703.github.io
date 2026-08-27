@@ -8,21 +8,21 @@
     
     const items = block.componentAttr?.items || [];
 
-    import { cn } from "$lib/utils";
+    import { cn } from "#lib/utils.js";
     import { headerIdResolver } from "./common";
     // id={headerIdResolver(componentType, id)}
 
     // CMS - content block render Component
-    import FlexBlock from "$lib/components/post-content-layout/block/flex_block.svelte";
-    import BlockText from "$lib/components/post-content-layout/block/text.svelte";
-    import BlockCode from "$lib/components/post-content-layout/block/code.svelte";
-    import BlockLatex from "$lib/components/post-content-layout/block/latex.svelte";
-    import BlockTable from "$lib/components/post-content-layout/block/table.svelte";
-    import BlockBookmark from "$lib/components/post-content-layout/block/bookmark.svelte";
-    import BlockLink from "$lib/components/post-content-layout/block/link.svelte";
-    import BlockFile from "$lib/components/post-content-layout/block/file.svelte";
-    import BlockJupyter from "$lib/components/post-content-layout/block/custom/jupyter.svelte";
-    // import BlockLayout from "$lib/components/post-content-layout/block/layout.svelte";
+    import FlexBlock from "#lib/components/post-content-layout/block/flex_block.svelte";
+    import BlockText from "#lib/components/post-content-layout/block/text.svelte";
+    import BlockCode from "#lib/components/post-content-layout/block/code.svelte";
+    import BlockLatex from "#lib/components/post-content-layout/block/latex.svelte";
+    import BlockTable from "#lib/components/post-content-layout/block/table.svelte";
+    import BlockBookmark from "#lib/components/post-content-layout/block/bookmark.svelte";
+    import BlockLink from "#lib/components/post-content-layout/block/link.svelte";
+    import BlockFile from "#lib/components/post-content-layout/block/file.svelte";
+    import BlockJupyter from "#lib/components/post-content-layout/block/custom/jupyter.svelte";
+    // import BlockLayout from "#lib/components/post-content-layout/block/layout.svelte";
 
     // console.log();
 </script>

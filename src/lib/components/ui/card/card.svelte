@@ -1,6 +1,6 @@
 <script lang="ts" module>
   import type { HTMLAttributes } from "svelte/elements";
-  import { cn, type WithElementRef } from "$lib/utils.js";
+  import { cn, type WithElementRef } from "#lib/utils.js";
   export const stComponent = "card";
   export type Props = {
     isElement: {
@@ -12,7 +12,7 @@
 
 <script lang="ts">
   // import type { HTMLAttributes } from "svelte/elements";
-  // import { cn, type WithElementRef } from "$lib/utils.js";
+  // import { cn, type WithElementRef } from "#lib/utils.js";
 
   let {
     ref = $bindable(null),

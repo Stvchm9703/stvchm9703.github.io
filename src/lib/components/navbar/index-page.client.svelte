@@ -4,13 +4,13 @@
     //     SheetContent,
     //     SheetTrigger,
     //     SheetOverlay,
-    // } from "$lib/components/ui/sheet/index.ts";
+    // } from "#lib/components/ui/sheet/index.ts";
 
-    import Sheet from "$lib/components/ui/sheet/sheet.svelte";
-    import SheetContent from "$lib/components/ui/sheet/sheet-content.svelte";
-    import SheetTrigger from "$lib/components/ui/sheet/sheet-trigger.svelte";
-    import SheetOverlay from "$lib/components/ui/sheet/sheet-overlay.svelte";
-    import { cn } from "$lib/utils";
+    import Sheet from "#lib/components/ui/sheet/sheet.svelte";
+    import SheetContent from "#lib/components/ui/sheet/sheet-content.svelte";
+    import SheetTrigger from "#lib/components/ui/sheet/sheet-trigger.svelte";
+    import SheetOverlay from "#lib/components/ui/sheet/sheet-overlay.svelte";
+    import { cn } from "#lib/utils.js";
     import { onMount } from "svelte";
     import NavItem from "./item.svelte";
     let isShow = $state(false);

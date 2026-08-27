@@ -8,16 +8,16 @@
     TableBody,
     TableRow,
     TableCell,
-  } from "$lib/components/ui/table";
+  } from "#lib/components/ui/table/index.js";
 
   const block = $props();
   const { id, order, layoutStyle, componentAttr, style, items, ...rest } =
     block;
   // const { componentType, layoutStyle } = block;
 
-  import { cn } from "$lib/utils";
+  import { cn } from "#lib/utils.js";
   import { headerIdResolver } from "./common";
-    import BlockTable from "$lib/components/post-content-layout/block/table.svelte";
+    import BlockTable from "#lib/components/post-content-layout/block/table.svelte";
 //   import { onMount } from "svelte";
 
   //   // id={headerIdResolver(componentType, id)}

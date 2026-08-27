@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { TableSchema } from "$generateor/content_block";
-  import { cn } from "$lib/utils";
+  import { cn } from "#lib/utils.js";
 
   const { tableSchema, name }: { tableSchema: TableSchema; name?: string } = $props();
 

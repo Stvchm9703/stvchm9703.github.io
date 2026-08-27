@@ -1,5 +1,5 @@
 <script>
-    import { cn } from "$lib/utils";
+    import { cn } from "#lib/utils.js";
     const { class: className, children, title, serie, url, ...restProps } = $props();
 
 </script>

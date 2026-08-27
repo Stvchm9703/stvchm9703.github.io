@@ -1,5 +1,5 @@
 import { isArrayLike, isEmpty } from "lodash-es";
-// import { pathResolver as pr } from "$lib/utils";
+// import { pathResolver as pr } from "#lib/utils.js";
 import type { Mark, ComponentStyle } from "$generateor/content_block";
 
 /** Internal mark type that tolerates legacy numeric values from older JSON. */

@@ -4,7 +4,7 @@
         CardContent,
         CardTitle,
         CardDescription,
-    } from "$lib/components/ui/card";
+    } from "#lib/components/ui/card/index.js";
     // import type { ContentBlock } from "$generateor/content_block";
     import { resolveMarks, resolveStyle, headerIdResolver } from "./common";
 

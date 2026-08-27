@@ -6,7 +6,7 @@ import type { TransitionConfig } from "svelte/transition";
 import { twMerge } from "tailwind-merge";
 import { error } from "@sveltejs/kit";
 import { persisted } from "svelte-persisted-store";
-import type { DocResolver } from "$lib/types/docs.js";
+import type { DocResolver } from "#lib/types/docs.js";
 import { isEmpty } from "lodash-es";
 
 // export const cn = (inputs) => {
