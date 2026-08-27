@@ -3,7 +3,7 @@ import { resolveMetaTags } from "#lib/metas/index.js";
 import type { MetaTagsProps, Twitter, OpenGraph } from "svelte-meta-tags";
 
 import { BASE } from "$app/env/private";
-import { pathResolver } from "$generateor/common";
+import { pathResolver } from "#lib/utils";
 import { kebabCase } from "lodash-es";
 import { error } from "@sveltejs/kit";
 

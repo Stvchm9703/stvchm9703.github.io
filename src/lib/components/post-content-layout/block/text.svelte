@@ -45,7 +45,7 @@
 
   // Narrow to TextComponentAttr — this component is only mounted for Text blocks
   const textAttr = $derived(
-    componentAttr.componentType === "Text"
+    componentAttr?.componentType === "Text"
       ? (componentAttr as TextComponentAttr)
       : null
   );

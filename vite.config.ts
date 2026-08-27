@@ -7,6 +7,7 @@ import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 
 import { svelte_client_components as clientComponents } from "svelte-client-components";
 
+import { fileURLToPath } from "node:url";
 // import { resolve } from "path";
 import { sveltekit } from "@sveltejs/kit/vite";
 // import unocss from '@unocss/svelte-scoped/vite';
@@ -46,6 +47,16 @@ export default defineConfig(async ({ mode }) => {
         },
       }),
       devtoolsJson(),
+
+      unocss({
+        // configOrPath: 'uno.config.ts',
+        // mode: 'dist-chunk',
+        // injectReset: "@unocss/reset/tailwind.css",
+        // extractors: [extractorSvelte()],
+        configFile: "uno.config.ts",
+      }),
+
+
       sveltekit({
         // Consult https://github.com/sveltejs/svelte-preprocess
         // for more information about preprocessors
@@ -64,40 +75,29 @@ export default defineConfig(async ({ mode }) => {
         }),
 
         prerender: {
-          // default: true,
-          handleHttpError: "ignore",
-          handleMissingId: "ignore",
-          handleEntryGeneratorMismatch: "ignore",
-          crawl: true
+          // "*" = prerender every route that has no required params; routes with
+          // params supply their own `entries` generator. This is the "prerender
+          // everything" switch.
+          entries: ["*"],
+          crawl: true,
+          // Report every page that fails to prerender, but stay quiet about CMS
+          // asset files (served by miniserve, not part of the built site).
+          // Throw instead of warn here to make a failed page break the build.
+          handleHttpError: ({ path, referrer, message }) => {
+            if (path.startsWith("/blog/assets/")) return;
+            console.warn(
+              `[prerender] ${message}${referrer ? ` (from ${referrer})` : ""}`
+            );
+          },
+          handleMissingId: "warn",
+          handleEntryGeneratorMismatch: "warn"
         },
         // files: {
         //   hooks: "src/hooks",
         // },
-        alias: {
-          $lib: "src/lib",
-          "$lib/*": "src/lib/*",
-          $assets: "src/assets",
-          "$assets/*": "src/assets/*",
-          $type: "src/types",
-          "$type/*": "src/types/*",
-          $types: "src/types",
-          "$types/*": "src/types/*",
-          $components: "src/lib/components",
-          "$components/*": "src/lib/components/*",
-          $generateor: "src/types",
-          "$generateor/*": "src/types/*"
-        },
         paths: {
           base: process.argv.includes("dev") ? "" : process.env.BASE_PATH
         }
-      }),
-
-      unocss({
-        // configOrPath: 'uno.config.ts',
-        // mode: 'dist-chunk',
-        // injectReset: "@unocss/reset/tailwind.css",
-        extractors: [extractorSvelte()],
-        configFile: "uno.config.ts",
       }),
       process.env.NODE_ENV === "production"
         ? stripComments({ type: "none", enforce: "post" })
@@ -107,7 +107,27 @@ export default defineConfig(async ({ mode }) => {
     // visualizer({ open: true, filename: "bundle-visualization.html" }),
     optimizeDeps: {},
     // include: ["pixi.js"],
+    resolve: {
+      alias: {
+        $assets: fileURLToPath(new URL("./src/assets", import.meta.url)),
+        $type: fileURLToPath(new URL("./src/types", import.meta.url)),
+        $types: fileURLToPath(new URL("./src/types", import.meta.url)),
+        $components: fileURLToPath(new URL("./src/lib/components", import.meta.url)),
+        $generateor: fileURLToPath(new URL("./src/types", import.meta.url)),
+      },
+    },
     build: {
+      // REQUIRED for UnoCSS to emit any CSS. @unocss/vite caches Vite's internal
+      // `vite:css-post` plugin in a Map keyed by the resolved `build.outDir`,
+      // then looks it up at renderChunk time using rollup's `options.dir`.
+      // SvelteKit emits to .svelte-kit/output/{client,server}, but leaves
+      // build.outDir at Vite's default "dist" — so the lookup missed and UnoCSS
+      // silently skipped injection, shipping its raw `#--unocss--` placeholder
+      // and ZERO utility classes. Pointing outDir at the client dir makes the
+      // keys line up. (The server pass still warns; harmless, its CSS is not
+      // shipped.) Symptom if this is removed: site renders unstyled and
+      // build/app/immutable/assets/__uno*.css is ~48 bytes.
+      outDir: ".svelte-kit/output/client",
       cssMinify: "lightningcss",
       minify: "terser",
       terserOptions: {

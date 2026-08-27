@@ -18,7 +18,7 @@
 
   // Narrow to LayoutComponentAttr — this component is only mounted for Table/Layout blocks
   const layoutAttr = $derived(
-    (componentAttr.componentType === "Table" || componentAttr.componentType === "Layout" || componentAttr.componentType === undefined)
+    (componentAttr?.componentType === "Table" || componentAttr?.componentType === "Layout" || componentAttr?.componentType === undefined)
       ? (componentAttr as LayoutComponentAttr)
       : null
   );

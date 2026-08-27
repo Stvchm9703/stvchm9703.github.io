@@ -76,7 +76,7 @@
 
     // Narrow to TextComponentAttr — code blocks are Text blocks with style=Code
     const textAttr = $derived(
-        componentAttr.componentType === "Text"
+        componentAttr?.componentType === "Text"
             ? (componentAttr as TextComponentAttr)
             : null
     );

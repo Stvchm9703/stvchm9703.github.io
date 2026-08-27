@@ -12,7 +12,9 @@ const colorKey = Object.keys(colors);
 import transformerVariantGroup from "@unocss/transformer-variant-group";
 import { presetFluid } from "unocss-preset-fluid";
 import transformerDirectives from "@unocss/transformer-directives";
-import presetIcons from "@unocss/preset-icons/browser";
+// Node entry (not /browser): resolves @iconify-json/* from node_modules at
+// build time, so icons are baked into the prerendered CSS with no CDN fetch.
+import presetIcons from "@unocss/preset-icons";
 import { presetScrollbar } from "unocss-preset-scrollbar";
 import { presetAnimations } from "unocss-preset-animations";
 
@@ -21,21 +23,17 @@ import { flatten } from "lodash-es";
 export default defineConfig({
   outputToCssLayers: true,
   content: {
+    // Modules seen by Vite's transform pipeline. One glob covering all of src/
+    // instead of per-directory globs, which previously missed src/lib/islands,
+    // /hooks, /stores and /metas.
     pipeline: {
-      include: [
-        // the default
-        // /\.(vue|svelte|[jt]sx|mdx?|astro|elm|php|phtml|html)($|\?)/,
-        // include js/ts files
-        "src/lib/*.{js,ts,svelte}",
-        "src/lib/styles/*.{ts,css}",
-        "src/lib/components/**/*.{js,ts,svelte}",
-        "src/routes/**/*.{js,ts,svelte}",
-        // "node_modules/@selemondev/svelte-marquee/dist/*.svelte",
-      ],
-      // exclude files
+      include: ["src/**/*.{js,ts,svelte}"],
       // exclude: []
     },
-    // filesystem: ["src/**/*.{html,js,ts,jsx,tsx,vue,svelte,astro,css}"],
+    // Build-time safety net for prerendering: scan every source file on disk,
+    // so a component that is lazily imported or tree-shaken out of a given
+    // build pass still contributes its classes to the prerendered CSS.
+    filesystem: ["src/**/*.{js,ts,svelte,css}"],
   },
 
   shortcuts: [

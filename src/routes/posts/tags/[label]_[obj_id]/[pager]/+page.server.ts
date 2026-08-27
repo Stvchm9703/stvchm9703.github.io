@@ -4,7 +4,7 @@ import type { MetaTagsProps, Twitter, OpenGraph } from "svelte-meta-tags";
 
 import { BASE } from "$app/env/private";
 import { pathResolver } from "#lib/utils.js";
-import { error } from "@sveltejs/kit";
+import { error, redirect } from "@sveltejs/kit";
 import { kebabCase } from "lodash-es";
 
 export const prerender = true;

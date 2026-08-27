@@ -18,7 +18,7 @@
 
   // Narrow to FileComponentAttr — this component is only mounted for File blocks
   const fileAttr = $derived(
-    componentAttr.componentType === "File"
+    componentAttr?.componentType === "File"
       ? (componentAttr as FileComponentAttr)
       : null
   );

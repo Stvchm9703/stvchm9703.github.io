@@ -18,7 +18,7 @@
 
   // Narrow to LatexComponentAttr — this component is only mounted for Latex blocks
   const latexAttr = $derived(
-    componentAttr.componentType === "Latex"
+    componentAttr?.componentType === "Latex"
       ? (componentAttr as LatexComponentAttr)
       : null
   );
